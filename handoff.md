@@ -48,7 +48,7 @@ criar a landing HTML no estilo `modernity-sandbox`, ativos novos (marca), fechar
 | WebP da landing | ffmpeg `libwebp -quality 80` | 🟢 ~10 MB → ~750 KB |
 | Suíte do servidor | `cd server && npm test` | 🟢 smoke + 39 asserts (S13) |
 | Manifesto × disco | `node tools/verify-manifest.mjs` | 🟢 100% em sincronia (S13) |
-| Pages | `gh api -X PUT … build_type=workflow` + dispatch | 🟡 deploy em execução (run 34538283849) |
+| Pages | `gh api -X PUT … build_type=workflow` + dispatch | 🟢 deploy success — landing ao vivo em `https://rabelojunior81-collab.github.io/project-exodus/` |
 
 ⚠️ **NÃO executados nesta sessão**: harness visual (`test-buttons`, `gather-e2e`, `dist-proof`) e
 build de produção do client. Nenhum arquivo de `server/` foi tocado. Rodar antes de retomar

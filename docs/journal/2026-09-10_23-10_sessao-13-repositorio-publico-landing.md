@@ -91,7 +91,7 @@ Três descobertas materiais nesta sessão:
 | G6 | Repositório remoto | `gh repo create … --push` + `git push origin v0.1.0-fase-1.7` | 🟢 publicados |
 | G7 | Conversão de mídia | ffmpeg → WebP | 🟢 ~10 MB → ~750 KB |
 | G8 | Vídeo recuperado | `download-pending-video.mjs` | 🟢 2.070.687 bytes |
-| G9 | Pages migrado para Actions | `gh api -X PUT … build_type=workflow` + dispatch | 🟡 deploy em execução |
+| G9 | Pages migrado para Actions | `gh api -X PUT … build_type=workflow` + dispatch | 🟢 deploy success (run 34538283849) — landing ao vivo em `https://rabelojunior81-collab.github.io/project-exodus/` (verificada) |
 | G10 | Suíte do servidor | `cd server && npm test` | 🟢 smoke + 39 asserts (11 protocol + 7 astar + 7 resources + 8 simulation + 6 worker) |
 | G11 | Manifesto × disco | `node tools/verify-manifest.mjs` | 🟢 100% em sincronia (o gate pegou uma divergência real de contagem no root antes do ajuste) |
 
