@@ -30,10 +30,11 @@
   96 kbps previsto na Fase 1.11.4. Ainda **não consumidos** pelo cliente (não existe `playMusic`;
   o bus `music` está criado e órfão). Durações reais: 61,07 s / 62,75 s / 58,49 s — o
   "stinger de combate" foi pedido com 10 s e voltou com 58,49 s; cortar na 1.11.4.
-- **Vídeo**: Lote 3 pendente. `veo-3.1-generate-preview` retornou 404 na API `v1beta`; o caminho
-  `interactions`/`output_video` do `@google/genai` 2.21.0 existe e está em validação
-  (`tools/studio-gemini/src/generators/video-omni-pilot.ts`). Fallback registrado: transições
-  Ken-Burns sobre retratos/screenshots.
+- **Vídeo** (`video/era-1-transition.mp4`): gerado por `gemini-omni-flash-preview` em 2026-09-10
+  (1280×720, 8 s, H.264 + AAC 128 kbps). O piloto salvou o metadata JSON no lugar do MP4; os bytes
+  foram recuperados da Files API antes do expiry (2026-09-12 06:33 UTC) na Sessão 13 —
+  script em `tools/studio-gemini/scripts/download-pending-video.mjs`. Usado mudo na landing
+  (`landing/assets/hero.mp4`) e reservado para a transição de era da Fase 4.
 
 ## 4. Ícones e Interface
 

@@ -15,8 +15,9 @@
 | `models/` | 9 | 7.812 KB | GLTF |
 | `music/` | 3 | 4.312 KB | MP3 192 kbps — **não consumidos** (ALTO-05) |
 | `portraits/` | 33 | 4.012 KB | 17 WebP + 12 thumbs + 4 JPG legados (fallback) |
+| `video/` | 1 | 2.022 KB | `era-1-transition.mp4` — Lote 3 recuperado na S13 |
 | raiz | 1 | 1 KB | `favicon.svg` |
-| **Total** | **75** | **≈ 23.045 KB** | ≈ 22,5 MB (inclui sidecars no peso) |
+| **Total** | **76** | **≈ 25.067 KB** | ≈ 24,5 MB (inclui sidecars no peso) |
 
 > Histórico: antes da S13 eram 78 publicados / 23.080 KB — os +3 eram os `.ogg` órfãos,
 > agora em `docs/archived-assets/ogg-orphans/`.
@@ -85,10 +86,14 @@ Masters PCM em `tools/studio-gemini/masters/audio/`.
 
 `lyria-3.5`, 192 kbps stereo 44,1 kHz. `audio.ts` não tem `playMusic` (ALTO-05).
 
-### 2.6 `video/` — pendente (Lote 3)
+### 2.6 `video/` — 1 MP4 (Lote 3 recuperado na S13)
 
-Pasta inexistente. Caminho de geração em validação (`interactions`/`output_video`);
-fallback Ken-Burns já implementado na landing (S13).
+`era-1-transition.mp4` (2,07 MB, 1280×720, 8 s, 24 fps, H.264) por `gemini-omni-flash-preview`.
+Gerado em 10/09 03:33 e **recuperado da Files API** antes do expiry (12/09 06:33 UTC): o piloto
+salvou o metadata JSON no lugar do MP4; a recuperação usa
+`tools/studio-gemini/scripts/download-pending-video.mjs`. Tem trilha AAC embutida (128 kbps)
+apesar do prompt "muted" — o vídeo roda mudo na landing (`hero.mp4`) e fica pronto para a
+transição de era da Fase 4.
 
 ### 2.7 `icons/` e `lore/`
 

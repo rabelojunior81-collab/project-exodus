@@ -38,6 +38,11 @@
       "pillar3.title": "Feito para a Tailnet",
       "pillar3.body": "Partidas LAN/Tailscale com servidor autoritativo local. Sem cloud, sem matchmaking, sem telemetria — os seus dados não saem da sua rede.",
 
+      "gallery.harvest": "Mineração viva",
+      "gallery.minimap": "Minimapa com névoa",
+      "gallery.mobile": "HUD mobile",
+      "gallery.base": "Base e radar",
+
       "radio.label": "Echo-7 · Ano 47 P.C.",
       "radio.title": "A primeira <em>transmissão</em>",
       "radio.lead": "Cada era abre com uma crônica de rádio narrada em PT-BR. Ligue o receptor.",
@@ -136,6 +141,11 @@
       "pillar2.body": "Fixed 50 ms tick, seeded RNG and custom A*: same seed with the same commands produces exactly the same result — proven by automated test.",
       "pillar3.title": "Built for the Tailnet",
       "pillar3.body": "LAN/Tailscale matches with a local authoritative server. No cloud, no matchmaking, no telemetry — your data never leaves your network.",
+
+      "gallery.harvest": "Living mining",
+      "gallery.minimap": "Fog-covered minimap",
+      "gallery.mobile": "Mobile HUD",
+      "gallery.base": "Base and radar",
 
       "radio.label": "Echo-7 · Year 47 PC",
       "radio.title": "The first <em>transmission</em>",

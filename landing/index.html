@@ -12,7 +12,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Project Exodus — RTS pós-apocalíptico de navegador" />
 <meta property="og:description" content="O colapso foi o começo. Simulação determinística. Multiplayer LAN/Tailscale. Open source MIT." />
-<meta property="og:image" content="https://rabelojunior81-collab.github.io/project-exodus/assets/shots/01-overview.png" />
+<meta property="og:image" content="https://rabelojunior81-collab.github.io/project-exodus/assets/hero-poster.jpg" />
 <meta property="og:locale" content="pt_BR" />
 <meta property="og:locale:alternate" content="en_US" />
 
@@ -250,6 +250,18 @@
   .card p{color:var(--cream-dim);font-size:.9rem;line-height:1.65;flex:1}
   .card__cta{margin-top:1rem}
 
+  .gallery{display:grid;gap:1rem;margin-top:2.75rem}
+  @media (min-width:700px){.gallery{grid-template-columns:repeat(2,1fr)}}
+  @media (min-width:1080px){.gallery{grid-template-columns:repeat(4,1fr)}}
+  .gallery figure{border:1px solid var(--luz-lado);border-radius:.75rem;overflow:hidden;
+    background:var(--brilho-vidro),var(--vidro);backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);box-shadow:var(--sombra-1),inset 0 1px 0 var(--luz-topo)}
+  .gallery img{width:100%;aspect-ratio:16/10;object-fit:cover;transition:transform 1s var(--ease)}
+  .gallery figure:hover img{transform:scale(1.04)}
+  .gallery figcaption{padding:.65rem .85rem;font-family:var(--font-mono);font-size:.62rem;
+    letter-spacing:.2em;text-transform:uppercase;color:var(--cream-mute);
+    border-top:1px solid var(--luz-lado)}
+
   .timeline{display:grid;gap:1px;background:var(--luz-lado);border:1px solid var(--luz-lado);
     border-radius:1rem;overflow:hidden;margin-top:3rem;
     box-shadow:var(--sombra-2),inset 0 1px 0 var(--luz-topo)}
@@ -336,11 +348,11 @@
 <body id="topo">
 
   <div class="video-stage" aria-hidden="true">
-    <div class="video-stage__layer" style="background-image:url('assets/shots/01-overview.png')"></div>
-    <div class="video-stage__layer" style="background-image:url('assets/shots/fog-a1-boot.png')"></div>
-    <div class="video-stage__layer" style="background-image:url('assets/shots/17c-b1-tank-turning.png')"></div>
+    <div class="video-stage__layer" style="background-image:url('assets/shots/01-overview.webp')"></div>
+    <div class="video-stage__layer" style="background-image:url('assets/shots/fog-a1-boot.webp')"></div>
+    <div class="video-stage__layer" style="background-image:url('assets/shots/17c-b1-tank-turning.webp')"></div>
     <video id="heroVideo" class="video-stage__media" autoplay muted loop playsinline preload="none"
-           poster="assets/shots/01-overview.png">
+           poster="assets/hero-poster.jpg">
       <source src="assets/hero.mp4" type="video/mp4" />
     </video>
     <div class="video-stage__veil"></div>
@@ -447,12 +459,30 @@
             <span class="tech-tag"><b>A*</b> determinístico</span>
             <span class="tech-tag"><b>MIT</b> open source</span>
           </div>
+          <div class="gallery reveal">
+            <figure>
+              <img src="assets/shots/17d-harvest-fx.webp" alt="" loading="lazy" />
+              <figcaption data-i18n="gallery.harvest">Mineração viva</figcaption>
+            </figure>
+            <figure>
+              <img src="assets/shots/fog-c-minimap.webp" alt="" loading="lazy" />
+              <figcaption data-i18n="gallery.minimap">Minimapa com névoa</figcaption>
+            </figure>
+            <figure>
+              <img src="assets/shots/07-mobile-game.webp" alt="" loading="lazy" />
+              <figcaption data-i18n="gallery.mobile">HUD mobile</figcaption>
+            </figure>
+            <figure>
+              <img src="assets/shots/17c-c-cc-radar.webp" alt="" loading="lazy" />
+              <figcaption data-i18n="gallery.base">Base e radar</figcaption>
+            </figure>
+          </div>
         </section>
 
         <section class="section" id="radio">
           <div class="split">
             <div class="split__media reveal">
-              <img src="assets/shots/fog-a1-boot.png" alt="Base no deserto com névoa de exploração cobrindo o mapa" loading="lazy" />
+              <img src="assets/shots/fog-a1-boot.webp" alt="Base no deserto com névoa de exploração cobrindo o mapa" loading="lazy" />
             </div>
             <div>
               <p class="section-label reveal" data-i18n="radio.label">Echo-7 · Ano 47 P.C.</p>

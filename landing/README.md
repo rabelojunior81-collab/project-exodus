@@ -41,16 +41,15 @@ Se o domínio mudar (ex.: `exodus.rabelus.com`), atualize `CNAME` (criar na past
 
 ## Vídeo do herói
 
-O elemento `<video>` já existe e aponta para `assets/hero.mp4`. Enquanto o arquivo não
-existir, o palco usa crossfade Ken Burns de três screenshots — sem custo e sem quebrar.
-Quando o vídeo do Lote 3 for gerado (pipeline Gemini), basta colocá-lo aqui com pôster
-`assets/shots/01-overview.png`.
+O `<video>` aponta para `assets/hero.mp4` — **presente desde a Sessão 13** (Lote 3 recuperado
+da Files API do Gemini: 1280×720, 8 s, mudo na página). O pôster é `assets/hero-poster.jpg`.
+Se o vídeo faltar, o palco cai de volta no crossfade Ken Burns dos shots WebP — sem quebrar.
 
-## Otimização pendente
+## Otimização
 
-As imagens em `assets/shots/` são PNGs do harness (1–2,3 MB). Antes de divulgar a URL
-publicamente, converter para WebP (~-70 %) com a ferramenta de assets do monorepo.
-Screenshots leves (`07-mobile-game.png`, `fog-c-minimap.png`) já estão no pacote.
+Screenshots já convertidos para **WebP** (~10 MB → ~750 KB). O vídeo tem 2,07 MB (1920→1280
+não necessário: fonte é 720p). Re-encode do MP4 para ~1 MB e do áudio da página (MP3 192 →
+96 kbps) são candidatos da fase 1.11.4.
 
 ---
 

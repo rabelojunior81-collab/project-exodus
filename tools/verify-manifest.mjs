@@ -25,6 +25,7 @@ const EXPECTED = {
   'models': 9,
   'music': 3,
   'portraits': 33,
+  'video': 1,
 };
 const EXPECTED_ROOT_FILES = 1; // favicon.svg
 const FORBIDDEN_IN_AUDIO = /\.ogg$/;
