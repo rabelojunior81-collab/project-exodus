@@ -156,18 +156,18 @@
 *Objetivo: fechar os achados críticos e altos da auditoria holística antes de qualquer feature nova. Diretiva do usuário Sessão 12: exploração e auditoria holística antes de retomar o desenvolvimento.*
 *Fonte: `docs/journal/2026-09-10_12-30_sessao-12-auditoria-holistica.md` (14 achados, 11 gates re-executados, matriz de remediação priorizada).*
 
-- [ ] **Sub-fase 1.11.1 — CRIT-01: Controle de versão** ⚪
-  - `git init`, commit baseline de todo o projeto, tag `v0.1.0-fase-1.7`.
-  - Decidir versionamento de `tools/studio-gemini/masters/` (31 MB) — recomendação: versionar.
-  - Gate: `git log` com 1 commit; `git status --porcelain | grep -c '\.env'` = **0**; `git ls-files | wc -l` coerente com o inventário.
-- [ ] **Sub-fase 1.11.2 — CRIT-02: Carimbo de build honesto** ⚪
-  - `define: { __BUILD_STAMP__ }` no `vite.config.ts`; `main.ts:566-572` passa a consumir a constante.
-  - Gate **negativo** (o que faltou na 1.9.4): build → anotar carimbo → esperar 2 min → recarregar → o carimbo **não pode** mudar.
-- [ ] **Sub-fase 1.11.3 — ALTO-04: Manifestos reconciliados com o disco** ⚪
-  - `MANIFEST.md`: seção `music/` real, totais corrigidos (78 arquivos / 22,21 MB), coluna "em uso × reserva Fase N".
-  - `ATTRIBUTION.md`: substituir o parágrafo do 404 de `lyria-002` pela proveniência real (`lyria-3.5`, prompts dos sidecars).
-  - Remover os 3 `.ogg` residuais não referenciados.
-  - Gate: script de verificação que compara MANIFEST × disco e falha em divergência de contagem/peso.
+- [x] **Sub-fase 1.11.1 — CRIT-01: Controle de versão** 🟢 (S13)
+  - Repositório público `project-exodus`; baseline `924c111` (321 arquivos) + tag `v0.1.0-fase-1.7` publicados.
+  - `masters/` (31 MB) **versionado** (decisão D-13.2).
+  - Gate cumprido: `.env` fora do rastreamento (0), `node_modules` fora (0), 321 arquivos rastreados.
+- [~] **Sub-fase 1.11.2 — CRIT-02: Carimbo de build honesto** 🟡 (S13: código pronto)
+  - ✅ `define: { __BUILD_STAMP__ }` no `vite.config.ts`; `main.ts` consome a constante (tsc 0 na S13).
+  - ⚪ Gate **negativo** pendente: build → anotar carimbo → esperar 2 min → recarregar → o carimbo **não pode** mudar.
+- [x] **Sub-fase 1.11.3 — ALTO-04: Manifestos reconciliados com o disco** 🟢 (S13)
+  - `MANIFEST.md` reconstruído do disco: 76 publicados / ≈ 25.067 KB, seção `video/` e status "em uso × reserva".
+  - `ATTRIBUTION.md`: proveniência real da música (`lyria-3.5`) e do vídeo recuperado.
+  - 3 `.ogg` órfãos + sidecars arquivados em `docs/archived-assets/ogg-orphans/`.
+  - Gate criado: `tools/verify-manifest.mjs` (MANIFEST × disco; execução em CI pendente).
 - [ ] **Sub-fase 1.11.4 — ALTO-05: Fechar o áudio da 1.7E de verdade** ⚪
   - Cortar `combat-percussion-stinger.mp3` para 8–10 s (ffmpeg-static já é devDependency) ou re-gerar.
   - Re-encodar as 3 faixas para 96 kbps mono; atualizar sidecars e MANIFEST.
@@ -178,16 +178,17 @@
 - [ ] **Sub-fase 1.11.5 — Higiene de build e tipos** ⚪
   - MED-08.1 `rm -rf tools/studio-gemini/dist` + `prebuild`; MED-08.2 `server/tests/` no typecheck; MED-07 os 3 tsconfigs estendendo o base com rigor unificado; MED-06 `__rts` sob flag de ambiente; BAIXO-10.5 duplicata de `setPendingOrder`.
   - Gate: `tsc --noEmit` 0 nos 3 workspaces **com** o rigor novo; `test-buttons` + `gather-e2e` + `dist-proof` verdes.
-- [ ] **Sub-fase 1.11.6 — Lote 3 (vídeo): diagnóstico correto antes do conserto** ⚪
-  - Remover o `(ai as any)` de `video-omni-pilot.ts:32` e deixar o `tsc` apontar o client correto e o shape real de `response_format`. Só então tratar o download.
-  - Registrar `generate:video-omni` no `package.json` do studio.
-  - Gate: `client/public/assets/video/era-1-transition.mp4` em disco com sidecar, ou **decisão documentada de abandonar** o Lote 3 em favor do fallback Ken-Burns já registrado no `ATTRIBUTION.md`.
+- [~] **Sub-fase 1.11.6 — Lote 3 (vídeo)** 🟡 (S13: era 1 entregue)
+  - ✅ `client/public/assets/video/era-1-transition.mp4` em disco com sidecar — recuperado da Files API antes do expiry (S13); rodando mudo na landing.
+  - ✅ Script de recuperação registrado (`npm run video:download` no studio).
+  - ⚪ Pendente: remover o `(ai as any)` de `video-omni-pilot.ts:32` e gerar as vinhetas das eras 2–4.
+  - Gate: cumprido para a era 1; demais eras ou decisão documentada de manter só a era 1.
 - **Gate de Aprovação da Fase 1.11**:
-  - [ ] Repositório Git com histórico e o baseline etiquetado.
-  - [ ] Carimbo de build provado por teste negativo.
-  - [ ] MANIFEST/ATTRIBUTION batendo com o disco por verificação automatizada.
-  - [ ] Música tocando no gameplay, com peso otimizado.
-  - [ ] `tsc` 0 nos 3 workspaces, 39 asserts, test-buttons 10/10, gather-e2e, dist-proof — todos verdes após as mudanças.
+  - [x] Repositório Git com histórico e o baseline etiquetado. (S13)
+  - [ ] Carimbo de build provado por teste negativo. (código pronto na S13; gate pendente)
+  - [~] MANIFEST/ATTRIBUTION batendo com o disco; verificação automatizada criada (`tools/verify-manifest.mjs`) — execução em CI pendente.
+  - [ ] Música tocando no gameplay, com peso otimizado. (ffmpeg validado na S13)
+  - [ ] `tsc` 0 nos 3 workspaces, 39 asserts, test-buttons 10/10, gather-e2e, dist-proof — todos verdes após as mudanças. (client tsc 0 + 39 asserts do server + `verify-manifest` verdes na S13; harness e dist-proof pendentes)
 
 
 ---
@@ -249,3 +250,8 @@
 - **Harness/Agente**: Claude Code CLI
 - **Modelo LLM**: Claude Opus 5 (1M context)
 - **Timestamp**: 2026-09-10T12:30:00-03:00
+
+*Atualizado por (Sessão 13):*
+- **Harness/Agente**: Kilo CLI
+- **Modelo LLM**: deepseek-v4.1-flash
+- **Timestamp**: 2026-09-10T23:10:00-03:00

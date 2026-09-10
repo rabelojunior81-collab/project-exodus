@@ -1,23 +1,37 @@
 # handoff.md — Transição de Turno Operacional
 
-> **Turno Corrente**: Sessão 12 — Auditoria Holística de Retomada (pré-Fase 2.6)
-> **Última Modificação**: 2026-09-10T12:30:00-03:00
-> **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-10_12-30_sessao-12-auditoria-holistica.md`
+> **Turno Corrente**: Sessão 13 — Repositório Público, README e Landing (concluída)
+> **Última Modificação**: 2026-09-10T23:10:00-03:00
+> **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-10_23-10_sessao-13-repositorio-publico-landing.md`
 
 ---
 
-## 1. O que foi realizado neste turno
+## 1. O que foi realizado neste turno (Sessão 13, 10/09 23:10 BRT)
 
-### Sessão 12 (10/09, 12:30 BRT) — Claude Code CLI · Claude Opus 5 (1M)
+Diretiva do usuário: preparar o repositório público `project-exodus` com README/landing,
+criar a landing HTML no estilo `modernity-sandbox`, ativos novos (marca), fechar os itens
+2 (CRIT-02) e 3 (ALTO-04) e preparar as decisões do spec 02 via `grill-me`.
 
-Diretiva do usuário: *"exploração e auditoria holística do projeto antes de retomarmos o desenvolvimento"*.
-
-1. **Exploração completa**: 421 arquivos fora de `node_modules` mapeados; topologia, LoC por módulo, workspaces, dependências e artefatos de build inventariados.
-2. **Re-execução real de 11 gates** (não leitura de registro anterior): tsc nos 3 workspaces, 39 asserts do servidor, `test-buttons` 10/10, `gather-e2e`, `dist-proof`, varredura de vazamento de segredo, sincronia `public/`↔`dist/`, paridade de coordenadas cliente↔servidor, determinismo dos props. **Todos verdes.**
-3. **Auditoria cruzada documento × disco × execução**, que produziu **14 achados** com evidência reproduzível: 2 críticos, 4 altos, 6 médios, 7 baixos (alguns agrupados).
-4. **Governança documentada** conforme `AGENTS.md`: journal assinado, `estate.md` reindexado, `roadmap.md` com fase nova e status corrigidos, spec da 2.6 criada.
-
-**Nenhum arquivo de código-fonte foi alterado.** A auditoria é read-only por desenho — diagnóstico e remediação separados, para que a remediação seja revisada como bloco coeso.
+1. **Repositório público criado e publicado**: `github.com/rabelojunior81-collab/project-exodus`.
+   Baseline `924c111` (321 arquivos), tag `v0.1.0-fase-1.7`. `.env` e `node_modules` fora do
+   rastreamento (verificado). `masters/` (31 MB) versionado (D-13.2).
+2. **Open Source completo**: `LICENSE` (MIT no código), `LICENSES/ASSETS.md` (assets separados),
+   `CONTRIBUTING`, `CODE_OF_CONDUCT`, `SECURITY`, `CHANGELOG`, templates de issue/PR.
+3. **README bilingue** (`README.md` PT-BR + `README.en.md`) com badges, screenshots, áudio,
+   roadmap e contatos (rabelo.work@gmail.com · rabelus.com).
+4. **Landing page** em `landing/` (arquivo único, estilo modernity-sandbox, i18n PT/EN,
+   players de áudio, eras/facções/roadmap) + marca e banner SVG próprios
+   (`docs/media/mark-exodus.svg`, `banner-exodus.svg`). Deploy por GitHub Actions;
+   **Pages estava em modo legacy e foi migrado para Actions**.
+5. **Vídeo do Lote 3 recuperado**: o piloto omni salvara o **metadata JSON** no lugar do MP4;
+   os bytes (2.070.687 B, 1280×720, 8 s) foram baixados da Files API antes do expiry
+   (12/09 06:33 UTC) com o novo script `tools/studio-gemini/scripts/download-pending-video.mjs`.
+   Integrado mudo à landing (`hero.mp4` + pôster) e ao jogo (`client/public/assets/video/`).
+6. **ALTO-04 fechado**: `MANIFEST.md` reconciliado (76 publicados / ≈ 25.067 KB), `ATTRIBUTION.md`
+   corrigido, 3 `.ogg` órfãos arquivados, gate `tools/verify-manifest.mjs` criado.
+7. **CRIT-02 corrigido no código**: `__BUILD_STAMP__` via `define` do Vite; `main.ts` consome a
+   constante. Typecheck do client = 0 erros. **Gate negativo pendente.**
+8. **Skill `grill-me` instalada** em `.kilo/skill/grill-me/SKILL.md` para conduzir as decisões.
 
 ---
 
@@ -25,49 +39,52 @@ Diretiva do usuário: *"exploração e auditoria holística do projeto antes de 
 
 | Gate | Comando | Resultado |
 | :--- | :--- | :--- |
-| tsc client | `cd client && npx tsc --noEmit` | 🟢 0 erros |
-| tsc server | `cd server && npx tsc --noEmit` | 🟢 0 erros |
-| tsc studio | `cd tools/studio-gemini && npx tsc --noEmit` | 🟢 0 erros |
-| Suíte do servidor | `cd server && npm test` | 🟢 39 asserts PASS |
-| Botões funcionais | `node tools/visual-check/test-buttons.mjs` | 🟢 10/10 PASS · 0 pageerrors |
-| Coleta e2e | (embutido no anterior) | 🟢 PASS · sucata → 560 |
-| Prova de produção | `node tools/visual-check/dist-proof.mjs` | 🟢 11 entidades · 8 nós · 0 pageerrors |
-| Segredo em artefato | `grep -rlF "$GEMINI_API_KEY"` | 🟢 zero fora de `.env` |
+| tsc client (pós-CRIT-02) | `node_modules/.bin/tsc --noEmit -p client/tsconfig.json` | 🟢 0 erros |
+| .env fora do repo | `git ls-files .env` | 🟢 vazio |
+| node_modules fora do repo | `git ls-files node_modules \| wc -l` | 🟢 0 |
+| Baseline | `git ls-files \| wc -l` | 🟢 321 arquivos |
+| Push + tag | `git push` + `git push origin v0.1.0-fase-1.7` | 🟢 publicados |
+| Vídeo recuperado | `npm run video:download` (studio) | 🟢 2.070.687 bytes |
+| WebP da landing | ffmpeg `libwebp -quality 80` | 🟢 ~10 MB → ~750 KB |
+| Suíte do servidor | `cd server && npm test` | 🟢 smoke + 39 asserts (S13) |
+| Manifesto × disco | `node tools/verify-manifest.mjs` | 🟢 100% em sincronia (S13) |
+| Pages | `gh api -X PUT … build_type=workflow` + dispatch | 🟡 deploy em execução (run 34538283849) |
 
-⚠️ **O carimbo de build exibido pelo `dist-proof` não é confiável** (CRIT-02): mostra a hora do teste, não a do build. Enquanto isso não for corrigido, a única prova de frescor do `dist/` é o `mtime` do arquivo.
-
-⚠️ **"60 FPS estáveis" não foi verificado** e não é verificável pelo harness atual (swiftshader, ~3,4 FPS). Rebaixado a "não medido" no `estate.md` (decisão D-12.5).
+⚠️ **NÃO executados nesta sessão**: harness visual (`test-buttons`, `gather-e2e`, `dist-proof`) e
+build de produção do client. Nenhum arquivo de `server/` foi tocado. Rodar antes de retomar
+qualquer feature (ou criar CI — pendência nº 5).
 
 ---
 
-## 3. Achados — resumo executivo
+## 3. Decisões Tomadas (S13)
 
-> Evidência completa, reprodução e remediação de cada um: `docs/journal/2026-09-10_12-30_sessao-12-auditoria-holistica.md` §3.
-
-| ID | Sev. | Achado |
-| :--- | :--- | :--- |
-| **CRIT-01** | 🔴 | **Não existe repositório Git.** 421 arquivos, ~2 dias de trabalho, sem histórico, rollback ou diff. |
-| **CRIT-02** | 🔴 | **Carimbo de build é placebo.** `document.lastModified` sem header `Last-Modified` → exibe sempre a hora atual. O mecanismo criado na 1.9.4 contra o bug de cache da S6 nunca foi capaz de detectá-lo. |
-| **ALTO-03** | 🟠 | **Fase 2.6 é reconciliação, não integração.** 5 eixos de divergência cliente↔servidor acumulados nas 1.7A–1.7E. |
-| **ALTO-04** | 🟠 | **MANIFEST/ATTRIBUTION contradizem o disco** quanto à música; contadores errados (75/18,02 MB × 78/22,21 MB). |
-| **ALTO-04b** | 🟠 | **`estate.md` §4 estava duas fases atrasado** (nomes pré-rename S10, arquivados listados como ativos). ✅ **corrigido nesta sessão**. |
-| **ALTO-05** | 🟠 | **4,19 MB de música em produção, nunca tocada**; "stinger de 10 s" tem 58,49 s; bitrate 3× o necessário. |
-| MED-06…09 | 🟡 | `__rts` com métodos de cheat em produção · `tsconfig.base.json` morto e servidor menos rigoroso que o client · higiene de build (dist duplicado, tests fora do tsc, órfãos, masters, processos Vite órfãos) · **dívida de SDD** (3 specs / ~16 módulos). |
-| BAIXO-10 | ⚪ | `Math.random` em estado de jogo · client sem teste unitário · harness fora do monorepo · duplicata de `setPendingOrder` · `playEffect('gather'/'deposit')` sempre no oscilador · script de vídeo não registrado. |
+| # | Decisão |
+| :-- | :--- |
+| D-13.1 | Código **MIT** + assets com licenças próprias (`LICENSES/ASSETS.md`) |
+| D-13.2 | `masters/` (31 MB) **versionado** |
+| D-13.3 | Landing publicada por **Actions** a partir de `landing/` |
+| D-13.4 | Vídeo do Lote 3 usado **mudo** na landing |
+| D-13.5 | `.ogg` órfãos **arquivados** (não deletados) |
+| D-13.6 | Commits com identidade `Rabelus Lab <rabelo.work@gmail.com>` via `-c` pontual (config global intacta) |
 
 ---
 
 ## 4. Pendências Críticas para o Próximo Turno
 
-**Ordem obrigatória — não iniciar feature nova antes de 1 e 2:**
+**Ordem sugerida:**
 
-1. **`CRIT-01` — `git init`** (15 min). `git add -A` → commit baseline → tag `v0.1.0-fase-1.7`. Verificar `git status --porcelain | grep -c '\.env'` = 0. Decidir versionamento dos 31 MB de `masters/` (recomendação: versionar).
-2. **`CRIT-02` — Carimbo de build honesto** (15 min). `define: { __BUILD_STAMP__ }` no `vite.config.ts`; `main.ts:566-572` consome a constante. **Gate negativo**: build → anotar → esperar 2 min → recarregar → carimbo não pode mudar.
-3. **`ALTO-04` — Reconciliar MANIFEST + ATTRIBUTION** com o disco (30 min) e remover os 3 `.ogg` residuais.
-4. **`ALTO-05` — Fechar o áudio da 1.7E** (2–3 h): cortar o stinger, re-encodar para 96 kbps mono, implementar `playMusic`/`crossfadeTo`/`stopMusic` sobre o bus `music` já existente, fiar menu/partida/combate. Manter lazy-load.
-5. **`MED-09` / `ALTO-03` — Levar `docs/specs/02-integracao-cliente-servidor.md` de RASCUNHO a APROVADO.** Requer **5 decisões do usuário** (D-2.6-A a D-2.6-E). **Nenhuma linha de código da 2.6 antes disso** (`AGENTS.md` §2.B).
-
-**Rodar os gates padrão após cada alteração**: `npx tsc --noEmit` nos 3 workspaces, `npm test` no server, `test-buttons`, `gather-e2e`, `dist-proof`.
+1. **`D-2.6-A..E` — decisões da Fase 2.6** (bloqueiam a fase inteira; spec 02 em RASCUNHO).
+   Conduzir a sessão `grill-me` (`.kilo/skill/grill-me/SKILL.md`); registrar em
+   `docs/decisions/` e promover o spec a APROVADO. **Nenhuma linha de código da 2.6 antes disso.**
+2. **Gate negativo do CRIT-02**: build → anotar carimbo → esperar 2 min → recarregar →
+   o carimbo não pode mudar.
+3. **Gates de runtime**: `npm test` (server), `test-buttons`, `gather-e2e`, `dist-proof`.
+4. **ALTO-05 / 1.11.4**: cortar o stinger (58 s → 8–10 s), re-encodar música para 96 kbps,
+   implementar `playMusic`/`crossfadeTo`/`stopMusic` e fiar menu/partida/combate.
+   ffmpeg confirmado disponível (`ffmpeg-static`).
+5. **CI**: workflow com tsc ×3 + testes do servidor + `verify-manifest` (hoje só a Pages roda).
+6. **GitHub (config web)**: topics do repositório + social preview (não versionáveis).
+7. **Lote 3 restante (1.11.6)**: eras 2–4 + remover o `as any` do `video-omni-pilot.ts`.
 
 ---
 
@@ -77,35 +94,29 @@ Diretiva do usuário: *"exploração e auditoria holística do projeto antes de 
 | :--- | :--- | :--- |
 | D-2.6-A | Qual tabela de tempos de treino vence — cliente (mais lento, playtestado) ou servidor? | spec 02 §4 |
 | D-2.6-B | Qual modelo de coleta vence — incremental do servidor ou atômico do cliente? (muda a taxa em 1,67×) | spec 02 §4 |
-| D-2.6-C | A física de inércia do blindado migra para o servidor ou vira cosmética? (afeta um gate da Fase 1.5) | spec 02 §4 |
+| D-2.6-C | A física de inércia do blindado migra para o servidor ou vira cosmética? | spec 02 §4 |
 | D-2.6-D | Fog of War vira autoritativo (anti-maphack) ou fica client-side? | spec 02 §4 |
 | D-2.6-E | Predição local no cliente, ou aceitar 1 RTT de input lag? | spec 02 §4 |
-| MED-09 | Retomar SDD de verdade **ou** emendar o `AGENTS.md` para refletir a prática real? | journal S12 §3 |
-| MED-08.4 | Versionar os 31 MB de `masters/` no Git? | journal S12 §3 |
-| MED-08.5 | Encerrar os 2 processos Vite órfãos (5173 há 1d10h, 4173 há 15h)? | journal S12 §3 |
+
+Recomendações do agente (com justificativa) na sessão `grill-me` — ver journal da S12 §4 e
+a apresentação feita no fechamento da S13.
 
 ---
 
-## 6. Contexto de Provider
-
-- **Harness desta sessão**: Claude Code CLI · **Claude Opus 5 (1M context)** — sem limite de quota atingido.
-- **Ollama Cloud (`ollama-cloud/kimi-k3`)**: bloqueado por "session usage limit" desde 10/09 11:48 BRT (conta `firebird81`, plano Pro legado). Pendência da S11 **ainda não resolvida**.
-- **`opencode-go/kimi-k2.7-code`**: alternativa usada nas Sessões 11 e anteriores.
-
----
-
-## 7. Diretivas Permanentes
+## 6. Diretivas Permanentes
 
 - Sempre validar `resolveClientAssets()` após mudar estrutura de diretórios.
 - `npm run build` em todos os workspaces a cada turno de client/assets.
-- MANIFEST/ATTRIBUTION atualizados **junto com** novos assets — e a partir da S12, verificados contra o disco, não de memória.
+- MANIFEST/ATTRIBUTION atualizados **junto com** novos assets — e verificados contra o disco.
 - Áudio e vídeo lazy-load; nunca no boot.
 - Antes de retomar, ler `handoff.md`, `estate.md` e o journal mais recente.
-- **Novo (S12)**: todo achado de auditoria recebe ID estável (`CRIT/ALTO/MED/BAIXO-NN`) e é rastreado no `estate.md` §5 até ser fechado por um gate.
-- **Novo (S12)**: alegação de gate só entra em documento se tiver sido executada no turno. Alegação herdada de sessão anterior deve ser marcada como tal.
+- Alegação de gate só entra em documento se tiver sido executada no turno.
+- **Novo (S13)**: nenhuma decisão de spec com o documento em RASCUNHO; `grill-me` antes de código.
+- **Novo (S13)**: assets gerados por API com URL temporária (Files API) devem ser **baixados
+  no mesmo turno** — expiry de 48 h; verificar `expirationTime` do sidecar.
 
 ---
 *Registro assinado por:*
-- **Harness/Agente**: Claude Code CLI
-- **Modelo LLM**: Claude Opus 5 (1M context)
-- **Timestamp**: 2026-09-10T12:30:00-03:00
+- **Harness/Agente**: Kilo CLI
+- **Modelo LLM**: deepseek-v4.1-flash
+- **Timestamp**: 2026-09-10T23:10:00-03:00

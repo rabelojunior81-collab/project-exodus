@@ -59,7 +59,7 @@ for (const [folder, expected] of Object.entries(EXPECTED)) {
 }
 
 const rootFiles = readdirSync(assets, { withFileTypes: true })
-  .filter((e) => e.isFile() && !e.name.endsWith('.meta.json'))
+  .filter((e) => e.isFile() && !e.name.endsWith('.meta.json') && !e.name.endsWith('.md'))
   .map((e) => e.name);
 if (rootFiles.length !== EXPECTED_ROOT_FILES) {
   errors += 1;

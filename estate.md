@@ -1,8 +1,8 @@
 # estate.md — Estado Vivo do Sistema
 
-> **Última Atualização**: 2026-09-10T12:30:00-03:00  
-> **Status Geral**: Fase 1.7 Expandida "Mundo Vivo" **ENTREGUE PARCIALMENTE** + **Fase 1.11 (Remediação e Hardening) ABERTA** pela auditoria holística da Sessão 12.
-> **Próximo passo obrigatório**: `CRIT-01` (git init) e `CRIT-02` (build stamp) antes de qualquer feature nova. Ver `docs/journal/2026-09-10_12-30_sessao-12-auditoria-holistica.md`.
+> **Última Atualização**: 2026-09-10T23:10:00-03:00  
+> **Status Geral**: Fase 1.11 (Remediação e Hardening) **EM ANDAMENTO** — CRIT-01 fechado (repo público `project-exodus`, baseline `924c111`, tag `v0.1.0-fase-1.7`), CRIT-02 corrigido no código (gate negativo pendente), ALTO-04 fechado (manifestos reconciliados + gate automatizado), vídeo do Lote 3 recuperado antes do expiry e landing publicada via Actions.
+> **Próximo passo obrigatório**: fechar as 5 decisões da Fase 2.6 (`D-2.6-A..E`) com a sessão `grill-me` (skill em `.kilo/skill/grill-me/`). Ver `handoff.md`.
 
 ---
 
@@ -17,13 +17,15 @@ O motor gráfico 3D Three.js do cliente web possui câmera tática isométrica (
 
 **Sessão 12 (Auditoria Holística de Retomada, 10/09 12:30 BRT)**: exploração completa dos 421 arquivos fora de `node_modules` com **re-execução real de todos os gates** (11 gates, todos verdes: tsc×3, 39 asserts do servidor, test-buttons 10/10, gather-e2e, dist-proof 11/8/0, varredura de segredo, sincronia public↔dist, paridade de coords, determinismo dos props). O `handoff.md` da Sessão 11 foi confirmado honesto — nenhuma alegação de gate se mostrou falsa. Em contrapartida, a auditoria encontrou **2 achados críticos** (ausência total de controle de versão; carimbo de build que é placebo e nunca detectou cache), **3 altos** (Fase 2.6 é reconciliação e não integração — 5 eixos de divergência cliente↔servidor; MANIFEST/ATTRIBUTION contradizem o disco quanto à música; 4,19 MB de música em produção nunca tocada, com "stinger" de 58 s) e **9 médios/baixos**. Relatório completo, com evidência reproduzível por achado e matriz de remediação priorizada, em `docs/journal/2026-09-10_12-30_sessao-12-auditoria-holistica.md`. Spec da Fase 2.6 Expandida criada em `docs/specs/02-integracao-cliente-servidor.md` (RASCUNHO, 5 decisões abertas).
 
+**Sessão 13 (Repositório Público, README e Landing, 10/09 23:10 BRT)**: o projeto ganhou controle de versão e presença pública — repositório `project-exodus` (público, MIT no código), baseline de 321 arquivos (`924c111`) e tag `v0.1.0-fase-1.7`. README bilingue (PT-BR/EN) em formato de landing com badges, screenshots e áudio; arquivos de comunidade completos (CONTRIBUTING/COC/SECURITY/CHANGELOG/templates). Landing page própria em `landing/` (estilo modernity-sandbox, PT/EN via `?lang=en`) publicada por GitHub Actions — Pages estava em modo legacy e foi migrado. **Descoberta**: o vídeo do Lote 3 existia na Files API do Gemini (o piloto salvara o metadata JSON no lugar do MP4); recuperado a tempo do expiry (12/09) e integrado mudo à landing (`hero.mp4` + pôster). ffmpeg (`ffmpeg-static`) validado e usado para converter a mídia da landing de PNG a WebP (~10 MB → ~750 KB). CRIT-02 corrigido no código (`__BUILD_STAMP__` via `define` do Vite; gate negativo pendente); ALTO-04 fechado (`MANIFEST` reconciliado ao disco, `ATTRIBUTION` corrigido, 3 `.ogg` órfãos arquivados, gate `tools/verify-manifest.mjs` criado). Skill `grill-me` instalada para conduzir as decisões do spec 02. Ver `docs/journal/2026-09-10_23-10_sessao-13-repositorio-publico-landing.md`.
+
 ---
 
 ## 2. Subsistemas e Status de Maturidade
 
 | Subsistema | Componente | Status | Testes / Gates | Observações |
 | :--- | :--- | :--- | :--- | :--- |
-| **Governança** | Documentos Vivos (AGENTS, estate, handoff, roadmap, journal) | 🟢 Atualizado | Assinaturas por sub-fase | **Sem controle de versão (CRIT-01)** — nada disso é versionável hoje |
+| **Governança** | Documentos Vivos (AGENTS, estate, handoff, roadmap, journal) | 🟢 Atualizado | Assinaturas por sub-fase | **Repositório público `project-exodus`** — CRIT-01 fechado na S13 (baseline `924c111`, tag `v0.1.0-fase-1.7`) |
 | **Specs (SDD)** | `docs/specs/` | 🔴 Dívida | 3 specs / ~16 módulos | `AGENTS.md` §2.B não cumprido desde a Fase 1.5 (MED-09); spec 02 criada na S12 |
 | **Câmera RTS** | Ortográfica (zoom 9–110, alvo segue relevo, bounds ±80) | 🟢 Útil perto/longe | Config validada em código |
 | **Minimap** | Thumbnail do relevo + clique câmera + right-click ordem + pings | 🟢 Funcional | Teste MINIMAP_CLICK 53.5≈54 |
@@ -31,7 +33,7 @@ O motor gráfico 3D Three.js do cliente web possui câmera tática isométrica (
 | **Economia** | 8 veios visuais + COLETAR + FSM entregar + topbar viva | 🟢 Jogável | e2e real sucata 180→190 | Client-side até 2.6 |
 | **Ordens/botões** | Mover/Parar/Patrulha/Reunião/Dispersar/Recrutar/Coletar (7 testes de clique PASS) | 🟢 Funcionais | test-buttons + gather-e2e | Ataque/defesa → Fase 5 |
 | **HUD visual** | Reskin floating glass + anéis finos + build stamp | 🟢 Revisado dev+prod | Shots 15/17 | Mobile intacto |
-| **Build prod** | `client/dist/` atualizado a cada sub-fase | 🟡 Prova OK, **carimbo mente** | 11 entidades, 8 nós, 0 pageerrors | Carimbo de build usa `document.lastModified` → exibe sempre a hora atual (CRIT-02) |
+| **Build prod** | `client/dist/` atualizado a cada sub-fase | 🟡 Prova OK, carimbo corrigido | 11 entidades, 8 nós, 0 pageerrors | Carimbo via `__BUILD_STAMP__` injetado no build (CRIT-02 corrigido na S13; **gate negativo pendente**) |
 | **Harness / Build** | tsc 0 + visual-check (6 scripts) + builds renovados (client/server/gemini) | 🟢 Operacional | Boot 9/9 pós-rename |
 | **Ativos** | 19 arquivos kebab-case; órfãos em `docs/archived-assets/` + README | 🟢 Normalizado | MANIFEST com adendo |
 | **Cenário vivo** | `props.ts` — 10 famílias/365 instâncias InstancedMesh, PRNG seedado, exclusões núcleo+veios | 🟢 Em cena | Shots 1.7A revisados; dist-proof | Sem `Math.random` |
@@ -222,3 +224,8 @@ Todos os 9 estão registrados em `models.ts:44-52` e carregados no boot (prova: 
 - **Harness/Agente**: Claude Code CLI
 - **Modelo LLM**: Claude Opus 5 (1M context)
 - **Timestamp**: 2026-09-10T12:30:00-03:00
+
+*Atualizado por (Sessão 13):*
+- **Harness/Agente**: Kilo CLI
+- **Modelo LLM**: deepseek-v4.1-flash
+- **Timestamp**: 2026-09-10T23:10:00-03:00

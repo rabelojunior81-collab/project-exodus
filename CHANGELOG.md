@@ -5,8 +5,27 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
 
 ## [Não publicado]
 
+### Adicionado (Sessão 13)
+- Repositório público `project-exodus` sob MIT (código) — baseline `924c111`, tag `v0.1.0-fase-1.7`.
+- README bilingue (PT-BR/EN) em formato de landing, `LICENSES/ASSETS.md`, `CONTRIBUTING.md`,
+  `CODE_OF_CONDUCT.md`, `SECURITY.md` e templates de issue/PR.
+- Landing page em `landing/` (vídeo do herói, i18n PT/EN, áudios do jogo, eras e facções),
+  publicada por GitHub Actions no GitHub Pages.
+- Marca e banner vetoriais próprios (`docs/media/mark-exodus.svg`, `banner-exodus.svg`).
+- Skill `grill-me` em `.kilo/skill/grill-me/SKILL.md` para sessões de decisão.
+- Gate `tools/verify-manifest.mjs` (MANIFEST × disco) e script de recuperação de vídeo
+  (`npm run video:download` no studio).
+
+### Corrigido (Sessão 13)
+- **CRIT-02**: carimbo de build agora vem de `__BUILD_STAMP__` injetado em tempo de build
+  (antes: `document.lastModified`, que exibia a hora do teste).
+- **ALTO-04**: `MANIFEST.md`/`ATTRIBUTION.md` reconciliados com o disco; 3 `.ogg` órfãos arquivados.
+- Vídeo do Lote 3 recuperado da Files API do Gemini antes do expiry e integrado ao jogo
+  (`client/public/assets/video/era-1-transition.mp4`) e à landing.
+- Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
+
 ### Planejado
-- Fase 1.11 — Remediação e hardening (git, build stamp, manifestos, áudio da 1.7E, vídeo do Lote 3)
+- Fase 1.11 — Remediação e hardening (gate negativo do CRIT-02, áudio da 1.7E, CI de gates)
 - Fase 2.6 — Reconciliação cliente↔servidor (workspace `shared/`, paridade de modelo, snapshots)
 - Fase 3 — Multiplayer LAN/Tailscale
 
