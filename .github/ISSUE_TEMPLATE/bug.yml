@@ -1,0 +1,64 @@
+name: Bug
+description: Reportar um comportamento incorreto
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar. Preencha com o máximo de detalhe reproduzível —
+        este projeto exige que todo bug seja rastreável até a causa raiz.
+  - type: input
+    id: build
+    attributes:
+      label: Build / commit
+      description: Carimbo exibido no HUD (`MIL-SPEC … BUILD …`) ou hash do commit.
+      placeholder: "MIL-SPEC 0.2.0 · BUILD 10/09 22:00"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afetada
+      options:
+        - Cliente 3D (câmera, terreno, modelos)
+        - HUD / UI
+        - Simulação (server)
+        - Economia / coleta
+        - Fog of War
+        - Assets / pipeline Gemini
+        - Harness visual
+        - Documentação
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para reproduzir
+      description: Liste o caminho exato (cliques, ordem, posição no mapa).
+      placeholder: |
+        1. Iniciar partida
+        2. Selecionar o catador
+        3. Clicar em COLETAR e depois no veio…
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento esperado
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamento observado
+      description: Inclua screenshot/vídeo e erros do console, se houver.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Ambiente
+      description: SO, navegador e versão, GPU (ou swiftshader), resolução.
+      placeholder: "macOS 26 · Chrome 141 · Apple M3 · 1600×900"

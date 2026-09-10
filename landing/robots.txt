@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rabelojunior81-collab.github.io/project-exodus/sitemap.xml

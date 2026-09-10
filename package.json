@@ -1,0 +1,31 @@
+{
+  "name": "project-exodus-rts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Post-apocalyptic RTS with Age of Empires 2 mechanics, StarCraft asymmetry and Three.js 3D PBR",
+  "workspaces": [
+    "server",
+    "client",
+    "tools/studio-gemini"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "test:gemini": "npm run test --workspace=tools/studio-gemini",
+    "generate:assets": "npm run generate --workspace=tools/studio-gemini",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "dev": "npm run dev:server"
+  },
+  "keywords": [
+    "rts",
+    "threejs",
+    "age-of-empires",
+    "post-apocalyptic",
+    "multiplayer",
+    "tailscale",
+    "gemini"
+  ],
+  "author": "Rabelus Lab",
+  "license": "UNLICENSED"
+}

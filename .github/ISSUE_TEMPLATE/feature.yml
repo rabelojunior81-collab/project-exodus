@@ -1,0 +1,48 @@
+name: Proposta
+description: Sugerir uma melhoria, feature ou mudança de gameplay
+title: "[Proposta] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Para mudanças de comportamento, esta issue é obrigatória antes do PR.
+        Combine a abordagem aqui antes de escrever código.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área
+      options:
+        - Gameplay (economia, ordens, combate)
+        - Narrativa / eras / facções
+        - Multiplayer / rede
+        - Rendering / performance
+        - HUD / UX
+        - Ferramentas / pipeline
+        - Outro
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou oportunidade
+      description: O que está faltando ou incomodando hoje?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: Descreva a solução que você tem em mente.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: O que mais poderia resolver, e por que você não escolheu?
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impacto esperado
+      description: Fases afetadas, risco de determinismo, dependências novas.

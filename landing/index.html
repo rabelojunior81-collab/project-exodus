@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#07090c" />
+<meta name="robots" content="index, follow" />
+<meta name="description" content="Project Exodus — RTS pós-apocalíptico de navegador. Simulação determinística a 20 Hz, fog of war, economia viva e multiplayer LAN/Tailscale. Open source MIT." />
+<link rel="canonical" href="https://rabelojunior81-collab.github.io/project-exodus/" />
+
+<!-- Compartilhamento (atualizar se o domínio mudar) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Project Exodus — RTS pós-apocalíptico de navegador" />
+<meta property="og:description" content="O colapso foi o começo. Simulação determinística. Multiplayer LAN/Tailscale. Open source MIT." />
+<meta property="og:image" content="https://rabelojunior81-collab.github.io/project-exodus/assets/shots/01-overview.png" />
+<meta property="og:locale" content="pt_BR" />
+<meta property="og:locale:alternate" content="en_US" />
+
+<link rel="icon" href="assets/mark-exodus.svg" type="image/svg+xml" />
+<title>Project Exodus — RTS pós-apocalíptico de navegador</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --bg:#07090c; --bg-elevated:#101318; --bg-soft:#151a20;
+    --vidro:rgba(52,60,71,.5); --vidro-forte:rgba(44,51,61,.74);
+    --brilho-vidro:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.02) 46%,transparent 70%);
+    --luz-topo:rgba(244,239,230,.26); --luz-lado:rgba(244,239,230,.12);
+    --sombra-1:0 2px 8px rgba(0,0,0,.4);
+    --sombra-2:0 18px 45px rgba(0,0,0,.5);
+    --sombra-3:0 40px 110px rgba(0,0,0,.62);
+    --cream:#f4efe6; --cream-dim:rgba(244,239,230,.72); --cream-mute:rgba(244,239,230,.45);
+    --ambar:#f59e0b; --ambar-soft:#fbbf24; --ambar-dim:rgba(245,158,11,.35);
+    --ciano:#22d3ee; --roxo:#c084fc;
+    --line:rgba(244,239,230,.12);
+    --font-display:"Orbitron",sans-serif;
+    --font-ui:"Rajdhani",system-ui,sans-serif;
+    --font-mono:"Share Tech Mono",monospace;
+    --ease:cubic-bezier(.22,1,.36,1);
+    --header-h:4.75rem; --safe-b:env(safe-area-inset-bottom,0px);
+    --texto-sobre-midia:
+      0 1px 2px rgba(0,0,0,.85),
+      0 4px 14px rgba(0,0,0,.55),
+      0 0 42px rgba(0,0,0,.45);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;
+    scrollbar-width:thin;scrollbar-color:rgba(245,158,11,.32) transparent}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:rgba(245,158,11,.28);border-radius:99px;
+    border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(245,158,11,.5);background-clip:content-box}
+  body{font-family:var(--font-ui);font-weight:300;color:var(--cream);background:var(--bg);
+    line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  img,video{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  ::selection{background:var(--ambar-dim)}
+  :focus-visible{outline:none;box-shadow:0 0 0 1px var(--ambar-soft),0 0 0 5px rgba(245,158,11,.18)}
+
+  /* ===== PALCO DE FUNDO (vídeo com fallback Ken Burns) ===== */
+  .video-stage{position:fixed;inset:0;z-index:0;overflow:hidden;height:100vh;height:100dvh;
+    background:radial-gradient(ellipse 90% 70% at 50% 30%,#0d1216 0%,#080b0f 45%,#04060a 100%)}
+  /* Três camadas alternam em crossfade lento enquanto não há vídeo gerado.
+     Quando assets/hero.mp4 existir, o JS troca para o vídeo automaticamente. */
+  .video-stage__layer{position:absolute;inset:0;background-size:cover;background-position:center;
+    opacity:0;animation:kenburns 27s linear infinite;transform-origin:center}
+  .video-stage__layer:nth-child(1){animation-delay:0s}
+  .video-stage__layer:nth-child(2){animation-delay:9s}
+  .video-stage__layer:nth-child(3){animation-delay:18s}
+  .video-stage__media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    opacity:0;transition:opacity 1.4s var(--ease);display:none}
+  .video-stage__media.is-active{display:block}
+  .video-stage__media.is-loaded{opacity:1}
+  .video-stage__veil{position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 42%,rgba(0,0,0,.25) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,.8) 100%),
+      linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 28%,transparent 52%,rgba(0,0,0,.8) 100%)}
+  .video-stage__grain{position:absolute;inset:0;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .scanlines{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background:repeating-linear-gradient(180deg,rgba(255,255,255,.5) 0 1px,transparent 1px 3px)}
+
+  /* ===== HEADER ===== */
+  .site-header{position:fixed;top:0;left:0;right:0;z-index:130;height:var(--header-h);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 clamp(1.25rem,4vw,3rem);
+    transition:background .5s var(--ease),backdrop-filter .5s var(--ease),border-color .5s;
+    border-bottom:1px solid transparent}
+  .site-header.is-scrolled{background:rgba(7,9,12,.75);
+    backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);
+    border-bottom-color:var(--line)}
+  .brand{display:flex;align-items:center;gap:.7rem}
+  .brand img{height:34px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.7))}
+  .brand span{font-family:var(--font-display);font-weight:700;font-size:.72rem;
+    letter-spacing:.3em;color:var(--cream);text-shadow:var(--texto-sobre-midia)}
+  .nav-desktop{display:none;gap:clamp(1.25rem,2.5vw,2.25rem);list-style:none}
+  .nav-desktop a{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;font-weight:500;
+    color:var(--cream-dim);transition:color .3s;position:relative;text-shadow:var(--texto-sobre-midia)}
+  .site-header.is-scrolled .nav-desktop a{text-shadow:none}
+  .nav-desktop a::after{content:"";position:absolute;left:0;bottom:-.35rem;width:100%;height:1px;
+    background:var(--ambar);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--ease)}
+  .nav-desktop a:hover{color:var(--cream)}
+  .nav-desktop a:hover::after{transform:scaleX(1)}
+  .header-actions{display:flex;align-items:center;gap:.6rem}
+  .icon-btn{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);
+    border-radius:999px;color:var(--cream-dim);transition:.3s;background:rgba(7,9,12,.35);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .icon-btn:hover{color:var(--cream);border-color:var(--ambar-dim);background:rgba(245,158,11,.12)}
+  .icon-btn svg{width:16px;height:16px}
+  @media (min-width:960px){.nav-desktop{display:flex}.menu-toggle{display:none}}
+
+  .mobile-nav{position:fixed;inset:0;z-index:120;background:rgba(6,8,11,.97);display:flex;
+    flex-direction:column;justify-content:center;align-items:center;gap:1.6rem;
+    opacity:0;visibility:hidden;transition:.45s var(--ease)}
+  .mobile-nav.is-open{opacity:1;visibility:visible}
+  .mobile-nav a{font-family:var(--font-display);font-size:clamp(1.5rem,7vw,2.4rem);font-weight:500;
+    letter-spacing:.14em;color:var(--cream-dim);text-transform:uppercase}
+  .mobile-nav a:hover{color:var(--ambar-soft)}
+  .mobile-nav__close{position:absolute;top:1.1rem;right:1.25rem}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;z-index:1;min-height:100vh;min-height:100dvh;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    padding:calc(var(--header-h) + 1rem) 1.5rem calc(5rem + var(--safe-b));pointer-events:none}
+  .hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse 62% 46% at 50% 46%,
+      rgba(0,0,0,.52) 0%,rgba(0,0,0,.36) 45%,rgba(0,0,0,.12) 72%,transparent 100%)}
+  .hero>*{pointer-events:auto;position:relative}
+  .hero__logo{width:min(40vw,190px);margin-bottom:clamp(1.25rem,3.5vh,2rem);
+    filter:drop-shadow(0 10px 44px rgba(0,0,0,.5))}
+  .hero__eyebrow{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--ciano);margin-bottom:1.35rem;text-shadow:var(--texto-sobre-midia)}
+  .hero__title{font-family:var(--font-display);font-weight:900;font-size:clamp(2rem,6.5vw,4.6rem);
+    line-height:1.06;max-width:16ch;margin-inline:auto;text-transform:uppercase;
+    text-shadow:var(--texto-sobre-midia)}
+  .hero__title em{font-style:normal;color:var(--ambar)}
+  .hero__sub{margin-top:1.4rem;max-width:36rem;font-size:clamp(.9rem,2.2vw,1.05rem);
+    color:var(--cream);text-shadow:var(--texto-sobre-midia);font-weight:400}
+  .hero__cta{margin-top:2.3rem;display:flex;flex-wrap:wrap;gap:.9rem;justify-content:center}
+  .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;
+    padding:.85rem 1.75rem;font-size:.68rem;font-weight:600;letter-spacing:.24em;
+    text-transform:uppercase;border-radius:.4rem;transition:.35s var(--ease);font-family:var(--font-ui)}
+  .btn-primary{background:var(--ambar);color:#0a0a0a;border:1px solid var(--ambar)}
+  .btn-primary:hover{background:var(--ambar-soft);border-color:var(--ambar-soft);
+    box-shadow:0 10px 40px rgba(245,158,11,.25);transform:translateY(-2px)}
+  .btn-ghost{border:1px solid var(--line);color:var(--cream);background:rgba(255,255,255,.03);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .btn-ghost:hover{border-color:var(--ambar-dim);background:rgba(245,158,11,.1);transform:translateY(-2px)}
+  .hero__scroll{position:absolute;bottom:calc(1.5rem + var(--safe-b));left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:.65rem;color:var(--cream-dim);
+    font-family:var(--font-mono);font-size:.6rem;letter-spacing:.32em;text-transform:uppercase;
+    text-shadow:var(--texto-sobre-midia)}
+  .hero__scroll-line{width:1px;height:48px;background:linear-gradient(180deg,var(--ambar-soft),transparent);
+    animation:pulse 2.2s var(--ease) infinite;transform-origin:top}
+
+  /* ===== CONTEÚDO ===== */
+  .content{position:relative;z-index:2}
+  .panel{border-radius:1.75rem 1.75rem 0 0;position:relative;
+    background:
+      radial-gradient(120% 55% at 12% 0%,rgba(245,158,11,.12),transparent 62%),
+      radial-gradient(100% 60% at 92% 20%,rgba(34,211,238,.08),transparent 58%),
+      linear-gradient(to bottom,rgba(7,9,12,.94) 0%,rgba(7,9,12,.96) 30%,rgba(7,9,12,.975) 100%);
+    box-shadow:0 -30px 90px rgba(0,0,0,.6),inset 0 1px 0 var(--luz-topo)}
+  .panel::before{content:"";position:absolute;top:.7rem;left:50%;transform:translateX(-50%);
+    width:42px;height:3px;border-radius:999px;background:var(--luz-topo)}
+  .section{padding:clamp(4.5rem,10vw,8rem) clamp(1.35rem,5vw,5rem);max-width:1200px;margin:0 auto}
+  .section-label{display:inline-flex;align-items:center;gap:.85rem;font-family:var(--font-mono);
+    font-size:.66rem;letter-spacing:.32em;text-transform:uppercase;color:var(--ambar);
+    margin-bottom:1.25rem}
+  .section-label::before{content:"";width:28px;height:1px;background:var(--ambar)}
+  .section-title{font-family:var(--font-display);font-weight:700;
+    font-size:clamp(1.5rem,4vw,2.7rem);line-height:1.15;max-width:20ch;text-transform:uppercase}
+  .section-title em{font-style:normal;color:var(--ambar)}
+  .section-lead{margin-top:1.25rem;max-width:38rem;color:var(--cream-dim);font-size:.98rem}
+
+  .marquee{border-block:1px solid var(--luz-lado);overflow:hidden;padding:1rem 0;
+    background:var(--brilho-vidro),var(--vidro);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .marquee__track{display:flex;gap:3rem;width:max-content;animation:marquee 36s linear infinite;
+    font-family:var(--font-mono);font-size:.66rem;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--cream-mute)}
+  .marquee__track span{white-space:nowrap}
+  .marquee__track b{color:var(--ambar);font-weight:400}
+
+  .pillars{display:grid;gap:1px;background:var(--luz-lado);
+    border:1px solid var(--luz-lado);border-radius:1rem;overflow:hidden;margin-top:3.5rem;
+    box-shadow:var(--sombra-2),inset 0 1px 0 var(--luz-topo)}
+  @media (min-width:768px){.pillars{grid-template-columns:repeat(3,1fr)}}
+  .pillar{background:var(--brilho-vidro),var(--vidro);backdrop-filter:blur(18px) saturate(1.2);
+    -webkit-backdrop-filter:blur(18px) saturate(1.2);padding:clamp(1.75rem,4vw,2.5rem);
+    transition:background .4s var(--ease)}
+  .pillar:hover{background:var(--brilho-vidro),var(--vidro-forte)}
+  .pillar__num{font-family:var(--font-mono);font-size:.9rem;color:var(--ambar);margin-bottom:1.25rem}
+  .pillar h3{font-family:var(--font-display);font-size:.95rem;font-weight:700;margin-bottom:.75rem;
+    letter-spacing:.06em;text-transform:uppercase}
+  .pillar p{color:var(--cream-dim);font-size:.92rem;line-height:1.7}
+
+  .split{display:grid;gap:clamp(2rem,5vw,4rem);align-items:center}
+  @media (min-width:920px){.split{grid-template-columns:1.05fr .95fr}}
+  .split__media{position:relative;border-radius:1rem;overflow:hidden;aspect-ratio:16/9;
+    background:radial-gradient(circle at 40% 30%,#141a1f,#0a0d11);border:1px solid var(--luz-lado)}
+  .split__media img{width:100%;height:100%;object-fit:cover}
+  .split__media::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px var(--line);
+    border-radius:inherit;pointer-events:none}
+
+  .radio-card{margin-top:2.5rem;border:1px solid var(--luz-lado);border-radius:1rem;
+    background:var(--brilho-vidro),var(--vidro);backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);padding:clamp(1.5rem,4vw,2.25rem);
+    box-shadow:var(--sombra-2),inset 0 1px 0 var(--luz-topo)}
+  .radio-card__meta{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;
+    font-family:var(--font-mono);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--cream-mute);margin-bottom:1rem}
+  .radio-card__transcript{font-family:var(--font-mono);font-size:.9rem;color:var(--ciano);
+    line-height:1.7;margin-bottom:1.25rem}
+  .audio-btn{display:inline-flex;align-items:center;gap:.7rem;padding:.8rem 1.4rem;
+    border:1px solid var(--ambar-dim);border-radius:.4rem;color:var(--ambar-soft);
+    font-family:var(--font-ui);font-weight:600;font-size:.68rem;letter-spacing:.22em;
+    text-transform:uppercase;transition:.35s var(--ease);background:rgba(245,158,11,.06)}
+  .audio-btn:hover{background:rgba(245,158,11,.16);border-color:var(--ambar-soft)}
+  .audio-btn svg{width:14px;height:14px;flex-shrink:0}
+  .audio-btn.is-playing{background:var(--ambar);color:#0a0a0a;border-color:var(--ambar)}
+
+  .cards{display:grid;gap:1.25rem;margin-top:3rem}
+  @media (min-width:700px){.cards{grid-template-columns:repeat(2,1fr);gap:1.5rem}}
+  @media (min-width:1080px){.cards--eras{grid-template-columns:repeat(4,1fr)}
+    .cards--factions{grid-template-columns:repeat(3,1fr)}}
+  .card{position:relative;border-radius:1rem;overflow:hidden;
+    display:flex;flex-direction:column;height:100%;
+    background:var(--brilho-vidro),var(--vidro);backdrop-filter:blur(20px) saturate(1.25);
+    -webkit-backdrop-filter:blur(20px) saturate(1.25);
+    border:1px solid var(--luz-lado);
+    box-shadow:var(--sombra-2),inset 0 1px 0 var(--luz-topo);
+    transition:border-color .5s var(--ease),transform .5s var(--ease),box-shadow .5s var(--ease)}
+  .card:hover{border-color:var(--ambar-dim);transform:translateY(-4px);
+    box-shadow:var(--sombra-3),inset 0 1px 0 rgba(251,191,36,.3)}
+  .card__midia{position:relative;aspect-ratio:1;background:#05060a;overflow:hidden}
+  .card__midia img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    transition:transform 1s var(--ease)}
+  .card:hover .card__midia img{transform:scale(1.05)}
+  .card__corpo{padding:1.2rem 1.2rem 1.35rem;display:flex;flex-direction:column;flex:1}
+  .card__tag{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--ambar-soft);margin-bottom:.5rem}
+  .card h3{font-family:var(--font-display);font-size:.95rem;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;margin-bottom:.5rem}
+  .card p{color:var(--cream-dim);font-size:.9rem;line-height:1.65;flex:1}
+  .card__cta{margin-top:1rem}
+
+  .timeline{display:grid;gap:1px;background:var(--luz-lado);border:1px solid var(--luz-lado);
+    border-radius:1rem;overflow:hidden;margin-top:3rem;
+    box-shadow:var(--sombra-2),inset 0 1px 0 var(--luz-topo)}
+  .phase{display:grid;gap:.5rem;padding:1.1rem 1.25rem;background:var(--brilho-vidro),var(--vidro);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  @media (min-width:760px){.phase{grid-template-columns:9rem 1fr 9rem;align-items:center;gap:1.25rem}}
+  .phase__id{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.18em;color:var(--cream-mute);
+    text-transform:uppercase}
+  .phase__name{font-size:.98rem;font-weight:500;color:var(--cream)}
+  .phase__status{justify-self:start;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.2em;
+    text-transform:uppercase;padding:.32rem .7rem;border-radius:.3rem}
+  .phase__status--done{background:rgba(34,197,94,.14);color:#4ade80;border:1px solid rgba(34,197,94,.35)}
+  .phase__status--wip{background:rgba(245,158,11,.14);color:var(--ambar-soft);border:1px solid var(--ambar-dim)}
+  .phase__status--next{background:rgba(34,211,238,.1);color:var(--ciano);border:1px solid rgba(34,211,238,.3)}
+  .phase__status--plan{background:rgba(244,239,230,.07);color:var(--cream-mute);border:1px solid var(--line)}
+
+  .tech-band{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:2.5rem}
+  .tech-tag{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--cream-dim);padding:.5rem .95rem;border:1px solid var(--luz-lado);border-radius:999px;
+    background:var(--brilho-vidro),var(--vidro);backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px)}
+  .tech-tag b{color:var(--ambar);font-weight:400}
+
+  .cta-band{margin:0 clamp(1.35rem,5vw,5rem) clamp(4rem,8vw,6rem);border:1px solid var(--line);
+    border-radius:1.25rem;padding:clamp(2.5rem,6vw,4.5rem) clamp(1.5rem,4vw,3rem);text-align:center;
+    background:radial-gradient(ellipse 70% 80% at 50% 0%,rgba(245,158,11,.12),transparent 60%),var(--bg-elevated)}
+  .cta-band h2{font-family:var(--font-display);font-weight:700;font-size:clamp(1.4rem,3.6vw,2.4rem);
+    margin:.75rem auto 1rem;max-width:22ch;text-transform:uppercase}
+  .cta-band h2 em{font-style:normal;color:var(--ambar)}
+  .cta-band p{color:var(--cream-dim);max-width:34rem;margin:0 auto 1.75rem;font-size:.95rem}
+  .cta-band__actions{display:flex;flex-wrap:wrap;gap:.85rem;justify-content:center}
+
+  .site-footer{border-top:1px solid var(--line);padding:3rem clamp(1.35rem,5vw,5rem) calc(2rem + var(--safe-b));
+    background:#05070a}
+  .footer-grid{max-width:1200px;margin:0 auto;display:grid;gap:2.5rem}
+  @media (min-width:820px){.footer-grid{grid-template-columns:1.4fr 1fr 1fr}}
+  .footer-brand{display:flex;align-items:center;gap:.7rem;margin-bottom:1rem}
+  .footer-brand img{height:30px}
+  .footer-brand div{font-family:var(--font-display);font-weight:700;font-size:.72rem;letter-spacing:.3em}
+  .site-footer p{color:var(--cream-mute);font-size:.88rem;max-width:30ch}
+  .footer-col h4{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--ambar);margin-bottom:1rem}
+  .footer-col ul{list-style:none;display:grid;gap:.65rem}
+  .footer-col a{color:var(--cream-dim);font-size:.92rem}
+  .footer-col a:hover{color:var(--cream)}
+  .footer-bottom{max-width:1200px;margin:2.5rem auto 0;padding-top:1.5rem;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;
+    color:var(--cream-mute);font-size:.78rem}
+
+  /* ===== DOCK DE ÁUDIO AMBIENTE ===== */
+  .ambient-pill{position:fixed;left:clamp(1rem,3vw,1.75rem);bottom:calc(1.25rem + var(--safe-b));
+    z-index:40;display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;
+    font-family:var(--font-mono);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:999px;color:var(--cream-dim);
+    background:rgba(7,9,12,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    transition:.3s}
+  .ambient-pill:hover{color:var(--cream);border-color:var(--ambar-dim)}
+  .ambient-pill.is-on{border-color:var(--ambar);color:var(--ambar-soft)}
+  .ambient-pill svg{width:14px;height:14px}
+
+  .reveal{opacity:0;transform:translateY(36px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+  .reveal.is-in{opacity:1;transform:none}
+  .reveal-delay-1{transition-delay:.1s}.reveal-delay-2{transition-delay:.2s}
+
+  @keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{transform:scaleY(.35);opacity:.3}40%{transform:scaleY(1);opacity:1}}
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes kenburns{
+    0%{opacity:0;transform:scale(1.02)}
+    6%{opacity:1}
+    33%{opacity:1;transform:scale(1.09)}
+    39%{opacity:0;transform:scale(1.1)}
+    100%{opacity:0;transform:scale(1.02)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1!important;transform:none!important}
+    .video-stage__layer:nth-child(1){opacity:1!important}
+    .video-stage__layer:nth-child(2),.video-stage__layer:nth-child(3){opacity:0!important}
+  }
+</style>
+</head>
+<body id="topo">
+
+  <div class="video-stage" aria-hidden="true">
+    <div class="video-stage__layer" style="background-image:url('assets/shots/01-overview.png')"></div>
+    <div class="video-stage__layer" style="background-image:url('assets/shots/fog-a1-boot.png')"></div>
+    <div class="video-stage__layer" style="background-image:url('assets/shots/17c-b1-tank-turning.png')"></div>
+    <video id="heroVideo" class="video-stage__media" autoplay muted loop playsinline preload="none"
+           poster="assets/shots/01-overview.png">
+      <source src="assets/hero.mp4" type="video/mp4" />
+    </video>
+    <div class="video-stage__veil"></div>
+    <div class="video-stage__grain"></div>
+  </div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="site-header" id="siteHeader">
+    <a class="brand" href="#topo" aria-label="Project Exodus — início">
+      <img src="assets/mark-exodus.svg" alt="" width="34" height="34" />
+      <span>PROJECT EXODUS</span>
+    </a>
+    <nav aria-label="Principal">
+      <ul class="nav-desktop">
+        <li><a href="#jogo" data-i18n="nav.game">O Jogo</a></li>
+        <li><a href="#eras" data-i18n="nav.eras">Eras</a></li>
+        <li><a href="#faccoes" data-i18n="nav.factions">Facções</a></li>
+        <li><a href="#rota" data-i18n="nav.roadmap">Roadmap</a></li>
+        <li><a href="#contribuir" data-i18n="nav.contribute">Contribuir</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="langToggle" aria-label="Switch language / Trocar idioma" title="PT / EN">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3.5 12h17M12 3.2c2.5 2.4 3.8 5.4 3.8 8.8s-1.3 6.4-3.8 8.8c-2.5-2.4-3.8-5.4-3.8-8.8S9.5 5.6 12 3.2Z"/></svg>
+      </button>
+      <a class="icon-btn" href="https://github.com/rabelojunior81-collab/project-exodus" target="_blank" rel="noopener" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 8.4 22c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.4-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0C17 4.8 18 5.1 18 5.1c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5Z"/></svg>
+      </a>
+      <button class="icon-btn menu-toggle" id="menuOpen" aria-label="Abrir menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav" hidden>
+    <button class="icon-btn mobile-nav__close" id="menuClose" aria-label="Fechar menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+    </button>
+    <a href="#jogo" data-i18n="nav.game">O Jogo</a>
+    <a href="#eras" data-i18n="nav.eras">Eras</a>
+    <a href="#faccoes" data-i18n="nav.factions">Facções</a>
+    <a href="#rota" data-i18n="nav.roadmap">Roadmap</a>
+    <a href="#contribuir" data-i18n="nav.contribute">Contribuir</a>
+  </div>
+
+  <main>
+    <section class="hero" aria-label="Abertura">
+      <img src="assets/mark-exodus.svg" class="hero__logo" alt="Project Exodus" width="190" height="190" />
+      <p class="hero__eyebrow" data-i18n="hero.eyebrow">RTS pós-apocalíptico · simulação determinística · LAN/Tailscale</p>
+      <h1 class="hero__title" data-i18n="hero.title">O colapso foi o <em>começo</em>.</h1>
+      <p class="hero__sub" data-i18n="hero.sub">
+        Comande os sobreviventes da Era dos Escombros. Colete, reconstrua e descubra
+        o que as IAs deixaram dormindo — no navegador, sem instalar nada.
+      </p>
+      <div class="hero__cta">
+        <a class="btn btn-primary" href="https://github.com/rabelojunior81-collab/project-exodus" target="_blank" rel="noopener" data-i18n="hero.cta1">Ver no GitHub</a>
+        <a class="btn btn-ghost" href="#radio" data-i18n="hero.cta2">Ouvir a transmissão</a>
+      </div>
+      <div class="hero__scroll" aria-hidden="true">
+        <span data-i18n="hero.scroll">Descer</span>
+        <div class="hero__scroll-line"></div>
+      </div>
+    </section>
+
+    <div class="content">
+      <div class="panel">
+        <div class="marquee" aria-hidden="true">
+          <div class="marquee__track">
+            <span><b>SUCATEIROS LIVRES</b> · ORDEM DOS BUNKERS · FILHOS DO SILÍCIO · ERA DOS ESCOMBROS · REASSENTAMENTO · REENGENHARIA · RENASCIMENTO CIBERNÉTICO · DEFCON 1 ·</span>
+            <span><b>SUCATEIROS LIVRES</b> · ORDEM DOS BUNKERS · FILHOS DO SILÍCIO · ERA DOS ESCOMBROS · REASSENTAMENTO · REENGENHARIA · RENASCIMENTO CIBERNÉTICO · DEFCON 1 ·</span>
+          </div>
+        </div>
+
+        <section class="section" id="jogo">
+          <p class="section-label reveal" data-i18n="game.label">O jogo</p>
+          <h2 class="section-title reveal reveal-delay-1" data-i18n="game.title">Três promessas que <em>sustentam</em> o projeto</h2>
+          <p class="section-lead reveal reveal-delay-2" data-i18n="game.lead">
+            Projeto solo, aberto sob MIT, construído em sprints intensos e auditado sessão a sessão —
+            com diário de desenvolvimento aberto no repositório.
+          </p>
+          <div class="pillars">
+            <article class="pillar reveal">
+              <div class="pillar__num">01</div>
+              <h3 data-i18n="pillar1.title">Mundo vivo</h3>
+              <p data-i18n="pillar1.body">Fog of war de exploração, 365 props proceduralmente instanciados com seed fixa e veios que se esgotam em 4 estágios visuais sob os olhos de quem os trabalha.</p>
+            </article>
+            <article class="pillar reveal reveal-delay-1">
+              <div class="pillar__num">02</div>
+              <h3 data-i18n="pillar2.title">Simulação determinística</h3>
+              <p data-i18n="pillar2.body">Tick fixo de 50 ms, RNG semeável e A* próprio: mesma seed com os mesmos comandos produz exatamente o mesmo resultado — provado por teste automatizado.</p>
+            </article>
+            <article class="pillar reveal reveal-delay-2">
+              <div class="pillar__num">03</div>
+              <h3 data-i18n="pillar3.title">Feito para a Tailnet</h3>
+              <p data-i18n="pillar3.body">Partidas LAN/Tailscale com servidor autoritativo local. Sem cloud, sem matchmaking, sem telemetria — os seus dados não saem da sua rede.</p>
+            </article>
+          </div>
+          <div class="tech-band reveal">
+            <span class="tech-tag"><b>Three.js</b> 0.174</span>
+            <span class="tech-tag"><b>TypeScript</b> 5.8</span>
+            <span class="tech-tag"><b>Vite</b> 6</span>
+            <span class="tech-tag"><b>Node</b> 22+</span>
+            <span class="tech-tag"><b>WebSocket</b> 20 Hz</span>
+            <span class="tech-tag"><b>A*</b> determinístico</span>
+            <span class="tech-tag"><b>MIT</b> open source</span>
+          </div>
+        </section>
+
+        <section class="section" id="radio">
+          <div class="split">
+            <div class="split__media reveal">
+              <img src="assets/shots/fog-a1-boot.png" alt="Base no deserto com névoa de exploração cobrindo o mapa" loading="lazy" />
+            </div>
+            <div>
+              <p class="section-label reveal" data-i18n="radio.label">Echo-7 · Ano 47 P.C.</p>
+              <h2 class="section-title reveal reveal-delay-1" data-i18n="radio.title">A primeira <em>transmissão</em></h2>
+              <p class="section-lead reveal reveal-delay-2" data-i18n="radio.lead">
+                Cada era abre com uma crônica de rádio narrada em PT-BR. Ligue o receptor.
+              </p>
+            </div>
+          </div>
+          <div class="radio-card reveal">
+            <div class="radio-card__meta">
+              <span data-i18n="radio.author">Dr. Kaelen Reed · Chefe de Reconhecimento Arqueológico</span>
+              <span data-i18n="radio.date">Ano 47 P.C. (Pós-Colapso)</span>
+            </div>
+            <p class="radio-card__transcript" data-i18n="radio.transcript">
+              "[CHIADO INTENSO]… Aqui é o posto Echo-7… Encontramos algo. Não são apenas ruínas…
+              há energia residual. Repito, *energia*."
+            </p>
+            <button class="audio-btn" data-briefing="1" data-i18n-aria="radio.play">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              <span data-i18n="radio.play">Ouvir briefing da era 1</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="section" id="eras">
+          <p class="section-label reveal" data-i18n="eras.label">As quatro eras</p>
+          <h2 class="section-title reveal reveal-delay-1" data-i18n="eras.title">Da pedra lascada ao <em>renascimento</em></h2>
+          <p class="section-lead reveal reveal-delay-2" data-i18n="eras.lead">
+            A humanidade reconstrói o mundo um fragmento de cada vez — e cada era tem uma voz.
+          </p>
+          <div class="cards cards--eras">
+            <article class="card reveal">
+              <div class="card__midia"><img src="assets/portraits/era-1-scavenger.webp" alt="" loading="lazy" /></div>
+              <div class="card__corpo">
+                <p class="card__tag" data-i18n="era1.tag">Era I</p>
+                <h3 data-i18n="era1.name">Dos Escombros</h3>
+                <p data-i18n="era1.body">Engenharia de sucata eletro-mecânica: reaproveitar, religar e sobreviver sob a poeira.</p>
+                <div class="card__cta">
+                  <button class="audio-btn" data-briefing="1" data-i18n-aria="eras.listen"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span data-i18n="eras.listen">Ouvir</span></button>
+                </div>
+              </div>
+            </article>
+            <article class="card reveal reveal-delay-1">
+              <div class="card__midia"><img src="assets/portraits/era-2-settler.webp" alt="" loading="lazy" /></div>
+              <div class="card__corpo">
+                <p class="card__tag" data-i18n="era2.tag">Era II</p>
+                <h3 data-i18n="era2.name">Do Reassentamento</h3>
+                <p data-i18n="era2.body">Cidades-cemitério descobertas, circuitos mortos reativados com esforço e cautela.</p>
+                <div class="card__cta">
+                  <button class="audio-btn" data-briefing="2" data-i18n-aria="eras.listen"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span data-i18n="eras.listen">Ouvir</span></button>
+                </div>
+              </div>
+            </article>
+            <article class="card reveal reveal-delay-2">
+              <div class="card__midia"><img src="assets/portraits/era-3-engineer.webp" alt="" loading="lazy" /></div>
+              <div class="card__corpo">
+                <p class="card__tag" data-i18n="era3.tag">Era III</p>
+                <h3 data-i18n="era3.name">Da Reengenharia</h3>
+                <p data-i18n="era3.body">Bunkers arqueológicos: a chave do futuro está em decifrar o passado, não em inventá-lo.</p>
+                <div class="card__cta">
+                  <button class="audio-btn" data-briefing="3" data-i18n-aria="eras.listen"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span data-i18n="eras.listen">Ouvir</span></button>
+                </div>
+              </div>
+            </article>
+            <article class="card reveal">
+              <div class="card__midia"><img src="assets/portraits/era-4-cyber-adept.webp" alt="" loading="lazy" /></div>
+              <div class="card__corpo">
+                <p class="card__tag" data-i18n="era4.tag">Era IV</p>
+                <h3 data-i18n="era4.name">Do Renascimento Cibernético</h3>
+                <p data-i18n="era4.body">Tumbas digitais e servidores dormentes… que podem acordar. O risco constante dos ecos do inimigo.</p>
+                <div class="card__cta">
+                  <button class="audio-btn" data-briefing="4" data-i18n-aria="eras.listen"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span data-i18n="eras.listen">Ouvir</span></button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="faccoes">
+          <p class="section-label reveal" data-i18n="factions.label">Assimetria</p>
+          <h2 class="section-title reveal reveal-delay-1" data-i18n="factions.title">Três caminhos, um <em>mundo</em></h2>
+          <p class="section-lead reveal reveal-delay-2" data-i18n="factions.lead">
+            Facções com identidade, unidades exclusivas e visão de mundo própria — a assimetria chega à mesa na Fase 5.
+          </p>
+          <div class="cards cards--factions">
+            <article class="card reveal">
+              <div class="card__midia"><img src="assets/portraits/hero-scrapper-marshal.webp" alt="" loading="lazy" /></div>
+              <div class="card__corpo">
+                <p class="card__tag" data-i18n="faction1.tag">Sucateiros Livres</p>
+                <h3 data-i18n="faction1.name">Marechal dos Escombros</h3>
+                <p data-i18n="faction1.body">Nômades que transformam ruína em recurso. Rápidos, adaptáveis, sem paciência para liturgia.</p>
+              </div>
+            </article>
+            <article class="card reveal reveal-delay-1">
+              <div class="card__midia"><img src="assets/portraits/hero-orden-warden.webp" alt="" loading="lazy" /></div>
+              <div class="card__corpo">
+                <p class="card__tag" data-i18n="faction2.tag">Ordem dos Bunkers</p>
+                <h3 data-i18n="faction2.name">Guardião da Ordem</h3>
+                <p data-i18n="faction2.body">Custódios das câmaras seladas. Defesa inabalável, disciplina de ferro e memória do que não deve despertar.</p>
+              </div>
+            </article>
+            <article class="card reveal reveal-delay-2">
+              <div class="card__midia"><img src="assets/portraits/hero-silicio-prophet.webp" alt="" loading="lazy" /></div>
+              <div class="card__corpo">
+                <p class="card__tag" data-i18n="faction3.tag">Filhos do Silício</p>
+                <h3 data-i18n="faction3.name">Profeta do Silício</h3>
+                <p data-i18n="faction3.body">Cultuadores dos ecos: não temem as máquinas adormecidas — querem ouvi-las. Tecnologia é revelação.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="rota">
+          <p class="section-label reveal" data-i18n="roadmap.label">Rota</p>
+          <h2 class="section-title reveal reveal-delay-1" data-i18n="roadmap.title">O caminho até a <em>guerra</em></h2>
+          <p class="section-lead reveal reveal-delay-2" data-i18n="roadmap.lead">
+            Status honesto, atualizado a cada sessão de desenvolvimento no próprio repositório.
+          </p>
+          <div class="timeline reveal">
+            <div class="phase"><span class="phase__id">Fase 0–1</span><span class="phase__name" data-i18n="roadmap.p1">Governança, motor 3D, câmera e seleção</span><span class="phase__status phase__status--done" data-i18n="status.done">Feito</span></div>
+            <div class="phase"><span class="phase__id">Fase 1.5–1.10</span><span class="phase__name" data-i18n="roadmap.p2">Modelos reais, HUD profissional, economia jogável</span><span class="phase__status phase__status--done" data-i18n="status.done">Feito</span></div>
+            <div class="phase"><span class="phase__id">Fase 1.7</span><span class="phase__name" data-i18n="roadmap.p3">Mundo vivo: cenário, fog of war, mineração, assets</span><span class="phase__status phase__status--done" data-i18n="status.done">Feito</span></div>
+            <div class="phase"><span class="phase__id">Fase 1.11</span><span class="phase__name" data-i18n="roadmap.p4">Remediação e hardening (build stamp, manifestos, áudio)</span><span class="phase__status phase__status--wip" data-i18n="status.wip">Em curso</span></div>
+            <div class="phase"><span class="phase__id">Fase 2.6</span><span class="phase__name" data-i18n="roadmap.p5">Reconciliação cliente↔servidor (shared/, snapshots)</span><span class="phase__status phase__status--next" data-i18n="status.next">Próxima</span></div>
+            <div class="phase"><span class="phase__id">Fase 3</span><span class="phase__name" data-i18n="roadmap.p6">Multiplayer LAN/Tailscale</span><span class="phase__status phase__status--plan" data-i18n="status.plan">Planejada</span></div>
+            <div class="phase"><span class="phase__id">Fase 4–5</span><span class="phase__name" data-i18n="roadmap.p7">Eras, narrativa reativa, combate e facções</span><span class="phase__status phase__status--plan" data-i18n="status.plan">Planejada</span></div>
+          </div>
+        </section>
+
+        <div class="cta-band" id="contribuir">
+          <p class="section-label reveal" data-i18n="cta.label">Contribuir</p>
+          <h2 class="reveal reveal-delay-1" data-i18n="cta.title">Código aberto, <em>revisão humana</em>, sem merge automático</h2>
+          <p class="reveal reveal-delay-2" data-i18n="cta.lead">
+            O projeto é MIT. Issues, PRs e ideias são bem-vindos — com gates de teste obrigatórios
+            e documentação viva. Leia o CONTRIBUTING e entre na reconstrução.
+          </p>
+          <div class="cta-band__actions">
+            <a class="btn btn-primary" href="https://github.com/rabelojunior81-collab/project-exodus" target="_blank" rel="noopener" data-i18n="cta.github">Abrir repositório</a>
+            <a class="btn btn-ghost" href="https://github.com/rabelojunior81-collab/project-exodus/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener" data-i18n="cta.contributing">Como contribuir</a>
+            <a class="btn btn-ghost" href="mailto:rabelo.work@gmail.com" data-i18n="cta.email">Falar por e-mail</a>
+          </div>
+        </div>
+      </div>
+
+      <footer class="site-footer">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-brand">
+              <img src="assets/mark-exodus.svg" alt="" width="30" height="30" />
+              <div>PROJECT EXODUS</div>
+            </div>
+            <p data-i18n="footer.brand">RTS pós-apocalíptico do Rabelus Lab. Construído com agentes de IA como infraestrutura — e revisão humana em cada gate.</p>
+          </div>
+          <div class="footer-col">
+            <h4 data-i18n="footer.project">Projeto</h4>
+            <ul>
+              <li><a href="https://github.com/rabelojunior81-collab/project-exodus" target="_blank" rel="noopener">GitHub</a></li>
+              <li><a href="https://github.com/rabelojunior81-collab/project-exodus/blob/main/README.md" target="_blank" rel="noopener">README</a></li>
+              <li><a href="https://github.com/rabelojunior81-collab/project-exodus/blob/main/roadmap.md" target="_blank" rel="noopener">Roadmap</a></li>
+              <li><a href="https://github.com/rabelojunior81-collab/project-exodus/blob/main/docs/journal" target="_blank" rel="noopener" data-i18n="footer.journal">Diário de desenvolvimento</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 data-i18n="footer.links">Contato</h4>
+            <ul>
+              <li><a href="mailto:rabelo.work@gmail.com">rabelo.work@gmail.com</a></li>
+              <li><a href="https://rabelus.com" target="_blank" rel="noopener">rabelus.com</a></li>
+              <li><a href="https://github.com/rabelojunior81-collab" target="_blank" rel="noopener">Rabelus Lab</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span data-i18n="footer.license">Código sob MIT · Assets com licenças próprias (LICENSES/ASSETS.md)</span>
+          <span data-i18n="footer.credits">Modelos Quaternius (CC0) · Animações Mixamo · Arte e áudio gerados pela pipeline Gemini · Fontes Google (OFL)</span>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <audio id="briefingPlayer" preload="none"></audio>
+  <audio id="ambientPlayer" preload="none" loop></audio>
+
+  <button class="ambient-pill" id="ambientToggle" aria-pressed="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z" stroke-linejoin="round"/><path d="M16.5 8.5a5 5 0 0 1 0 7" stroke-linecap="round"/><path d="M19 6a9 9 0 0 1 0 12" stroke-linecap="round"/></svg>
+    <span id="ambientLabel" data-i18n="audio.off">Som: off</span>
+  </button>
+
+  <script src="i18n.js"></script>
+  <script>
+  (function(){
+    "use strict";
+
+    /* Header com fundo ao rolar */
+    var header = document.getElementById('siteHeader');
+    function onScroll(){ header.classList.toggle('is-scrolled', window.scrollY > 24); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    /* Menu mobile */
+    var mobileNav = document.getElementById('mobileNav');
+    var menuOpen = document.getElementById('menuOpen');
+    var menuClose = document.getElementById('menuClose');
+    function setMenu(open){
+      mobileNav.hidden = !open;
+      mobileNav.classList.toggle('is-open', open);
+      menuOpen.setAttribute('aria-expanded', String(open));
+    }
+    menuOpen.addEventListener('click', function(){ setMenu(true); });
+    menuClose.addEventListener('click', function(){ setMenu(false); });
+    mobileNav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ setMenu(false); }); });
+
+    /* Reveal on scroll */
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+    /* Vídeo do herói quando existir; senão, Ken Burns das camadas */
+    var video = document.getElementById('heroVideo');
+    var layers = document.querySelectorAll('.video-stage__layer');
+    fetch('assets/hero.mp4', { method: 'HEAD' }).then(function(r){
+      if (!r.ok) throw new Error('no hero video');
+      video.classList.add('is-active');
+      video.addEventListener('canplay', function(){ video.classList.add('is-loaded'); layers.forEach(function(l){ l.style.display = 'none'; }); }, { once: true });
+      video.play().catch(function(){});
+    }).catch(function(){ /* mantém Ken Burns */ });
+
+    /* Player de briefing (um áudio compartilhado; botões de era) */
+    var player = document.getElementById('briefingPlayer');
+    var currentBtn = null;
+    function stopBriefing(){
+      player.pause();
+      if (currentBtn) currentBtn.classList.remove('is-playing');
+      currentBtn = null;
+    }
+    document.querySelectorAll('[data-briefing]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var era = btn.getAttribute('data-briefing');
+        if (currentBtn === btn && !player.paused) { stopBriefing(); return; }
+        stopBriefing();
+        player.src = 'assets/audio/era-' + era + '-briefing.mp3';
+        player.play().then(function(){
+          currentBtn = btn;
+          btn.classList.add('is-playing');
+        }).catch(function(){});
+      });
+    });
+    player.addEventListener('ended', stopBriefing);
+
+    /* Áudio ambiente (só após gesto do usuário; política de autoplay) */
+    var ambient = document.getElementById('ambientPlayer');
+    var ambientBtn = document.getElementById('ambientToggle');
+    var ambientLabel = document.getElementById('ambientLabel');
+    var ambientOn = false;
+    ambient.volume = 0.35;
+    ambientBtn.addEventListener('click', function(){
+      if (!ambientOn){
+        ambient.src = 'assets/music/ambient-wasteland-wind-loop.mp3';
+        ambient.play().then(function(){
+          ambientOn = true;
+          ambientBtn.classList.add('is-on');
+          ambientBtn.setAttribute('aria-pressed', 'true');
+          if (window.__setI18nText) window.__setI18nText(ambientLabel, 'audio.on'); else ambientLabel.textContent = 'Som: on';
+        }).catch(function(){});
+      } else {
+        ambient.pause();
+        ambientOn = false;
+        ambientBtn.classList.remove('is-on');
+        ambientBtn.setAttribute('aria-pressed', 'false');
+        if (window.__setI18nText) window.__setI18nText(ambientLabel, 'audio.off'); else ambientLabel.textContent = 'Som: off';
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

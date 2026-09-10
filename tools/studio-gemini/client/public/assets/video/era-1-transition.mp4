@@ -1,0 +1,17 @@
+{
+  "name": "files/sursv67xm4pd",
+  "displayName": "Generated Video",
+  "mimeType": "video/mp4",
+  "sizeBytes": "2070687",
+  "createTime": "2026-09-10T06:33:41.745751Z",
+  "updateTime": "2026-09-10T06:33:44.111235Z",
+  "expirationTime": "2026-09-12T06:33:41.581982194Z",
+  "sha256Hash": "ZmU4YmM3OWQyZGQ3NjkyN2RjZjMwYzg2MDU3Y2VmYmI5MDI5OGE4NWJhMjcwMGY2M2Y2NzdjODRmODgyM2NmZg==",
+  "uri": "https://generativelanguage.googleapis.com/v1beta/files/sursv67xm4pd",
+  "state": "ACTIVE",
+  "videoMetadata": {
+    "videoDuration": "8s"
+  },
+  "source": "GENERATED",
+  "downloadUri": "https://generativelanguage.googleapis.com/v1beta/files/sursv67xm4pd:download?alt=media"
+}

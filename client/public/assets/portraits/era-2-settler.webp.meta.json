@@ -1,0 +1,12 @@
+{
+  "prompt": "Post-apocalyptic RTS hero portrait, determined settler with wind-burned face and makeshift poncho, dawn horizon, bust framing, centered, neutral dark background, photorealistic, gritty film grain, cinematic key light, no text, no watermark, square 1:1. Negative: cartoon, anime, extra fingers, text, logo, watermark.",
+  "model": "gemini-2.5-flash-image",
+  "seed": 1105,
+  "date": "2026-09-10T04:28:20.755Z",
+  "bytes": 19752,
+  "dimensions": {
+    "width": 512,
+    "height": 512
+  },
+  "license": "AI-generated Rabelus Lab internal"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@project-exodus/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Authoritative simulation server (20Hz) and WebSocket networking for LAN and Tailscale",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "node --loader ts-node/esm src/index.ts",
+    "test": "node --loader ts-node/esm tests/server_smoke.test.ts && node --loader ts-node/esm src/__tests__/protocol.test.ts && node --loader ts-node/esm src/__tests__/astar.test.ts && node --loader ts-node/esm src/__tests__/resources.test.ts && node --loader ts-node/esm src/__tests__/simulation.test.ts && node --loader ts-node/esm src/__tests__/worker.test.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "ws": "^8.18.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "@types/ws": "^8.5.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  }
+}

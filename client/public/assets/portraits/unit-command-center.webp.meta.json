@@ -1,0 +1,12 @@
+{
+  "prompt": "Post-apocalyptic RTS hero portrait, command bunker interior, holographic map table, officers in silhouette, bust framing, centered, neutral dark background, photorealistic, gritty film grain, cinematic key light, no text, no watermark, square 1:1. Negative: cartoon, anime, extra fingers, text, logo, watermark.",
+  "model": "gemini-2.5-flash-image",
+  "seed": 1112,
+  "date": "2026-09-10T04:29:24.935Z",
+  "bytes": 21582,
+  "dimensions": {
+    "width": 512,
+    "height": 512
+  },
+  "license": "AI-generated Rabelus Lab internal"
+}

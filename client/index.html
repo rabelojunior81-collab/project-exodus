@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Project Exodus — RTS Pós-Apocalíptico Militar</title>
+    <meta name="description" content="RTS 3D Pós-Apocalíptico com modelos GLTF reais, PBR fotorrealista, mecânicas de Age of Empires 2 e multiplayer LAN/Tailnet." />
+    
+    <!-- Tipografia Militar de Ficção Científica (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/src/index.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Trilha de Canvas 3D para Three.js -->
+      <canvas id="rts-canvas"></canvas>
+
+      <!-- Tela Inicial / Menu Principal Triplo A -->
+      <div id="main-menu-overlay" class="menu-overlay">
+        <div class="menu-scanline-fx"></div>
+        <div class="menu-vignette-fx"></div>
+        <div class="menu-container">
+          <header class="menu-header">
+            <div class="menu-subtag">
+              <span class="subtag-dot"></span>
+              PROTOCOLO MILITAR DE SOBREVIVÊNCIA EXODUS // DEFCON 1
+            </div>
+            <h1 class="menu-title">PROJECT EXODUS</h1>
+            <div class="menu-subtitle">COLAPSO DA SINGULARIDADE // ERA DOS ESCOMBROS</div>
+          </header>
+
+          <nav class="menu-actions">
+            <button id="btn-start-game" class="menu-btn primary">
+              <span class="btn-bracket">[</span>
+              <span class="btn-label">INICIAR OPERAÇÃO DE COMBATE</span>
+              <span class="btn-bracket">]</span>
+            </button>
+            <button id="btn-open-lore" class="menu-btn">
+              <span class="btn-bracket">[</span>
+              <span class="btn-label">CRÔNICAS DA QUEDA (LORE DAS ERAS)</span>
+              <span class="btn-bracket">]</span>
+            </button>
+            <button id="btn-open-controls" class="menu-btn">
+              <span class="btn-bracket">[</span>
+              <span class="btn-label">DIRETIVAS & CONTROLES TÁTICOS</span>
+              <span class="btn-bracket">]</span>
+            </button>
+          </nav>
+
+          <footer class="menu-footer">
+            <div class="network-status">
+              <span class="net-dot"></span>
+              <span id="tailnet-ip">REDE TÁTICA TAILNET // 100.103.178.65:5173</span>
+            </div>
+            <div class="version-tag">VERSÃO 0.2.0 // MOTOR THREE.JS PBR GLTF</div>
+          </footer>
+        </div>
+      </div>
+
+      <!-- Modal de Crônicas da Queda (Campanha & Lore das 4 Eras) -->
+      <div id="lore-modal" class="tactical-modal hidden">
+        <div class="modal-card">
+          <header class="modal-header">
+            <div class="modal-title-group">
+              <div class="modal-pretitle">TERMINAL ARQUEOLÓGICO MILITAR // CLASSIFICAÇÃO ULTRA-SECRETA</div>
+              <h2>CRÔNICAS DA QUEDA DA CIVILIZAÇÃO</h2>
+            </div>
+            <button id="btn-close-lore" class="modal-close" title="Fechar Terminal">&times;</button>
+          </header>
+          
+          <div class="lore-nav" id="lore-era-tabs">
+            <button class="lore-tab active" data-era="1">ERA I: ESCOMBROS</button>
+            <button class="lore-tab" data-era="2">ERA II: REASSENTAMENTO</button>
+            <button class="lore-tab" data-era="3">ERA III: REENGENHARIA</button>
+            <button class="lore-tab" data-era="4">ERA IV: RENASCIMENTO</button>
+          </div>
+
+          <div class="lore-content" id="lore-display-panel">
+            <div class="lore-meta-row">
+              <div class="lore-meta-item">
+                <span class="meta-label">REGISTRO CRONOLÓGICO:</span>
+                <span class="meta-val" id="lore-date">Carregando...</span>
+              </div>
+              <div class="lore-meta-item">
+                <span class="meta-label">EMISSOR / AUTOR:</span>
+                <span class="meta-val" id="lore-author">Carregando...</span>
+              </div>
+            </div>
+
+            <div class="lore-section-label">TRANSCRIÇÃO DE RÁDIO INTERCEPTADA:</div>
+            <blockquote class="lore-transcript" id="lore-transcript">Carregando dados da transmissão...</blockquote>
+
+            <div class="lore-section-label">CONTEXTO ARQUEOLÓGICO & SOCIAL:</div>
+            <p class="lore-body" id="lore-body">Carregando arquivos de inteligência militar...</p>
+
+            <div class="lore-breakthrough-box">
+              <div class="breakthrough-label">SALTO TECNOLÓGICO DA ERA:</div>
+              <div class="breakthrough-text" id="lore-breakthrough">Carregando especificações...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de Controles Táticos -->
+      <div id="controls-modal" class="tactical-modal hidden">
+        <div class="modal-card">
+          <header class="modal-header">
+            <div class="modal-title-group">
+              <div class="modal-pretitle">MANUAL DE OPERAÇÕES MILITARES // RTS TACTICS</div>
+              <h2>CONTROLES DE COMBATE & NAVEGAÇÃO</h2>
+            </div>
+            <button id="btn-close-controls" class="modal-close" title="Fechar Manual">&times;</button>
+          </header>
+          <div class="controls-grid">
+            <div class="control-card">
+              <span class="key-badge">W A S D</span>
+              <span class="key-desc">Mover Câmera Isométrica pelo Campo</span>
+            </div>
+            <div class="control-card">
+              <span class="key-badge">SCROLL MOUSE</span>
+              <span class="key-desc">Aproximação e Afastamento (Zoom Óptico)</span>
+            </div>
+            <div class="control-card">
+              <span class="key-badge">BORDAS DA TELA</span>
+              <span class="key-desc">Edge Panning Contínuo da Câmera</span>
+            </div>
+            <div class="control-card">
+              <span class="key-badge">BOTÃO ESQUERDO</span>
+              <span class="key-desc">Seleção Única ou Caixa de Arraste (Box Selection)</span>
+            </div>
+            <div class="control-card">
+              <span class="key-badge">BOTÃO DIREITO</span>
+              <span class="key-desc">Comando de Movimentação ou Ataque no Terreno</span>
+            </div>
+            <div class="control-card">
+              <span class="key-badge">CLIQUE NO RADAR</span>
+              <span class="key-desc">Navegação Instantânea pelo Minimapa</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de Carregamento Tática com Radar Holográfico -->
+      <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-box">
+          <div class="radar-scanner">
+            <div class="radar-grid"></div>
+            <div class="radar-sweep"></div>
+            <div class="radar-center-blip"></div>
+          </div>
+          <div class="loading-header">CARREGANDO SISTEMAS TÁTICOS</div>
+          <div class="loading-subtitle">MODELOS GLTF REAIS, ANIMAÇÕES & SHADERS PBR</div>
+          <div class="loading-bar-container">
+            <div id="loading-bar-fill" class="loading-bar-fill" style="width: 0%"></div>
+          </div>
+          <div class="loading-status-row">
+            <span id="loading-status-text" class="loading-status">Inicializando subsistemas...</span>
+            <span id="loading-percent" class="loading-percent">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HUD Tático Pós-Apocalíptico In-Game -->
+      <header id="hud-topbar" class="hud-panel hidden">
+        <div class="hud-brand">
+          <button id="btn-open-menu-ingame" class="hud-menu-btn" title="Menu Principal"></button>
+          <span class="hud-status-indicator pulse-live"></span>
+          <span class="hud-title">PROJECT EXODUS</span>
+          <span class="hud-tag">MIL-SPEC 0.2.0</span>
+        </div>
+
+        <div id="hud-resources" class="resource-bar" role="toolbar" aria-label="Recursos da faccao">
+          <div class="resource-item" data-resource="rations" title="Racoes: alimenta a populacao. Coletada por Catadores em depositos organicos.">
+            <span id="res-icon-rations" class="res-icon-box" aria-hidden="true"></span>
+            <span class="res-meta">
+              <span class="res-label">RACOES</span>
+              <span class="res-row"><span id="res-rations" class="res-val">250</span><span id="res-delta-rations" class="res-delta" aria-hidden="true"></span></span>
+            </span>
+          </div>
+          <div class="resource-item" data-resource="scrap" title="Sucata: metal reaproveitado para unidades e estruturas basicas.">
+            <span id="res-icon-scrap" class="res-icon-box" aria-hidden="true"></span>
+            <span class="res-meta">
+              <span class="res-label">SUCATA</span>
+              <span class="res-row"><span id="res-scrap" class="res-val">180</span><span id="res-delta-scrap" class="res-delta" aria-hidden="true"></span></span>
+            </span>
+          </div>
+          <div class="resource-item" data-resource="chips" title="Chips: circuitos de IA para unidades avancadas e pesquisas.">
+            <span id="res-icon-chips" class="res-icon-box" aria-hidden="true"></span>
+            <span class="res-meta">
+              <span class="res-label">CHIPS</span>
+              <span class="res-row"><span id="res-chips" class="res-val">75</span><span id="res-delta-chips" class="res-delta" aria-hidden="true"></span></span>
+            </span>
+          </div>
+          <div class="resource-item" data-resource="concrete" title="Concreto: blindagem e construcao de estruturas pesadas.">
+            <span id="res-icon-concrete" class="res-icon-box" aria-hidden="true"></span>
+            <span class="res-meta">
+              <span class="res-label">CONCRETO</span>
+              <span class="res-row"><span id="res-concrete" class="res-val">50</span><span id="res-delta-concrete" class="res-delta" aria-hidden="true"></span></span>
+            </span>
+          </div>
+          <div class="resource-item population" data-resource="population" title="Populacao: unidades ativas / capacidade de abrigo. Construa abrigos para aumentar o teto.">
+            <span id="res-icon-pop" class="res-icon-box" aria-hidden="true"></span>
+            <span class="res-meta">
+              <span class="res-label">POPULACAO</span>
+              <span class="res-row"><span id="res-pop" class="res-val">6/15</span></span>
+            </span>
+          </div>
+        </div>
+
+        <div class="hud-top-right">
+          <button id="btn-events-toggle" class="hud-events-btn" title="Abrir feed de eventos (E)" aria-label="Abrir feed de eventos" aria-expanded="false">
+            <span id="events-bell-icon" class="res-icon-box" aria-hidden="true"></span>
+            <span id="events-badge-count" class="events-badge hidden" aria-label="Eventos nao lidos">0</span>
+          </button>
+          <div id="hud-era" class="era-badge" title="Era atual: desbloqueia unidades, edificios e pesquisas.">
+            <span id="era-icon" class="res-icon-box" aria-hidden="true"></span>
+            <span class="era-meta">
+              <span class="era-label">EPOCA HISTORICA</span>
+              <span id="current-era-name" class="era-name">I. Era dos Escombros</span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Feed de eventos e alertas taticos -->
+      <aside id="event-feed" class="event-feed hidden" aria-label="Feed de eventos taticos" aria-live="polite">
+        <header class="event-feed-header">
+          <span class="event-feed-title">EVENTOS TATICOS</span>
+          <div class="event-feed-actions">
+            <button id="btn-clear-events" class="event-feed-btn" title="Limpar eventos">LIMPAR</button>
+            <button id="btn-close-events" class="event-feed-btn close" title="Fechar feed (E)" aria-label="Fechar feed">&times;</button>
+          </div>
+        </header>
+        <ul id="event-feed-list" class="event-feed-list"></ul>
+      </aside>
+
+      <!-- Barra Inferior de Comando e Minimapa -->
+      <footer id="hud-bottombar" class="hud-panel hidden">
+        <button id="btn-collapse-bottombar" class="hud-collapse-btn" title="Recolher/expandir painel inferior" aria-label="Recolher painel inferior" aria-expanded="true">
+          <span id="collapse-icon" class="res-icon-box" aria-hidden="true"></span>
+        </button>
+        <div id="hud-selection-panel" class="selection-card">
+          <div id="selection-card-main" class="selection-main">
+            <div class="selection-empty">
+              <div class="selection-empty-scanline"></div>
+              <span>NENHUMA UNIDADE OU ESTRUTURA SELECIONADA</span>
+            </div>
+          </div>
+          <div id="selection-portraits" class="selection-portraits" aria-label="Retratos da selecao"></div>
+          <div id="production-queue" class="production-queue hidden" aria-label="Fila de producao">
+            <div class="production-header">
+              <span id="production-label" class="production-label">FILA DE PRODUCAO</span>
+              <button id="btn-cancel-production" class="production-cancel" title="Cancelar item atual da fila">CANCELAR</button>
+            </div>
+            <div class="production-progress-track" role="progressbar" aria-label="Progresso da producao" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div id="production-progress-fill" class="production-progress-fill" style="width: 0%"></div>
+            </div>
+            <ul id="production-queue-list" class="production-queue-list"></ul>
+          </div>
+        </div>
+
+        <div id="hud-commands-panel" class="commands-grid" role="toolbar" aria-label="Ordens e comandos">
+          <!-- Injetado dinamicamente com botões e ícones SVG -->
+        </div>
+
+        <div id="hud-minimap-container" class="minimap-frame" title="Radar tatico: clique com o botao esquerdo para mover a camera, botao direito para emitir ordem.">
+          <canvas id="minimap-canvas" width="160" height="160"></canvas>
+          <div id="minimap-ping-layer" class="minimap-ping-layer" aria-hidden="true"></div>
+          <div class="minimap-overlay">RADAR TATICO MILITAR</div>
+          <div id="minimap-hint" class="minimap-hint">CLIQUE: CAMERA | DIR: ORDEM</div>
+        </div>
+      </footer>
+
+      <!-- Caixa de Seleção RTS (Marquee) -->
+      <div id="selection-marquee" class="selection-marquee hidden"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
