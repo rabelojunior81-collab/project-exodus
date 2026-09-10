@@ -33,9 +33,9 @@ A Fase 2.6 precisa fundir as duas com o servidor como autoridade, sem regredir a
 
 | Constante | Cliente | Servidor | Decisão |
 | :--- | ---: | ---: | :--- |
-| Treino worker | 8,0 s | 5,0 s | **aberta (D-2.6-A)** |
-| Treino raider | 12,0 s | 6,0 s | **aberta (D-2.6-A)** |
-| Treino buggy | 18,0 s | 10,0 s | **aberta (D-2.6-A)** |
+| Treino worker | 8,0 s | 5,0 s | **DECIDIDA (D-2.6-A): cliente vence — servidor adota 8,0 s** |
+| Treino raider | 12,0 s | 6,0 s | **DECIDIDA (D-2.6-A): cliente vence — servidor adota 12,0 s** |
+| Treino buggy | 18,0 s | 10,0 s | **DECIDIDA (D-2.6-A): cliente vence — servidor adota 18,0 s** |
 | Treino drone / mech | 16 s / 24 s | inexistente | portar para o servidor |
 | Custo em recursos | tabela de 4 recursos + reembolso | **inexistente** | portar para o servidor |
 | `POP_MAX` | 20 | inexistente | portar para o servidor |
@@ -46,8 +46,8 @@ A Fase 2.6 precisa fundir as duas com o servidor como autoridade, sem regredir a
 
 | Subsistema | Cliente | Servidor | Decisão |
 | :--- | :--- | :--- | :--- |
-| Coleta | timer 3 s → extrai 10 (atômico) | 1 un / 0,5 s até 10 (incremental) | **aberta (D-2.6-B)** |
-| Locomoção | aceleração, inércia, giro por tipo, tração só alinhado, −10 % com carga | velocidade constante sobre caminho A* | **aberta (D-2.6-C)** |
+| Coleta | timer 3 s → extrai 10 (atômico) | 1 un / 0,5 s até 10 (incremental) | **DECIDIDA (D-2.6-B): incremental recalibrado — 0,3 s/un (~3,33 un/s)** |
+| Locomoção | aceleração, inércia, giro por tipo, tração só alinhado, −10 % com carga | velocidade constante sobre caminho A* | **DECIDIDA (D-2.6-C): física migra para o servidor** — + colisão real (spec 03, Fase 1.12) |
 | Pathfinding | reta até o alvo | A* com desvio de obstáculo | servidor vence |
 | Fog of War | grade 90×90 client-side | inexistente | **aberta (D-2.6-D)** |
 
@@ -100,13 +100,13 @@ input do usuário
 
 ---
 
-## 4. Decisões Abertas (requerem o usuário)
+## 4. Decisões Abertas (requerem o usuário) — progresso: **3 de 5 decididas**
 
 | ID | Decisão | Opções | Impacto |
 | :--- | :--- | :--- | :--- |
-| **D-2.6-A** | Qual tabela de tempos de treino vence? | (a) cliente (mais lento, já playtestado) · (b) servidor (mais rápido) · (c) recalibrar do zero | Ritmo econômico da partida |
-| **D-2.6-B** | Qual modelo de coleta vence? | (a) incremental do servidor (mais rico: carga parcial visível, nó esgotando no meio) · (b) atômico do cliente (mais simples, já tem FX) | Taxa de coleta muda 1,67×; o FX de depleção da 1.7D precisa reagir a carga parcial se (a) |
-| **D-2.6-C** | A física de inércia do blindado migra para o servidor? | (a) migra (tática preservada, servidor mais complexo) · (b) vira cosmética de interpolação (giro lento deixa de ter efeito tático — regride um gate da Fase 1.5) | Identidade do veículo pesado |
+| **D-2.6-A** ✅ | ~~Qual tabela de tempos de treino vence?~~ **DECIDIDA (10/09): (a) cliente vence** — servidor adota 8/12/18 s e porta drone 16 s / mech 24 s | (a) ✅ escolhida · (b) descartada · (c) descartada | Ritmo econômico preservado |
+| **D-2.6-B** ✅ | ~~Qual modelo de coleta vence?~~ **DECIDIDA (10/09): (a) incremental do servidor recalibrado (0,3 s/un)** | (a) ✅ escolhida · (b) descartada · (c) descartada | Ritmo preservado; carga parcial real |
+| **D-2.6-C** ✅ | ~~A física de inércia do blindado migra para o servidor?~~ **DECIDIDA (10/09): (a) migra** + colisão real (spec 03) | (a) ✅ escolhida · (b) descartada (regride gate 1.5) | Identidade do veículo preservada; 2.6.3 absorve a física e a colisão |
 | **D-2.6-D** | Fog of War vira autoritativo? | (a) fica client-side (visual) · (b) servidor filtra o snapshot por visibilidade (anti-maphack, obrigatório para multiplayer competitivo) | Escopo da Fase 3 |
 | **D-2.6-E** | Predição local no cliente? | (a) sem predição (mais simples, input lag de 1 RTT) · (b) predição otimista + reconciliação | Sensação de resposta em Tailscale |
 
@@ -116,9 +116,9 @@ input do usuário
 
 | Sub-fase | Entrega | Gate |
 | :--- | :--- | :--- |
-| 2.6.1 | Workspace `shared/`; `protocol.ts` migrado; `units/economy/world` extraídos | `tsc` 0 nos 3 workspaces + 39 asserts do servidor intactos |
+| 2.6.1 | Workspace `shared/`; `protocol.ts` migrado; `units/economy/world` extraídos | `tsc` 0 nos 3 workspaces + 43 asserts do servidor intactos |
 | 2.6.2 | Paridade de modelo: 5 unidades, custos, `POP_MAX` no servidor | novos asserts: custo debita, pop-cap rejeita, drone/mech treinam |
-| 2.6.3 | Reconciliação de coleta e locomoção conforme D-2.6-B e D-2.6-C | asserts de taxa de coleta; determinismo preservado |
+| 2.6.3 | Reconciliação de coleta e locomoção conforme D-2.6-B e D-2.6-C; **absorve `collision.ts` da spec 03 para `shared/`** (1.12.4) | asserts de taxa de coleta; determinismo preservado; colisão com fonte única |
 | 2.6.4 | `snapshot()` no broadcast do `tick()`; protocolo de snapshot versionado | 2 clientes recebem snapshots idênticos |
 | 2.6.5 | Cliente WS: conexão, buffer de interpolação, reconciliação, HUD por snapshot | `gather-e2e` passa **contra o servidor**, sem economia local |
 | 2.6.6 | Remoção da simulação client-side (os 5 `TODO-2.6`) | `grep -c TODO-2.6 client/src` = 0 |

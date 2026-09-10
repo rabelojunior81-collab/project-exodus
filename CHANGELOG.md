@@ -24,9 +24,17 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
   (`client/public/assets/video/era-1-transition.mp4`) e à landing.
 - Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
 
+### Adicionado (Sessão 14)
+- **Física de colisão** (Fase 1.12, `docs/specs/03-colisao-e-obstaculos.md`): unidades não
+  atravessam construções, veios nem props sólidos — deslize, desvio frontal determinístico,
+  parada encostada, separação unidade×unidade, penalidade de declive e limites de mundo.
+  Cliente (`engine/collision.ts`) e servidor (`advance()` com projeção + veios) em paridade.
+- Harness `tools/visual-check/collision-e2e.mjs` e 4 asserts novos na suíte do servidor
+  (total: 43 asserts).
+
 ### Planejado
 - Fase 1.11 — Remediação e hardening (gate negativo do CRIT-02, áudio da 1.7E, CI de gates)
-- Fase 2.6 — Reconciliação cliente↔servidor (workspace `shared/`, paridade de modelo, snapshots)
+- Fase 2.6 — Reconciliação cliente↔servidor (`shared/`, absorve a colisão no 2.6.3)
 - Fase 3 — Multiplayer LAN/Tailscale
 
 ## [0.1.0] — 2026-09-10

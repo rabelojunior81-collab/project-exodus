@@ -1,37 +1,27 @@
 # handoff.md — Transição de Turno Operacional
 
-> **Turno Corrente**: Sessão 13 — Repositório Público, README e Landing (concluída)
-> **Última Modificação**: 2026-09-10T23:10:00-03:00
-> **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-10_23-10_sessao-13-repositorio-publico-landing.md`
+> **Turno Corrente**: Sessão 14 — Colisão e Obstáculos (concluída)
+> **Última Modificação**: 2026-09-10T20:45:00-03:00
+> **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-10_20-45_sessao-14-colisao-e-obstaculos.md`
 
 ---
 
-## 1. O que foi realizado neste turno (Sessão 13, 10/09 23:10 BRT)
+## 1. O que foi realizado neste turno (Sessão 14)
 
-Diretiva do usuário: preparar o repositório público `project-exodus` com README/landing,
-criar a landing HTML no estilo `modernity-sandbox`, ativos novos (marca), fechar os itens
-2 (CRIT-02) e 3 (ALTO-04) e preparar as decisões do spec 02 via `grill-me`.
+Diretiva do usuário (na sessão de decisões da 2.6, em resposta a D-2.6-C = A):
+*"adicione física de terreno, buildings, sucatas — que as unidades não passem por cima das coisas
+como se fossem hologramas"*.
 
-1. **Repositório público criado e publicado**: `github.com/rabelojunior81-collab/project-exodus`.
-   Baseline `924c111` (321 arquivos), tag `v0.1.0-fase-1.7`. `.env` e `node_modules` fora do
-   rastreamento (verificado). `masters/` (31 MB) versionado (D-13.2).
-2. **Open Source completo**: `LICENSE` (MIT no código), `LICENSES/ASSETS.md` (assets separados),
-   `CONTRIBUTING`, `CODE_OF_CONDUCT`, `SECURITY`, `CHANGELOG`, templates de issue/PR.
-3. **README bilingue** (`README.md` PT-BR + `README.en.md`) com badges, screenshots, áudio,
-   roadmap e contatos (rabelo.work@gmail.com · rabelus.com).
-4. **Landing page** em `landing/` (arquivo único, estilo modernity-sandbox, i18n PT/EN,
-   players de áudio, eras/facções/roadmap) + marca e banner SVG próprios
-   (`docs/media/mark-exodus.svg`, `banner-exodus.svg`). Deploy por GitHub Actions;
-   **Pages estava em modo legacy e foi migrado para Actions**.
-5. **Vídeo do Lote 3 recuperado**: o piloto omni salvara o **metadata JSON** no lugar do MP4;
-   os bytes (2.070.687 B, 1280×720, 8 s) foram baixados da Files API antes do expiry
-   (12/09 06:33 UTC) com o novo script `tools/studio-gemini/scripts/download-pending-video.mjs`.
-   Integrado mudo à landing (`hero.mp4` + pôster) e ao jogo (`client/public/assets/video/`).
-6. **ALTO-04 fechado**: `MANIFEST.md` reconciliado (76 publicados / ≈ 25.067 KB), `ATTRIBUTION.md`
-   corrigido, 3 `.ogg` órfãos arquivados, gate `tools/verify-manifest.mjs` criado.
-7. **CRIT-02 corrigido no código**: `__BUILD_STAMP__` via `define` do Vite; `main.ts` consome a
-   constante. Typecheck do client = 0 erros. **Gate negativo pendente.**
-8. **Skill `grill-me` instalada** em `.kilo/skill/grill-me/SKILL.md` para conduzir as decisões.
+1. **Fase 1.12 entregue** (spec nova `docs/specs/03-colisao-e-obstaculos.md`):
+   - Cliente: `engine/collision.ts` (sub-passos ≤0,5 m, projeção com deslize, desvio frontal
+     determinístico, separação unidade×unidade, declive, clamp ±88 m); props sólidos por família
+     em `props.ts` (~225 círculos); integração completa em `unit.ts`/`main.ts`.
+   - Servidor: `advance()` projeta fora de construções + veios; constantes espelhadas;
+     veios **fora do A\*** de propósito (preserva a FSM de coleta).
+   - Harness: `collision-e2e.mjs` novo (travessia do CC + parada encostada no veio).
+2. **D-2.6-C registrada = A** (migrar física para o servidor) no livro de decisões e no spec 02;
+   a migração para `shared/` fica no 2.6.3 (sub-fase 1.12.4).
+3. **Documentos vivos sincronizados**: journal S14, estate, roadmap (Fase 1.12), changelog.
 
 ---
 
@@ -39,34 +29,31 @@ criar a landing HTML no estilo `modernity-sandbox`, ativos novos (marca), fechar
 
 | Gate | Comando | Resultado |
 | :--- | :--- | :--- |
-| tsc client (pós-CRIT-02) | `node_modules/.bin/tsc --noEmit -p client/tsconfig.json` | 🟢 0 erros |
-| .env fora do repo | `git ls-files .env` | 🟢 vazio |
-| node_modules fora do repo | `git ls-files node_modules \| wc -l` | 🟢 0 |
-| Baseline | `git ls-files \| wc -l` | 🟢 321 arquivos |
-| Push + tag | `git push` + `git push origin v0.1.0-fase-1.7` | 🟢 publicados |
-| Vídeo recuperado | `npm run video:download` (studio) | 🟢 2.070.687 bytes |
-| WebP da landing | ffmpeg `libwebp -quality 80` | 🟢 ~10 MB → ~750 KB |
-| Suíte do servidor | `cd server && npm test` | 🟢 smoke + 39 asserts (S13) |
-| Manifesto × disco | `node tools/verify-manifest.mjs` | 🟢 100% em sincronia (S13) |
-| Build de produção | `cd client && npm run build` | 🟢 23 módulos; JS 684,10 kB (gzip 180,24 kB) (S13) |
-| Prova de produção | `node tools/visual-check/dist-proof.mjs` | 🟢 11 entidades, 8 nós, 0 pageerrors; carimbo compilado verificado (S13) |
-| Pages | `gh api -X PUT … build_type=workflow` + dispatch | 🟢 deploy success — landing ao vivo em `https://rabelojunior81-collab.github.io/project-exodus/` |
+| tsc client | `node_modules/.bin/tsc --noEmit -p client/tsconfig.json` | 🟢 0 erros |
+| tsc server | `node_modules/.bin/tsc --noEmit -p server/tsconfig.json` | 🟢 0 erros |
+| Suíte do servidor | `cd server && npm test` | 🟢 smoke + **43 asserts** (4 novos de colisão) |
+| Colisão em runtime | `node tools/visual-check/collision-e2e.mjs` (preview 4173) | 🟢 minDistCC **8,700** · chegada OK · veio **3,101** · 0 pageerrors |
+| Coleta E2E | `node tools/visual-check/gather-e2e.mjs` (dev 5173) | 🟢 entregou 180→190 |
+| HUD | `node tools/visual-check/test-buttons.mjs` | 🟢 10/10 + coleta-e2e |
+| Produção | `node tools/visual-check/dist-proof.mjs` | 🟢 11 ent / 8 nós / 0 pageerrors |
+| Build | `cd client && npm run build` | 🟢 688,92 kB (gzip 182,06 kB) |
+| Manifesto | `node tools/verify-manifest.mjs` | 🟢 100% (rodado na S13; sem mudança de assets na S14) |
 
-⚠️ **NÃO executados nesta sessão**: `test-buttons` e `gather-e2e` (os demais gates, incluindo
-build e `dist-proof`, rodaram na S13). Nenhum arquivo de `server/` foi tocado.
+**Não executados nesta sessão**: FPS em GPU real (harness segue swiftshader); `npm run build`
+dos workspaces `server`/`studio` (nenhuma mudança fora do `server/src` coberto pelo tsc+test).
 
 ---
 
-## 3. Decisões Tomadas (S13)
+## 3. Decisões Tomadas (S14)
 
 | # | Decisão |
 | :-- | :--- |
-| D-13.1 | Código **MIT** + assets com licenças próprias (`LICENSES/ASSETS.md`) |
-| D-13.2 | `masters/` (31 MB) **versionado** |
-| D-13.3 | Landing publicada por **Actions** a partir de `landing/` |
-| D-13.4 | Vídeo do Lote 3 usado **mudo** na landing |
-| D-13.5 | `.ogg` órfãos **arquivados** (não deletados) |
-| D-13.6 | Commits com identidade `Rabelus Lab <rabelo.work@gmail.com>` via `-c` pontual (config global intacta) |
+| D-14.1 | Raio físico separado do raio de clique (buggy: físico 2,0 m × clique 3,2 m) |
+| D-14.2 | Construções usam o mesmo raio do servidor (8/6/4,5) — paridade futura |
+| D-14.3 | Veios fora do A*; colisão apenas por projeção em runtime |
+| D-14.4 | Props longos aproximados por 1 círculo conservador (multi-círculo se a inspeção pedir) |
+| D-14.5 | Desvio frontal por tangente persistida, sem RNG |
+| D-14.6 | Re-resolução estática pós-separação (nada fica dentro de obstáculo) |
 
 ---
 
@@ -74,32 +61,26 @@ build e `dist-proof`, rodaram na S13). Nenhum arquivo de `server/` foi tocado.
 
 **Ordem sugerida:**
 
-1. **`D-2.6-A..E` — decisões da Fase 2.6** (bloqueiam a fase inteira; spec 02 em RASCUNHO).
-   Conduzir a sessão `grill-me` (`.kilo/skill/grill-me/SKILL.md`); registrar em
-   `docs/decisions/` e promover o spec a APROVADO. **Nenhuma linha de código da 2.6 antes disso.**
-2. **Gates de harness restantes**: `test-buttons` e `gather-e2e` (build, `npm test` do servidor,
-   `verify-manifest` e `dist-proof` já verdes na S13).
-3. **ALTO-05 / 1.11.4**: cortar o stinger (58 s → 8–10 s), re-encodar música para 96 kbps,
-   implementar `playMusic`/`crossfadeTo`/`stopMusic` e fiar menu/partida/combate.
-   ffmpeg confirmado disponível (`ffmpeg-static`).
-4. **CI**: workflow com tsc ×3 + testes do servidor + `verify-manifest` (hoje só a Pages roda).
-5. **GitHub (config web)**: topics do repositório + social preview (não versionáveis).
-6. **Lote 3 restante (1.11.6)**: eras 2–4 + remover o `as any` do `video-omni-pilot.ts`.
+1. **`D-2.6-D` e `D-2.6-E`** — as duas últimas decisões do spec 02 (Fog autoritativo e predição
+   local). Conduzir com a skill `grill-me`; ao fechar, promover o spec 02 a APROVADO e liberar a 2.6.
+2. **1.12.4** — migrar colisão/constantes para `shared/` **dentro do 2.6.3** (não antes).
+3. **ALTO-05 / 1.11.4**: stinger 58 s → 8–10 s, música 96 kbps, `playMusic`/crossfade; ffmpeg disponível.
+4. **CI**: workflow com `tsc`×3 + `npm test` + `verify-manifest` + `collision-e2e` (hoje só Pages).
+5. **GitHub (config web)**: topics + social preview.
+6. **Lote 3 restante (1.11.6)**: eras 2–4 e remoção do `as any` do piloto.
+7. **Performance**: medir FPS em GPU real quando possível.
 
 ---
 
 ## 5. Decisões Abertas Aguardando o Usuário
 
-| ID | Pergunta | Onde |
+| ID | Pergunta | Status |
 | :--- | :--- | :--- |
-| D-2.6-A | Qual tabela de tempos de treino vence — cliente (mais lento, playtestado) ou servidor? | spec 02 §4 |
-| D-2.6-B | Qual modelo de coleta vence — incremental do servidor ou atômico do cliente? (muda a taxa em 1,67×) | spec 02 §4 |
-| D-2.6-C | A física de inércia do blindado migra para o servidor ou vira cosmética? | spec 02 §4 |
-| D-2.6-D | Fog of War vira autoritativo (anti-maphack) ou fica client-side? | spec 02 §4 |
-| D-2.6-E | Predição local no cliente, ou aceitar 1 RTT de input lag? | spec 02 §4 |
-
-Recomendações do agente (com justificativa) na sessão `grill-me` — ver journal da S12 §4 e
-a apresentação feita no fechamento da S13.
+| D-2.6-A | Tempos de treino | ✅ decidida (a) — cliente vence |
+| D-2.6-B | Modelo de coleta | ✅ decidida (a) — incremental recalibrado (0,3 s/un) |
+| D-2.6-C | Física do blindado | ✅ decidida (a) — migra para o servidor **+ colisão (S14 entregue)** |
+| D-2.6-D | Fog of War autoritativo? | ⏳ **próxima pergunta** |
+| D-2.6-E | Predição local? | ⏳ pendente |
 
 ---
 
@@ -107,16 +88,19 @@ a apresentação feita no fechamento da S13.
 
 - Sempre validar `resolveClientAssets()` após mudar estrutura de diretórios.
 - `npm run build` em todos os workspaces a cada turno de client/assets.
-- MANIFEST/ATTRIBUTION atualizados **junto com** novos assets — e verificados contra o disco.
+- MANIFEST/ATTRIBUTION atualizados **junto com** novos assets — verificados contra o disco.
 - Áudio e vídeo lazy-load; nunca no boot.
 - Antes de retomar, ler `handoff.md`, `estate.md` e o journal mais recente.
 - Alegação de gate só entra em documento se tiver sido executada no turno.
-- **Novo (S13)**: nenhuma decisão de spec com o documento em RASCUNHO; `grill-me` antes de código.
-- **Novo (S13)**: assets gerados por API com URL temporária (Files API) devem ser **baixados
-  no mesmo turno** — expiry de 48 h; verificar `expirationTime` do sidecar.
+- Nenhuma decisão de spec com o documento em RASCUNHO; `grill-me` antes de código.
+- Assets de API com URL temporária devem ser baixados no mesmo turno (expiry 48 h).
+- **Novo (S14)**: física de colisão é **servidor-autoritativa no futuro** (2.6.3) — no cliente,
+  qualquer ajuste deve manter as constantes idênticas às do servidor até a migração para `shared/`.
+- **Novo (S14)**: harness de colisão exige preview em 4173 (`collision-e2e.mjs`) ou dev em 5173
+  (demais) — subir o servidor certo antes de acusar falha.
 
 ---
 *Registro assinado por:*
 - **Harness/Agente**: Kilo CLI
 - **Modelo LLM**: deepseek-v4.1-flash
-- **Timestamp**: 2026-09-10T23:10:00-03:00
+- **Timestamp**: 2026-09-10T20:45:00-03:00

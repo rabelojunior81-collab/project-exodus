@@ -70,6 +70,19 @@ export const BUILDING_RADIUS: Record<BuildingType, number> = {
   BUNKER_TURRET: 4.5,
 };
 
+/**
+ * Raio físico por unidade (Fase 1.12 — espelha `client/src/engine/collision.ts`;
+ * a 2.6.3 unifica em `shared/`).
+ */
+export const UNIT_COLLISION_RADIUS: Record<UnitType, number> = {
+  SCAVENGER_WORKER: 0.7,
+  RUST_RAIDER: 0.75,
+  SCRAP_BUGGY: 2.0,
+};
+
+/** Raio de colisão dos veios (espelha o cliente; veios não entram no A*). */
+export const NODE_COLLISION_RADIUS: number = 2.4;
+
 /** Ticks de construção por tipo (20Hz: 600 = 30s). */
 export const BUILD_TICKS: Record<BuildingType, number> = {
   COMMAND_CENTER: 600,
@@ -343,7 +356,47 @@ export class Simulation implements WorkerWorld {
     }
     e.x = clampToWorld(e.x);
     e.z = clampToWorld(e.z);
+    // Fase 1.12: projeção de colisão (construções + veios). Puramente
+    // aritmética, iterada — determinismo preservado.
+    this.projectOutOfObstacles(e);
     return e.pathIndex >= e.path.length;
+  }
+
+  /**
+   * Empurra a unidade para fora de qualquer obstáculo (spec 03). Veios não
+   * entram no A* (evita regressão na FSM de coleta: a chegada dispara a 4 m,
+   * antes do contato de 3,1 m) — a projeção resolve em runtime.
+   */
+  private projectOutOfObstacles(e: SimEntity): void {
+    if (e.category !== 'UNIT') return;
+    const radius: number = UNIT_COLLISION_RADIUS[e.type as UnitType] ?? 1;
+    for (let iter: number = 0; iter < 2; iter++) {
+      let moved: boolean = false;
+      for (const o of this.grid.listObstacles()) {
+        if (this.pushOut(e, o.x, o.z, o.r + radius)) moved = true;
+      }
+      for (const nd of this.nodes.values()) {
+        if (this.pushOut(e, nd.x, nd.z, NODE_COLLISION_RADIUS + radius)) moved = true;
+      }
+      if (!moved) break;
+    }
+    e.x = clampToWorld(e.x);
+    e.z = clampToWorld(e.z);
+  }
+
+  private pushOut(e: SimEntity, ox: number, oz: number, rr: number): boolean {
+    const dx: number = e.x - ox;
+    const dz: number = e.z - oz;
+    const d2: number = dx * dx + dz * dz;
+    if (d2 >= rr * rr) return false;
+    const d: number = Math.sqrt(d2);
+    if (d < 1e-6) {
+      e.x = ox + rr;
+      return true;
+    }
+    e.x = ox + (dx / d) * (rr + 1e-3);
+    e.z = oz + (dz / d) * (rr + 1e-3);
+    return true;
   }
 
   public planTo(id: string, x: number, z: number): void {

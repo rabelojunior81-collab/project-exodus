@@ -188,7 +188,32 @@
   - [x] Carimbo de build provado por teste negativo. (provado por construção + `dist-proof` na S13)
   - [~] MANIFEST/ATTRIBUTION batendo com o disco; verificação automatizada criada (`tools/verify-manifest.mjs`) — execução em CI pendente.
   - [ ] Música tocando no gameplay, com peso otimizado. (ffmpeg validado na S13)
-  - [ ] `tsc` 0 nos 3 workspaces, 39 asserts, test-buttons 10/10, gather-e2e, dist-proof — todos verdes após as mudanças. (client tsc 0 + 39 asserts + `verify-manifest` + build/`dist-proof` verdes na S13; faltam test-buttons e gather-e2e)
+  - [ ] `tsc` 0 nos 3 workspaces, 39→**43** asserts, test-buttons 10/10, gather-e2e, dist-proof — todos verdes após as mudanças. (client tsc 0 + 43 asserts + `verify-manifest` + build/`dist-proof` + test-buttons + gather-e2e verdes até a S14; falta rodar música/áudio e os 3 workspaces juntos no mesmo turno)
+
+---
+
+## Fase 1.12: Colisão e Obstáculos 🟢 (S14)
+*Objetivo: unidades não atravessam construções, veios e props sólidos — contato com deslize,
+desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo. Spec:
+`docs/specs/03-colisao-e-obstaculos.md` (diretiva do usuário na sessão de decisões 2.6, 10/09).*
+
+- [x] **Sub-fase 1.12.1 — Colisão no cliente** 🟢 (S14)
+  - `client/src/engine/collision.ts` — círculos, sub-passos ≤0,5 m, projeção 2×, desvio tangencial, clamp ±88 m.
+  - Props sólidos por família em `props.ts` (~225 círculos; finos ficam decorativos).
+  - Integração em `unit.ts` (raio físico por tipo, `resolveTarget`, `slopeSpeedFactor`).
+  - Gate: `collision-e2e.mjs` — minDistCC **8,700** (= contato), chegada OK, veio **3,101**, 0 pageerrors.
+- [x] **Sub-fase 1.12.2 — Paridade no servidor** 🟢 (S14)
+  - `advance()` projeta para fora de construções + veios (aritmética pura, iterada); veios fora do A* para não regredir a FSM de coleta.
+  - Gate: 4 asserts novos (`collision.test.ts`) — suíte total **43 asserts**, determinismo intacto, 387 ticks da FSM inalterados.
+- [x] **Sub-fase 1.12.3 — Unidade×unidade, declive e limites** 🟢 (S14)
+  - Separação soft-body determinística por id + re-resolução estática; declive ±0,75 m; clamp de mundo.
+  - Gate: `test-buttons` 10/10 + coleta E2E + `dist-proof` 11/8/0 sem regressão.
+- [ ] **Sub-fase 1.12.4 — Migração para `shared/`** ⚪ (junto do 2.6.3): fonte única de constantes e resolvedor.
+- **Gate de Aprovação da Fase 1.12**:
+  - [x] Cliente: nenhuma travessia de CC/veio (`collision-e2e`).
+  - [x] Servidor: projeção provada por teste; determinismo intacto (43 asserts).
+  - [x] Sem regressão de coleta/HUD (gather-e2e + test-buttons + dist-proof).
+  - [ ] Constantes e resolvedor em `shared/` (2.6.3).
 
 
 ---
@@ -255,3 +280,8 @@
 - **Harness/Agente**: Kilo CLI
 - **Modelo LLM**: deepseek-v4.1-flash
 - **Timestamp**: 2026-09-10T23:10:00-03:00
+
+*Atualizado por (Sessão 14 — Fase 1.12 entregue):*
+- **Harness/Agente**: Kilo CLI
+- **Modelo LLM**: deepseek-v4.1-flash
+- **Timestamp**: 2026-09-10T20:45:00-03:00

@@ -2,6 +2,14 @@ import * as THREE from 'three';
 import { RTSCameraController } from './engine/camera.js';
 import { TerrainManager } from './engine/terrain.js';
 import { getTerrainHeight } from './engine/terrainHeight.js';
+import {
+  CollisionWorld,
+  BUILDING_COLLISION_RADIUS,
+  NODE_COLLISION_RADIUS,
+  separateUnits,
+  type CircleObstacle,
+  type SoftBodyLike,
+} from './engine/collision.js';
 import { FogOfWar } from './engine/fog-of-war.js';
 import { ParticleFx } from './fx/particles.js';
 import { TacticalAudio } from './engine/audio.js';
@@ -74,6 +82,10 @@ const cameraController = new RTSCameraController(canvas, aspect, {
 
 // 5. Terreno PBR com Shader de Mistura (Multi-Texture Splat Mapping sem Repetição)
 const terrainManager = new TerrainManager(scene, 180);
+
+// 5a. Mundo de colisão (Fase 1.12, spec 03): círculos de construções, veios e
+// props sólidos. O cliente físico reconstrói a lista no início da partida.
+const collisionWorld = new CollisionWorld();
 
 // 5b. Fog of War (exploração do mapa): grade 90×90 client-side
 const fogOfWar = new FogOfWar(180);
@@ -210,6 +222,7 @@ function completeTraining(job: TrainingJob): void {
   selectionManager.registerEntity(unit);
   allEntities.push(unit);
   installGatherContext(unit);
+  unit.setCollisionWorld(collisionWorld);
   hud.pushEvent('info', `${job.label} pronto para combate`);
   if (trainingQueue.length === 0) {
     hud.clearProductionQueue();
@@ -769,6 +782,32 @@ const controlsModal = document.getElementById('controls-modal')!;
 
 const btnOpenMenuInGame = document.getElementById('btn-open-menu-ingame')!;
 
+/**
+ * Reconstrói os obstáculos de colisão (Fase 1.12, spec 03): construções +
+ * veios (estáticos) + props sólidos do cenário. Chamado no início da partida.
+ */
+function rebuildCollisionWorld(): void {
+  const list: CircleObstacle[] = [];
+  for (const e of allEntities) {
+    if (e instanceof Building) {
+      list.push({
+        x: e.position.x,
+        z: e.position.z,
+        radius: BUILDING_COLLISION_RADIUS[e.buildingType] ?? 5,
+        kind: 'building',
+        id: e.id,
+      });
+    }
+  }
+  for (const n of resourceNodes) {
+    list.push({ x: n.x, z: n.z, radius: NODE_COLLISION_RADIUS, kind: 'node', id: n.id });
+  }
+  for (const p of terrainManager.worldProps.obstacles) {
+    list.push({ x: p.x, z: p.z, radius: p.radius, kind: 'prop' });
+  }
+  collisionWorld.setObstacles(list);
+}
+
 // Inicialização da Operação de Combate com Pré-Carregamento Assíncrono de Modelos GLTF
 async function startCombatOperation(): Promise<void> {
   // 1. Exibe tela de carregamento tática
@@ -846,6 +885,10 @@ async function startCombatOperation(): Promise<void> {
       allEntities.push(u);
       installGatherContext(u);
     }
+
+    // Fase 1.12: colisão da base + veios + props, conectada a cada unidade.
+    rebuildCollisionWorld();
+    for (const u of units) u.setCollisionWorld(collisionWorld);
   }
 
   // 3. Oculta carregamento e revela HUD in-game
@@ -960,6 +1003,22 @@ function animate() {
     entity.update(delta);
   }
 
+  // Fase 1.12: separação unidade×unidade (soft-body determinístico por id).
+  const liveUnits = allEntities.filter((e): e is Unit => e instanceof Unit);
+  if (liveUnits.length > 1) {
+    const bodies: SoftBodyLike[] = liveUnits.map((u) => ({
+      id: u.id,
+      x: u.mesh.position.x,
+      z: u.mesh.position.z,
+      radius: u.collisionRadius,
+      offset: (dx: number, dz: number) => u.applyPhysicsPush(dx, dz),
+    }));
+    separateUnits(bodies);
+    // O empurrão pode ter jogado alguém para dentro de um obstáculo do mundo:
+    // re-resolve sem mover (custo baixo, garante invariante do gate 1.12).
+    for (const u of liveUnits) u.resolveStaticCollision();
+  }
+
   // Avança fila de treinamento local (TEMPORÁRIO até o servidor — TODO-2.6)
   if (trainingQueue.length > 0) {
     const job = trainingQueue[0];
@@ -1052,6 +1111,26 @@ animate();
   isGameStarted: () => gameStarted,
   getResources: () => ({ ...resources }),
   getNodes: () => resourceNodes.map((n) => ({ id: n.id, kind: n.kind, amount: n.amount })),
+  // Fase 1.12 — apoio ao harness de colisão (spec 03)
+  getObstacles: () =>
+    collisionWorld.list().map((o) => ({ x: o.x, z: o.z, radius: o.radius, kind: o.kind, id: o.id })),
+  getUnitStates: () =>
+    allEntities
+      .filter((e): e is Unit => e instanceof Unit)
+      .map((u) => ({
+        id: u.id,
+        type: u.unitType,
+        radius: u.collisionRadius,
+        x: +u.mesh.position.x.toFixed(3),
+        z: +u.mesh.position.z.toFixed(3),
+      })),
+  // Apoio ao harness (não usar em gameplay): emite MOVE programático.
+  debugOrderMove: (id: string, x: number, z: number) => {
+    const u = allEntities.find((e): e is Unit => e instanceof Unit && e.id === id);
+    if (!u) return false;
+    u.moveTo(new THREE.Vector3(x, getTerrainHeight(x, z), z));
+    return true;
+  },
   // Box3 só do modelo GLTF (children[0] = modelInstance.scene), sem a
   // poluição do anel de seleção e da barra de HP — usado p/ calibração.
   measureModel: (id: string) => {

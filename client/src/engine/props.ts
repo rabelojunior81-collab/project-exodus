@@ -55,9 +55,18 @@ export interface PropPlacement {
   z: number;
 }
 
+/** Círculo de colisão derivado de um prop sólido (Fase 1.12, spec 03). */
+export interface PropCircle {
+  x: number;
+  z: number;
+  radius: number;
+}
+
 export interface WorldProps {
   group: THREE.Group;
   positions: readonly PropPlacement[];
+  /** Props sólidos (ruínas, colunas, destroços, árvores, barris, escombros). */
+  obstacles: readonly PropCircle[];
   /** Quantidade de props num raio (m) ao redor do ponto — usado pelo minimapa. */
   sampleDensity(x: number, z: number, radius?: number): number;
 }
@@ -201,7 +210,9 @@ function buildFamily(
   placements: PropPlacement[],
   makeTransform: (rng: () => number) => InstanceTransform,
   rng: () => number,
-  castShadow: boolean
+  castShadow: boolean,
+  solidRadius?: (t: InstanceTransform) => number,
+  solidOut?: PropCircle[]
 ): void {
   const mesh = new THREE.InstancedMesh(geometry, material, placements.length);
   mesh.name = name;
@@ -214,6 +225,9 @@ function buildFamily(
     dummy.scale.set(t.sx, t.sy, t.sz);
     dummy.updateMatrix();
     mesh.setMatrixAt(i, dummy.matrix);
+    if (solidRadius !== undefined && solidOut !== undefined) {
+      solidOut.push({ x: p.x, z: p.z, radius: solidRadius(t) });
+    }
   }
   mesh.instanceMatrix.needsUpdate = true;
   mesh.castShadow = castShadow;
@@ -235,6 +249,7 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
   group.name = 'WORLD_PROPS';
 
   const allPlacements: PropPlacement[] = [];
+  const solidOut: PropCircle[] = [];
   const place = (family: PropPlacement[]): PropPlacement[] => {
     allPlacements.push(...family);
     return family;
@@ -258,7 +273,9 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
         yOffset: tipped ? 0.45 : rand(r, 0.1, 0.5),
       };
     },
-    rng, true
+    rng, true,
+    // Colisão (1.12): bloco 2.6×0.7 — círculo conservador 1,15·sx
+    (t) => 1.15 * Math.max(t.sx, 1.0), solidOut
   );
 
   // Pilares caídos: cilindros deitados ou inclinados
@@ -279,7 +296,9 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
         yOffset: fallen ? 0.5 : 1.6,
       };
     },
-    rng, true
+    rng, true,
+    // Colisão (1.12): cilindro de 4,4 m de comprimento — raio médio 1,20·sx
+    (t) => 1.2 * t.sx, solidOut
   );
 
   // Destroços de veículos: casco + rodas + torreta mesclados numa geometria
@@ -300,7 +319,9 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
         yOffset: 0,
       };
     },
-    rng, true
+    rng, true,
+    // Colisão (1.12): casco 3,2×1,8 — círculo 1,70·sx
+    (t) => 1.7 * t.sx, solidOut
   );
 
   // Postes/antenas: finos e altos, parte caída a 90°
@@ -363,7 +384,9 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
         yOffset: 0,
       };
     },
-    rng, false
+    rng, false,
+    // Colisão (1.12): tronco (r 0,34) + galhos — círculo 0,55·sx
+    (t) => 0.55 * t.sx, solidOut
   );
 
   // Barris industriais em pequenos aglomerados
@@ -384,7 +407,9 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
         yOffset: onSide ? 0.5 : 0.7,
       };
     },
-    rng, false
+    rng, false,
+    // Colisão (1.12): barril r 0,5 — círculo 0,60·sx
+    (t) => 0.6 * t.sx, solidOut
   );
 
   // Placas de sinalização hazard, verticais
@@ -421,7 +446,9 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
       sz: rand(r, 1.0, 1.5),
       yOffset: rand(r, 0.15, 0.45),
     }),
-    rng, true
+    rng, true,
+    // Colisão (1.12): bloco 2,4×2,4 — círculo 1,25·sx
+    (t) => 1.25 * t.sx, solidOut
   );
 
   // Vigas metálicas retorcidas sobre parte dos escombros
@@ -450,6 +477,7 @@ export function spawnWorldProps(scene: THREE.Scene, mapSize: number): WorldProps
   return {
     group,
     positions,
+    obstacles: solidOut,
     sampleDensity(x: number, z: number, radius = 3): number {
       const r2 = radius * radius;
       let count = 0;

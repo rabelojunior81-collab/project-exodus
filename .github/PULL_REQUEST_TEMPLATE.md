@@ -16,7 +16,7 @@
 ## Gates executados (obrigatório)
 
 - [ ] `npx tsc --noEmit` — client (0 erros)
-- [ ] `npx tsc --noEmit` + `npm test` — server (39 asserts)
+- [ ] `npx tsc --noEmit` + `npm test` — server (43 asserts)
 - [ ] `npx tsc --noEmit` — tools/studio-gemini
 - [ ] `node tools/visual-check/test-buttons.mjs` (quando o cliente é tocado)
 - [ ] `node tools/visual-check/dist-proof.mjs` (quando há rebuild)

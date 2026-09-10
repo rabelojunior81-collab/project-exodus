@@ -4,6 +4,7 @@ import { ModelManager, ModelInstance } from '../engine/models.js';
 import { getTerrainHeight } from '../engine/terrainHeight.js';
 import { SIGHT_RADII } from '../engine/fog-of-war.js';
 import { TacticalAudio } from '../engine/audio.js';
+import { CollisionWorld, UNIT_COLLISION_RADIUS, clampWorld, slopeSpeedFactor } from '../engine/collision.js';
 
 export type UnitType = 'SCAVENGER_WORKER' | 'RUST_RAIDER' | 'SCRAP_BUGGY' | 'MAINTENANCE_DRONE' | 'BIPED_MECH';
 
@@ -55,6 +56,15 @@ export class Unit implements SelectableEntity {
   // infantaria responde quase instantâneo.
   private acceleration: number = 20.0;
   private currentSpeed: number = 0;
+
+  // --- Colisão (Fase 1.12, spec 03) ---
+  /** Raio físico (distinto do raio de clique `selectionRadius`). */
+  public collisionRadius: number = 1;
+  private collisionWorld: CollisionWorld | null = null;
+  private blockedTime: number = 0;
+  private detourSide: number = 1;
+  private lastBlockNx: number = 0;
+  private lastBlockNz: number = 0;
 
   // Patrulha (ping-pong entre dois pontos)
   private patrolPoints: [THREE.Vector3, THREE.Vector3] | null = null;
@@ -175,6 +185,9 @@ export class Unit implements SelectableEntity {
       // automáticos no ModelManager (Box3 em bind pose).
       this.modelInstance = mm.createInstance('tank', 0.38);
     }
+
+    // Raio físico de colisão (spec 03) — o raio de clique fica em selectionRadius.
+    this.collisionRadius = UNIT_COLLISION_RADIUS[unitType];
 
     if (this.modelInstance) {
       this.mesh.add(this.modelInstance.scene);
@@ -325,8 +338,17 @@ export class Unit implements SelectableEntity {
 
   public moveTo(destination: THREE.Vector3): void {
     this.targetPosition = destination.clone();
-    // Assenta o destino sobre o relevo (fora do platô y=0 enterrava a unidade)
-    this.targetPosition.y = getTerrainHeight(destination.x, destination.z);
+    // Fase 1.12: destino dentro de obstáculo é projetado para a borda do
+    // círculo — a unidade para ENCOSTADA em vez de orbitar o alvo.
+    if (this.collisionWorld) {
+      const fixed = this.collisionWorld.resolveTarget(
+        destination.x, destination.z, this.collisionRadius
+      );
+      this.targetPosition.x = fixed.x;
+      this.targetPosition.z = fixed.z;
+    }
+    // Assenta o destino sobre o relevo (fora do platô y=0 enterra a unidade)
+    this.targetPosition.y = getTerrainHeight(this.targetPosition.x, this.targetPosition.z);
     this.patrolPoints = null;
     this.gather = null;
     this.refreshCargoIndicator();
@@ -355,6 +377,7 @@ export class Unit implements SelectableEntity {
     this.patrolPoints = null;
     this.gather = null;
     this.currentSpeed = 0;
+    this.blockedTime = 0;
     this.refreshCargoIndicator();
     if (this.modelInstance?.setAnimation) {
       this.modelInstance.setAnimation('idle');
@@ -363,6 +386,37 @@ export class Unit implements SelectableEntity {
 
   public setGatherContext(ctx: GatherContext): void {
     this.gatherCtx = ctx;
+  }
+
+  /** Conecta o mundo de colisão (Fase 1.12). Chamado pelo main no spawn. */
+  public setCollisionWorld(world: CollisionWorld): void {
+    this.collisionWorld = world;
+  }
+
+  /** Empurrão da separação unidade×unidade (aplicado pelo main a cada frame). */
+  public applyPhysicsPush(dx: number, dz: number): void {
+    if (dx === 0 && dz === 0) return;
+    this.mesh.position.x = clampWorld(this.mesh.position.x + dx);
+    this.mesh.position.z = clampWorld(this.mesh.position.z + dz);
+    this.mesh.position.y = getTerrainHeight(this.mesh.position.x, this.mesh.position.z);
+    this.position.copy(this.mesh.position);
+  }
+
+  /**
+   * Re-resolve colisões com o mundo sem mover (o empurrão da separação pode
+   * ter jogado a unidade para dentro de um prop/prédio).
+   */
+  public resolveStaticCollision(): void {
+    if (!this.collisionWorld) return;
+    const x = this.mesh.position.x;
+    const z = this.mesh.position.z;
+    const hit = this.collisionWorld.resolveMove(x, z, x, z, this.collisionRadius);
+    if (hit.x !== x || hit.z !== z) {
+      this.mesh.position.x = hit.x;
+      this.mesh.position.z = hit.z;
+      this.mesh.position.y = getTerrainHeight(hit.x, hit.z);
+      this.position.copy(this.mesh.position);
+    }
   }
 
   /** Ordem de coleta: vai ao nó, colhe, retorna ao CC e repete até esgotar. */
@@ -506,9 +560,25 @@ export class Unit implements SelectableEntity {
         }
         dir.normalize();
 
-        // Rotação suave em direção ao destino, compensando a frente do modelo.
-        // NOTA: modelos GLTF têm frentes distintas — yawOffset por tipo.
-        const targetAngle = Math.atan2(dir.x, dir.z) + this.yawOffset;
+        // Fase 1.12: desvio frontal. Se o frame anterior terminou bloqueado de
+        // frente, a intenção gira para a tangente do obstáculo (lado escolhido
+        // de forma determinística) — a unidade orbita até a linha direta abrir.
+        const steer = dir.clone();
+        if (this.collisionWorld && this.blockedTime > 0.12) {
+          const tx = -this.lastBlockNz;
+          const tz = this.lastBlockNx;
+          const along = dir.x * tx + dir.z * tz;
+          let side = Math.abs(along) > 0.2 ? Math.sign(along) : this.detourSide;
+          if (side === 0) side = 1;
+          this.detourSide = side;
+          steer.set(tx * side * 0.9 + dir.x * 0.1, 0, tz * side * 0.9 + dir.z * 0.1);
+          if (steer.lengthSq() < 1e-6) steer.copy(dir);
+          steer.normalize();
+        }
+
+        // Rotação suave em direção à intenção (direta ou de desvio),
+        // compensando a frente do modelo. NOTA: frentes distintas — yawOffset.
+        const targetAngle = Math.atan2(steer.x, steer.z) + this.yawOffset;
         const currentAngle = this.mesh.rotation.y;
 
         let diff = targetAngle - currentAngle;
@@ -516,12 +586,15 @@ export class Unit implements SelectableEntity {
         while (diff > Math.PI) diff -= Math.PI * 2;
         this.mesh.rotation.y += diff * Math.min(1, this.rotationSpeed * delta);
 
-        // Alinhamento casco↔destino: blindado só traciona quando apontado
+        // Alinhamento casco↔intenção: blindado só traciona quando apontado
         // (esterçamento em arco, sem deslize lateral); infantaria é ágil.
         const alignment = Math.cos(diff);
         // Sabor RTS clássico: coletor carregando carga anda 10% mais lento
         const carryPenalty = this.gather && this.gather.phase === 'return' && this.gather.carry > 0 ? 0.9 : 1;
-        const targetSpeed = this.moveSpeed * carryPenalty * THREE.MathUtils.clamp((alignment - 0.2) / 0.8, 0, 1);
+        // Fase 1.12: declive do terreno penaliza velocidade (crateras/rims).
+        const slopeFactor = slopeSpeedFactor(this.mesh.position.x, this.mesh.position.z);
+        const targetSpeed = this.moveSpeed * carryPenalty * slopeFactor
+          * THREE.MathUtils.clamp((alignment - 0.2) / 0.8, 0, 1);
 
         // Aceleração/desaceleração com inércia (tanque pesado arranca e freia devagar)
         const rate = (targetSpeed > this.currentSpeed ? this.acceleration : this.acceleration * 1.6) * delta;
@@ -547,7 +620,31 @@ export class Unit implements SelectableEntity {
         }
 
         const moveDist = Math.min(distance, this.currentSpeed * delta);
-        this.mesh.position.addScaledVector(dir, moveDist);
+
+        // Fase 1.12: resolve a colisão ANTES de gravar a posição — projeção
+        // com deslize embutido; contato persistente alimenta o desvio acima.
+        if (this.collisionWorld) {
+          const fromX = this.mesh.position.x;
+          const fromZ = this.mesh.position.z;
+          const hit = this.collisionWorld.resolveMove(
+            fromX, fromZ,
+            fromX + steer.x * moveDist, fromZ + steer.z * moveDist,
+            this.collisionRadius,
+          );
+          if (hit.blocked) {
+            this.blockedTime += delta;
+            this.lastBlockNx = hit.nx;
+            this.lastBlockNz = hit.nz;
+          } else {
+            this.blockedTime = Math.max(0, this.blockedTime - delta * 2);
+          }
+          this.mesh.position.x = hit.x;
+          this.mesh.position.z = hit.z;
+        } else {
+          this.mesh.position.addScaledVector(steer, moveDist);
+        }
+        this.mesh.position.x = clampWorld(this.mesh.position.x);
+        this.mesh.position.z = clampWorld(this.mesh.position.z);
         // Cola a unidade no relevo a cada frame — sem isso o terreno
         // corta/atravessa o modelo fora do platô plano (raio > 30).
         this.mesh.position.y = getTerrainHeight(this.mesh.position.x, this.mesh.position.z);
