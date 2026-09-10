@@ -227,10 +227,10 @@ desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo
 - [x] **Sub-fase 2.3**: Grid espacial + A* com desvio de obstáculos (7 asserts). 🟢 (A2)
 - [x] **Sub-fase 2.4**: Nós dos 4 recursos + posições determinísticas. 🟢 (A2)
 - [x] **Sub-fase 2.5**: Máquina de estados do trabalhador + placar (ciclo validado em teste). 🟢 (A2)
-- [ ] **Sub-fase 2.6 → RECLASSIFICADA como **Fase 2.6 Expandida** (decisão D-12.2 da Sessão 12). ⚪
+- [ ] **Sub-fase 2.6 → RECLASSIFICADA como **Fase 2.6 Expandida** (decisão D-12.2 da Sessão 12). 🟡 desbloqueada (spec APROVADO na S14)**
   - A auditoria mediu **5 eixos de divergência** entre cliente e servidor acumulados nas Fases 1.7A–1.7E: cliente sem WebSocket; servidor sem broadcast de snapshot (hoje alocado na Fase 3); 5 tipos de unidade × 3; tempos de treino 1,6–2,0× divergentes e **custo em recursos inexistente no servidor**; modelos de coleta (atômico × incremental) e de locomoção (inércia × velocidade constante) incompatíveis; e ausência de módulo compartilhado.
   - Escopo real: workspace `shared/`, paridade de modelo, custos/pop-cap no servidor, reconciliação de coleta e física, snapshot broadcast, cliente WS com interpolação, remoção dos 5 `TODO-2.6`.
-  - **Bloqueada por spec**: `docs/specs/02-integracao-cliente-servidor.md` está em RASCUNHO com **5 decisões abertas** (D-2.6-A a D-2.6-E) que exigem o usuário. Nenhuma linha de código antes de resolvê-las (`AGENTS.md` §2.B).
+  - **Spec APROVADO em 2026-09-10 (S14)**: as 5 decisões (D-2.6-A..E) foram fechadas na sessão `grill-me` — escolhas **A/A/A/A/A**, registradas em `docs/decisions/2026-09-10_fase-2.6-paridade.md`. A fase está **desbloqueada**; começar por 2.6.1 (`shared/`).
   - Ver plano de 6 sub-fases e gates no próprio spec.
 - **Gate de Aprovação da Fase 2**:
   - [ ] Trabalhador coleta, transporta e entrega no CC, placar incrementa (demo no harness).

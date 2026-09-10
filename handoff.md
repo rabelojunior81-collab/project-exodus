@@ -1,7 +1,7 @@
 # handoff.md — Transição de Turno Operacional
 
-> **Turno Corrente**: Sessão 14 — Colisão e Obstáculos (concluída)
-> **Última Modificação**: 2026-09-10T20:45:00-03:00
+> **Turno Corrente**: Sessão 14 — Colisão (Fase 1.12) + encerramento das decisões da 2.6 (concluída)
+> **Última Modificação**: 2026-09-10T20:55:00-03:00
 > **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-10_20-45_sessao-14-colisao-e-obstaculos.md`
 
 ---
@@ -21,7 +21,11 @@ como se fossem hologramas"*.
    - Harness: `collision-e2e.mjs` novo (travessia do CC + parada encostada no veio).
 2. **D-2.6-C registrada = A** (migrar física para o servidor) no livro de decisões e no spec 02;
    a migração para `shared/` fica no 2.6.3 (sub-fase 1.12.4).
-3. **Documentos vivos sincronizados**: journal S14, estate, roadmap (Fase 1.12), changelog.
+3. **Decisões da Fase 2.6 fechadas** (sessão `grill-me`, 5/5 — escolhas A/A/A/A/A): tempos do
+   cliente; coleta incremental recalibrada; física migra com colisão; fog client-side com gancho
+   `viewFor`; sem predição + métrica de RTT. **Spec 02 promovido a APROVADO; Fase 2.6 desbloqueada.**
+   Registro: `docs/decisions/2026-09-10_fase-2.6-paridade.md`.
+4. **Documentos vivos sincronizados**: journal S14 (+ journal das decisões), estate, roadmap, changelog.
 
 ---
 
@@ -61,8 +65,9 @@ dos workspaces `server`/`studio` (nenhuma mudança fora do `server/src` coberto 
 
 **Ordem sugerida:**
 
-1. **`D-2.6-D` e `D-2.6-E`** — as duas últimas decisões do spec 02 (Fog autoritativo e predição
-   local). Conduzir com a skill `grill-me`; ao fechar, promover o spec 02 a APROVADO e liberar a 2.6.
+1. **Fase 2.6 desbloqueada — iniciar a sub-fase 2.6.1** (workspace `shared/`; `protocol.ts` migrado;
+   `units/economy/world` extraídos; a colisão migra no 2.6.3 = sub-fase 1.12.4). Gate: `tsc` 0 nos
+   3 workspaces + 43 asserts intactos. Ordem completa no spec 02 §5.
 2. **1.12.4** — migrar colisão/constantes para `shared/` **dentro do 2.6.3** (não antes).
 3. **ALTO-05 / 1.11.4**: stinger 58 s → 8–10 s, música 96 kbps, `playMusic`/crossfade; ffmpeg disponível.
 4. **CI**: workflow com `tsc`×3 + `npm test` + `verify-manifest` + `collision-e2e` (hoje só Pages).
@@ -79,8 +84,10 @@ dos workspaces `server`/`studio` (nenhuma mudança fora do `server/src` coberto 
 | D-2.6-A | Tempos de treino | ✅ decidida (a) — cliente vence |
 | D-2.6-B | Modelo de coleta | ✅ decidida (a) — incremental recalibrado (0,3 s/un) |
 | D-2.6-C | Física do blindado | ✅ decidida (a) — migra para o servidor **+ colisão (S14 entregue)** |
-| D-2.6-D | Fog of War autoritativo? | ⏳ **próxima pergunta** |
-| D-2.6-E | Predição local? | ⏳ pendente |
+| D-2.6-D | Fog of War autoritativo? | ✅ decidida (a) — client-side + gancho `viewFor`; filtragem na Fase 3 |
+| D-2.6-E | Predição local? | ✅ decidida (a) — sem predição + métrica de RTT |
+
+**Bloco encerrado em 2026-09-10** — spec 02 APROVADO; nenhuma decisão pendente aguardando o usuário.
 
 ---
 

@@ -1,9 +1,9 @@
 # Spec 02 — Integração Cliente ↔ Servidor (Fase 2.6 Expandida)
 
-> **Status**: ⚪ RASCUNHO — aguardando revisão e decisões abertas do §4.
+> **Status**: ✅ **APROVADO** — 5 de 5 decisões fechadas em 2026-09-10 (sessão `grill-me`; ver `docs/decisions/2026-09-10_fase-2.6-paridade.md`).
 > **Origem**: Achado ALTO-03 da auditoria da Sessão 12 (`docs/journal/2026-09-10_12-30_sessao-12-auditoria-holistica.md`).
 > **Pré-requisito de governança**: `AGENTS.md` §2.B — spec antes de código.
-> **Nenhuma linha de código da Fase 2.6 deve ser escrita antes de este documento sair de RASCUNHO.**
+> **Liberada para execução**: iniciar pela sub-fase 2.6.1 (workspace `shared/`). As decisões D-2.6-A..E estão resolvidas no §4.
 
 ---
 
@@ -49,7 +49,7 @@ A Fase 2.6 precisa fundir as duas com o servidor como autoridade, sem regredir a
 | Coleta | timer 3 s → extrai 10 (atômico) | 1 un / 0,5 s até 10 (incremental) | **DECIDIDA (D-2.6-B): incremental recalibrado — 0,3 s/un (~3,33 un/s)** |
 | Locomoção | aceleração, inércia, giro por tipo, tração só alinhado, −10 % com carga | velocidade constante sobre caminho A* | **DECIDIDA (D-2.6-C): física migra para o servidor** — + colisão real (spec 03, Fase 1.12) |
 | Pathfinding | reta até o alvo | A* com desvio de obstáculo | servidor vence |
-| Fog of War | grade 90×90 client-side | inexistente | **aberta (D-2.6-D)** |
+| Fog of War | grade 90×90 client-side | inexistente | **DECIDIDA (D-2.6-D): client-side; gancho `viewFor(player)` no snapshot (2.6.4), filtragem na Fase 3** |
 
 ---
 
@@ -96,19 +96,19 @@ input do usuário
 | Posição, HP, estado de FSM, recursos, fila de treino | **servidor** | autoridade, anti-trapaça, determinismo |
 | Animação, partículas, pulso emissivo, texto flutuante, áudio | **cliente** | cosmético; não entra em snapshot |
 | Câmera, seleção, HUD, minimapa | **cliente** | local por natureza |
-| Fog of War | **decisão aberta (D-2.6-D)** | visual hoje, tático amanhã |
+| Fog of War | **client-side até a Fase 3** (D-2.6-D) | visual hoje; `viewFor(player)` preparado na 2.6.4; filtragem anti-maphack no multiplayer |
 
 ---
 
-## 4. Decisões Abertas (requerem o usuário) — progresso: **3 de 5 decididas**
+## 4. Decisões (requerem o usuário) — progresso: **5 de 5 decididas** ✅
 
 | ID | Decisão | Opções | Impacto |
 | :--- | :--- | :--- | :--- |
 | **D-2.6-A** ✅ | ~~Qual tabela de tempos de treino vence?~~ **DECIDIDA (10/09): (a) cliente vence** — servidor adota 8/12/18 s e porta drone 16 s / mech 24 s | (a) ✅ escolhida · (b) descartada · (c) descartada | Ritmo econômico preservado |
 | **D-2.6-B** ✅ | ~~Qual modelo de coleta vence?~~ **DECIDIDA (10/09): (a) incremental do servidor recalibrado (0,3 s/un)** | (a) ✅ escolhida · (b) descartada · (c) descartada | Ritmo preservado; carga parcial real |
 | **D-2.6-C** ✅ | ~~A física de inércia do blindado migra para o servidor?~~ **DECIDIDA (10/09): (a) migra** + colisão real (spec 03) | (a) ✅ escolhida · (b) descartada (regride gate 1.5) | Identidade do veículo preservada; 2.6.3 absorve a física e a colisão |
-| **D-2.6-D** | Fog of War vira autoritativo? | (a) fica client-side (visual) · (b) servidor filtra o snapshot por visibilidade (anti-maphack, obrigatório para multiplayer competitivo) | Escopo da Fase 3 |
-| **D-2.6-E** | Predição local no cliente? | (a) sem predição (mais simples, input lag de 1 RTT) · (b) predição otimista + reconciliação | Sensação de resposta em Tailscale |
+| **D-2.6-D** ✅ | ~~Fog of War vira autoritativo?~~ **DECIDIDA (10/09): (a) client-side + gancho `viewFor(player)`; filtragem na Fase 3** | (a) ✅ escolhida · (b) descartada (infla a 2.6) · (c) descartada (custo médio sem demanda) | Escopo da 2.6 preservado; anti-maphack documentado para a Fase 3 |
+| **D-2.6-E** ✅ | ~~Predição local no cliente?~~ **DECIDIDA (10/09): (a) sem predição + instrumentação de RTT** | (a) ✅ escolhida · (b) descartada (complexidade prematura) | Reavaliar apenas se p95 > 80 ms na Tailnet real |
 
 ---
 
@@ -119,7 +119,7 @@ input do usuário
 | 2.6.1 | Workspace `shared/`; `protocol.ts` migrado; `units/economy/world` extraídos | `tsc` 0 nos 3 workspaces + 43 asserts do servidor intactos |
 | 2.6.2 | Paridade de modelo: 5 unidades, custos, `POP_MAX` no servidor | novos asserts: custo debita, pop-cap rejeita, drone/mech treinam |
 | 2.6.3 | Reconciliação de coleta e locomoção conforme D-2.6-B e D-2.6-C; **absorve `collision.ts` da spec 03 para `shared/`** (1.12.4) | asserts de taxa de coleta; determinismo preservado; colisão com fonte única |
-| 2.6.4 | `snapshot()` no broadcast do `tick()`; protocolo de snapshot versionado | 2 clientes recebem snapshots idênticos |
+| 2.6.4 | `snapshot()` no broadcast do `tick()`; protocolo de snapshot versionado com **gancho `viewFor(player)`** (D-2.6-D, sem filtragem) | 2 clientes recebem snapshots idênticos; `viewFor` validado como identidade |
 | 2.6.5 | Cliente WS: conexão, buffer de interpolação, reconciliação, HUD por snapshot | `gather-e2e` passa **contra o servidor**, sem economia local |
 | 2.6.6 | Remoção da simulação client-side (os 5 `TODO-2.6`) | `grep -c TODO-2.6 client/src` = 0 |
 
