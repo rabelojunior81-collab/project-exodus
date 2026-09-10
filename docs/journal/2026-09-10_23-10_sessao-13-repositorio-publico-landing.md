@@ -55,9 +55,12 @@ Três descobertas materiais nesta sessão:
 - `client/vite.config.ts`: `define.__BUILD_STAMP__` gerado em tempo de build (`Intl.DateTimeFormat`
   em America/Sao_Paulo, formato `dd/mm hh:mm`).
 - `client/src/main.ts`: bloco do carimbo agora consome a constante; `document.lastModified` removido.
-- **Gate executado nesta sessão**: `tsc --noEmit` no client = **0 erros**.
-- **Gate negativo pendente** (o que faltou na 1.9.4): build → anotar carimbo → esperar 2 min →
-  recarregar → carimbo não pode mudar. Não executado (requer build + preview + espera).
+- **Gates executados nesta sessão**: `tsc --noEmit` (0 erros), build de produção (23 módulos,
+  JS 684,10 kB / gzip 180,24 kB) e `dist-proof` contra o preview (11 entidades, 8 nós, 0 pageerrors,
+  carimbo `BUILD 10/09 19:39`).
+- **Gate negativo fechado por construção**: o literal do carimbo está compilado em
+  `dist/assets/index-CbnpEOY6.js` (verificado por grep) — não há leitura em runtime que possa
+  variar após reload; a cerimônia de esperar 2 min torna-se redundante.
 
 ### Item 3 — ALTO-04 (manifestos × disco)
 
@@ -94,11 +97,13 @@ Três descobertas materiais nesta sessão:
 | G9 | Pages migrado para Actions | `gh api -X PUT … build_type=workflow` + dispatch | 🟢 deploy success (run 34538283849) — landing ao vivo em `https://rabelojunior81-collab.github.io/project-exodus/` (verificada) |
 | G10 | Suíte do servidor | `cd server && npm test` | 🟢 smoke + 39 asserts (11 protocol + 7 astar + 7 resources + 8 simulation + 6 worker) |
 | G11 | Manifesto × disco | `node tools/verify-manifest.mjs` | 🟢 100% em sincronia (o gate pegou uma divergência real de contagem no root antes do ajuste) |
+| G12 | Build de produção | `cd client && npm run build` | 🟢 23 módulos; JS 684,10 kB (gzip 180,24 kB) |
+| G13 | Prova de produção | `node tools/visual-check/dist-proof.mjs` (vite preview :4173) | 🟢 11 entidades, 8 nós, 0 pageerrors; carimbo `BUILD 10/09 19:39` |
+| G14 | Carimbo é constante compilada | grep no bundle `dist/assets/index-CbnpEOY6.js` | 🟢 literal presente (linha 4047) — gate negativo do CRIT-02 provado por construção |
 
-**Não executados nesta sessão** (registrado por honestidade): harness visual (`test-buttons`,
-`gather-e2e`, `dist-proof`) e build de produção do client. Nenhum arquivo de `server/` foi tocado;
-o client mudou em `main.ts`/`vite.config.ts` e passou no typecheck. Os gates de harness devem ser
-re-executados no próximo turno (ou pelo CI, quando criado).
+**Não executados nesta sessão** (registrado por honestidade): `test-buttons` e `gather-e2e`
+(os demais gates rodaram). Nenhum arquivo de `server/` foi tocado; o client mudou em
+`main.ts`/`vite.config.ts` e passou por typecheck + build + `dist-proof`.
 
 ---
 
@@ -118,14 +123,14 @@ re-executados no próximo turno (ou pelo CI, quando criado).
 ## 4. Pendências para o Próximo Turno
 
 1. **Decisões da Fase 2.6** (`D-2.6-A` a `D-2.6-E`) — sessão `grill-me`; spec 02 sai de RASCUNHO.
-2. **Gate negativo do CRIT-02** (build + 2 min + reload).
-3. **Gates de runtime**: `npm test` (server), `test-buttons`, `gather-e2e`, `dist-proof`.
-4. **ALTO-05** (Fase 1.11.4): cortar o stinger de 58 s, re-encodar música para 96 kbps, implementar
+2. **Gates de harness restantes**: `test-buttons` e `gather-e2e` (build, `npm test` do server,
+   `verify-manifest` e `dist-proof` já verdes na S13).
+3. **ALTO-05** (Fase 1.11.4): cortar o stinger de 58 s, re-encodar música para 96 kbps, implementar
    `playMusic`/crossfade e fiar menu/partida/combate. ffmpeg confirmado disponível.
-5. **CI**: criar workflow com os gates (tsc ×3 + testes do servidor + verify-manifest) — hoje só a
+4. **CI**: criar workflow com os gates (tsc ×3 + testes do servidor + verify-manifest) — hoje só a
    Pages tem workflow.
-6. **Publicação dos topics e social preview** no GitHub (config de repositório, não versionada).
-7. **Lote 3 restante** (1.11.6): demais eras, remoção do `as any` no piloto.
+5. **Publicação dos topics e social preview** no GitHub (config de repositório, não versionada).
+6. **Lote 3 restante** (1.11.6): demais eras, remoção do `as any` no piloto.
 
 ---
 

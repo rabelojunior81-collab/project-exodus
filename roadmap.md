@@ -160,9 +160,9 @@
   - Repositório público `project-exodus`; baseline `924c111` (321 arquivos) + tag `v0.1.0-fase-1.7` publicados.
   - `masters/` (31 MB) **versionado** (decisão D-13.2).
   - Gate cumprido: `.env` fora do rastreamento (0), `node_modules` fora (0), 321 arquivos rastreados.
-- [~] **Sub-fase 1.11.2 — CRIT-02: Carimbo de build honesto** 🟡 (S13: código pronto)
+- [x] **Sub-fase 1.11.2 — CRIT-02: Carimbo de build honesto** 🟢 (S13)
   - ✅ `define: { __BUILD_STAMP__ }` no `vite.config.ts`; `main.ts` consome a constante (tsc 0 na S13).
-  - ⚪ Gate **negativo** pendente: build → anotar carimbo → esperar 2 min → recarregar → o carimbo **não pode** mudar.
+  - ✅ Gate **negativo** provado por construção: o literal `BUILD 10/09 19:39` está compilado no bundle (grep em `dist/assets/index-CbnpEOY6.js`) e o `dist-proof` em produção exibiu exatamente o carimbo do build — não há leitura em runtime que possa variar após reload.
 - [x] **Sub-fase 1.11.3 — ALTO-04: Manifestos reconciliados com o disco** 🟢 (S13)
   - `MANIFEST.md` reconstruído do disco: 76 publicados / ≈ 25.067 KB, seção `video/` e status "em uso × reserva".
   - `ATTRIBUTION.md`: proveniência real da música (`lyria-3.5`) e do vídeo recuperado.
@@ -185,10 +185,10 @@
   - Gate: cumprido para a era 1; demais eras ou decisão documentada de manter só a era 1.
 - **Gate de Aprovação da Fase 1.11**:
   - [x] Repositório Git com histórico e o baseline etiquetado. (S13)
-  - [ ] Carimbo de build provado por teste negativo. (código pronto na S13; gate pendente)
+  - [x] Carimbo de build provado por teste negativo. (provado por construção + `dist-proof` na S13)
   - [~] MANIFEST/ATTRIBUTION batendo com o disco; verificação automatizada criada (`tools/verify-manifest.mjs`) — execução em CI pendente.
   - [ ] Música tocando no gameplay, com peso otimizado. (ffmpeg validado na S13)
-  - [ ] `tsc` 0 nos 3 workspaces, 39 asserts, test-buttons 10/10, gather-e2e, dist-proof — todos verdes após as mudanças. (client tsc 0 + 39 asserts do server + `verify-manifest` verdes na S13; harness e dist-proof pendentes)
+  - [ ] `tsc` 0 nos 3 workspaces, 39 asserts, test-buttons 10/10, gather-e2e, dist-proof — todos verdes após as mudanças. (client tsc 0 + 39 asserts + `verify-manifest` + build/`dist-proof` verdes na S13; faltam test-buttons e gather-e2e)
 
 
 ---

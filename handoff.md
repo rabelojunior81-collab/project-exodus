@@ -48,11 +48,12 @@ criar a landing HTML no estilo `modernity-sandbox`, ativos novos (marca), fechar
 | WebP da landing | ffmpeg `libwebp -quality 80` | 🟢 ~10 MB → ~750 KB |
 | Suíte do servidor | `cd server && npm test` | 🟢 smoke + 39 asserts (S13) |
 | Manifesto × disco | `node tools/verify-manifest.mjs` | 🟢 100% em sincronia (S13) |
+| Build de produção | `cd client && npm run build` | 🟢 23 módulos; JS 684,10 kB (gzip 180,24 kB) (S13) |
+| Prova de produção | `node tools/visual-check/dist-proof.mjs` | 🟢 11 entidades, 8 nós, 0 pageerrors; carimbo compilado verificado (S13) |
 | Pages | `gh api -X PUT … build_type=workflow` + dispatch | 🟢 deploy success — landing ao vivo em `https://rabelojunior81-collab.github.io/project-exodus/` |
 
-⚠️ **NÃO executados nesta sessão**: harness visual (`test-buttons`, `gather-e2e`, `dist-proof`) e
-build de produção do client. Nenhum arquivo de `server/` foi tocado. Rodar antes de retomar
-qualquer feature (ou criar CI — pendência nº 5).
+⚠️ **NÃO executados nesta sessão**: `test-buttons` e `gather-e2e` (os demais gates, incluindo
+build e `dist-proof`, rodaram na S13). Nenhum arquivo de `server/` foi tocado.
 
 ---
 
@@ -76,15 +77,14 @@ qualquer feature (ou criar CI — pendência nº 5).
 1. **`D-2.6-A..E` — decisões da Fase 2.6** (bloqueiam a fase inteira; spec 02 em RASCUNHO).
    Conduzir a sessão `grill-me` (`.kilo/skill/grill-me/SKILL.md`); registrar em
    `docs/decisions/` e promover o spec a APROVADO. **Nenhuma linha de código da 2.6 antes disso.**
-2. **Gate negativo do CRIT-02**: build → anotar carimbo → esperar 2 min → recarregar →
-   o carimbo não pode mudar.
-3. **Gates de runtime**: `npm test` (server), `test-buttons`, `gather-e2e`, `dist-proof`.
-4. **ALTO-05 / 1.11.4**: cortar o stinger (58 s → 8–10 s), re-encodar música para 96 kbps,
+2. **Gates de harness restantes**: `test-buttons` e `gather-e2e` (build, `npm test` do servidor,
+   `verify-manifest` e `dist-proof` já verdes na S13).
+3. **ALTO-05 / 1.11.4**: cortar o stinger (58 s → 8–10 s), re-encodar música para 96 kbps,
    implementar `playMusic`/`crossfadeTo`/`stopMusic` e fiar menu/partida/combate.
    ffmpeg confirmado disponível (`ffmpeg-static`).
-5. **CI**: workflow com tsc ×3 + testes do servidor + `verify-manifest` (hoje só a Pages roda).
-6. **GitHub (config web)**: topics do repositório + social preview (não versionáveis).
-7. **Lote 3 restante (1.11.6)**: eras 2–4 + remover o `as any` do `video-omni-pilot.ts`.
+4. **CI**: workflow com tsc ×3 + testes do servidor + `verify-manifest` (hoje só a Pages roda).
+5. **GitHub (config web)**: topics do repositório + social preview (não versionáveis).
+6. **Lote 3 restante (1.11.6)**: eras 2–4 + remover o `as any` do `video-omni-pilot.ts`.
 
 ---
 

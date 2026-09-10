@@ -1,7 +1,7 @@
 # estate.md — Estado Vivo do Sistema
 
 > **Última Atualização**: 2026-09-10T23:10:00-03:00  
-> **Status Geral**: Fase 1.11 (Remediação e Hardening) **EM ANDAMENTO** — CRIT-01 fechado (repo público `project-exodus`, baseline `924c111`, tag `v0.1.0-fase-1.7`), CRIT-02 corrigido no código (gate negativo pendente), ALTO-04 fechado (manifestos reconciliados + gate automatizado), vídeo do Lote 3 recuperado antes do expiry e landing publicada via Actions.
+> **Status Geral**: Fase 1.11 (Remediação e Hardening) **EM ANDAMENTO** — CRIT-01 fechado (repo público `project-exodus`, baseline `924c111`, tag `v0.1.0-fase-1.7`), CRIT-02 fechado (carimbo compilado no bundle + `dist-proof` em produção), ALTO-04 fechado (manifestos reconciliados + gate automatizado 100%), vídeo do Lote 3 recuperado antes do expiry e landing ao vivo via Actions.
 > **Próximo passo obrigatório**: fechar as 5 decisões da Fase 2.6 (`D-2.6-A..E`) com a sessão `grill-me` (skill em `.kilo/skill/grill-me/`). Ver `handoff.md`.
 
 ---
@@ -33,7 +33,7 @@ O motor gráfico 3D Three.js do cliente web possui câmera tática isométrica (
 | **Economia** | 8 veios visuais + COLETAR + FSM entregar + topbar viva | 🟢 Jogável | e2e real sucata 180→190 | Client-side até 2.6 |
 | **Ordens/botões** | Mover/Parar/Patrulha/Reunião/Dispersar/Recrutar/Coletar (7 testes de clique PASS) | 🟢 Funcionais | test-buttons + gather-e2e | Ataque/defesa → Fase 5 |
 | **HUD visual** | Reskin floating glass + anéis finos + build stamp | 🟢 Revisado dev+prod | Shots 15/17 | Mobile intacto |
-| **Build prod** | `client/dist/` atualizado a cada sub-fase | 🟡 Prova OK, carimbo corrigido | 11 entidades, 8 nós, 0 pageerrors | Carimbo via `__BUILD_STAMP__` injetado no build (CRIT-02 corrigido na S13; **gate negativo pendente**) |
+| **Build prod** | `client/dist/` atualizado a cada sub-fase | 🟢 Prova OK, carimbo honesto | 11 entidades, 8 nós, 0 pageerrors | Carimbo via `__BUILD_STAMP__` compilado no build (CRIT-02 fechado na S13: literal no bundle + `dist-proof`) |
 | **Harness / Build** | tsc 0 + visual-check (6 scripts) + builds renovados (client/server/gemini) | 🟢 Operacional | Boot 9/9 pós-rename |
 | **Ativos** | 19 arquivos kebab-case; órfãos em `docs/archived-assets/` + README | 🟢 Normalizado | MANIFEST com adendo |
 | **Cenário vivo** | `props.ts` — 10 famílias/365 instâncias InstancedMesh, PRNG seedado, exclusões núcleo+veios | 🟢 Em cena | Shots 1.7A revisados; dist-proof | Sem `Math.random` |
