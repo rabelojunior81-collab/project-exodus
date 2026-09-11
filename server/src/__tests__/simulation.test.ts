@@ -7,9 +7,10 @@ import {
   Simulation,
   TICK_DT,
   TICK_RATE,
+  TRAIN_TICKS,
   type SimEntity,
 } from '../simulation.js';
-import { serializeSnapshot, type Snapshot } from '@project-exodus/shared/protocol';
+import { PROTOCOL_VERSION, serializeSnapshot, type Snapshot } from '@project-exodus/shared/protocol';
 
 let n: number = 0;
 function check(name: string, fn: () => void): void {
@@ -72,12 +73,13 @@ check('comando rejeita alvo inexistente / dono errado', () => {
 
 check('TRAIN produz unidade + evento UNIT_READY', () => {
   const sim = new Simulation(7);
-  sim.spawnBuilding('p1', 'cc', 'COMMAND_CENTER', 0, -2);
+  Simulation.createDefaultScenario(sim, 'p1'); // tesouro inicial cobre o custo (2.6.2)
   assert.equal(
-    sim.issueCommand({ kind: 'TRAIN', cmdId: 't1', playerId: 'p1', tick: 0, buildingId: 'cc', unit: 'SCAVENGER_WORKER' }),
+    sim.issueCommand({ kind: 'TRAIN', cmdId: 't1', playerId: 'p1', tick: 0, buildingId: 'bld_cc_1', unit: 'SCAVENGER_WORKER' }),
     true,
   );
-  for (let i: number = 0; i < 100; i++) sim.step(); // 100 ticks = tempo do worker
+  // Tempo derivado do shared (D-2.6-A): 8 s × 20 Hz = 160 ticks.
+  for (let i: number = 0; i < TRAIN_TICKS.SCAVENGER_WORKER; i++) sim.step();
   const snap: Snapshot = sim.takeSnapshot();
   const ready = snap.events.filter((e) => e.kind === 'UNIT_READY');
   assert.equal(ready.length, 1);
@@ -92,7 +94,7 @@ check('snapshot ordenado, versionado e serializável', () => {
   sim.spawnUnit('p1', 'a_unit', 'RUST_RAIDER', 1, 1);
   const snap: Snapshot = sim.takeSnapshot();
   assert.deepEqual(snap.entities.map((e) => e.id), ['a_unit', 'b_unit']);
-  assert.equal(snap.version, 1);
+  assert.equal(snap.version, PROTOCOL_VERSION);
   assert.equal(typeof serializeSnapshot(snap), 'string');
   assert.equal(sim.takeSnapshot().events.length, 0, 'takeSnapshot drena eventos');
 });

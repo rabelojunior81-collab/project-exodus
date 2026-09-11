@@ -19,7 +19,7 @@ import { ModelManager } from './engine/models.js';
 import { Unit } from './entities/unit.js';
 import { Building } from './entities/building.js';
 import { INITIAL_RESOURCE_NODES } from '@project-exodus/shared/world';
-import { POP_MAX } from '@project-exodus/shared/economy';
+import { POP_MAX, STARTING_RESOURCES } from '@project-exodus/shared/economy';
 import { TRAINING_SPECS as SHARED_TRAINING_SPECS } from '@project-exodus/shared/units';
 import type { ResourceKind } from '@project-exodus/shared/protocol';
 
@@ -121,7 +121,13 @@ const selectionManager = new SelectionManager(
 
 // 7b. Ordens do HUD, economia local e treinamento (client-authoritative
 // TEMPORÁRIO até a Fase 2.6, quando o servidor assume — TODO-2.6)
-const resources = { rations: 250, scrap: 180, chips: 75, concrete: 50 };
+// Tesouro inicial — fonte única no shared (2.6.2); chaves do HUD.
+const resources = {
+  rations: STARTING_RESOURCES.RACAO_AGUA,
+  scrap: STARTING_RESOURCES.SUCATA,
+  chips: STARTING_RESOURCES.CHIPS_IA,
+  concrete: STARTING_RESOURCES.CONCRETO,
+};
 // POP_MAX vem do shared (fonte única desde a 2.6.1).
 let rallyPoint = new THREE.Vector3(8, 0, 14);
 

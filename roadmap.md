@@ -232,7 +232,8 @@ desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo
   - Escopo real: workspace `shared/`, paridade de modelo, custos/pop-cap no servidor, reconciliação de coleta e física, snapshot broadcast, cliente WS com interpolação, remoção dos 5 `TODO-2.6`.
   - **Spec APROVADO em 2026-09-10 (S14)**: as 5 decisões (D-2.6-A..E) foram fechadas na sessão `grill-me` — escolhas **A/A/A/A/A**, registradas em `docs/decisions/2026-09-10_fase-2.6-paridade.md`. A fase está **desbloqueada**; começar por 2.6.1 (`shared/`).
   - ✅ **2.6.1 entregue (S15)**: workspace `@project-exodus/shared` no ar (protocol/units/economy/world), cliente e servidor consumindo com re-exports; divergência de tipos/dados agora é erro de compilação. Gates: `tsc` 0 (shared/client/server/studio), 43 asserts, build 689 kB, `dist-proof` 11/8/0, `collision-e2e` 8,701/3,101, `gather-e2e`, `test-buttons` 10/10. Detalhe no spec 02 §5.
-  - ⏭️ **Próxima**: 2.6.2 (paridade de modelo — custos/pop/tempos no servidor), precedida pelo grill-me das decisões abertas da 2.6.x (arquivo em `docs/decisions/`).
+  - ✅ **2.6.2 entregue (S16)**: custos debitados + reembolso no cancelamento (`CANCEL_TRAIN`, protocolo v2), `POP_MAX` 20 global, tesouro inicial do shared e tempos derivados de `TRAINING_SPECS` (drone/mech treináveis). Gates: **51 asserts** + harness completo + build 689 kB. Detalhe no spec 02 §5.
+  - ⏭️ **Próxima**: **2.6.3** — coleta D-2.6-B (intervalo 0,3 s/un), física D-2.6-C no servidor, colisão para `shared/` (1.12.4) e decisões `D-2.6.3-A/B` (dropoff 10 m; clamp ±88).
   - Ver plano de 6 sub-fases e gates no próprio spec.
 - **Gate de Aprovação da Fase 2**:
   - [ ] Trabalhador coleta, transporta e entrega no CC, placar incrementa (demo no harness).
@@ -295,6 +296,11 @@ desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo
 - **Harness/Agente**: Kilo CLI
 - **Modelo LLM**: deepseek-v4.1-flash
 - **Timestamp**: 2026-09-11T00:40:00-03:00
+
+*Atualizado por (Sessão 16 — Fase 2.6.2 entregue):*
+- **Harness/Agente**: Kilo CLI
+- **Modelo LLM**: deepseek-v4.1-flash
+- **Timestamp**: 2026-09-11T01:10:00-03:00
 
 ---
 *Registro assinado por:*

@@ -15,8 +15,11 @@ import type { BuildingType, UnitType } from './units.js';
 export { RESOURCE_KINDS };
 export type { ResourceKind, UnitType, BuildingType };
 
-/** Versão atual do protocolo. Bump em mudanças incompatíveis. */
-export const PROTOCOL_VERSION: number = 1;
+/**
+ * Versão atual do protocolo. Bump em mudanças incompatíveis.
+ * v2 (2.6.2): `CANCEL_TRAIN` adicionado (D-2.6.2-A).
+ */
+export const PROTOCOL_VERSION: number = 2;
 
 /** Canais da mensagem (envelope). */
 export type Channel = 'COMMAND' | 'SNAPSHOT' | 'EVENT';
@@ -81,7 +84,23 @@ export interface TrainCommand extends BaseCommand {
   unit: UnitType;
 }
 
-export type AnyCommand = MoveCommand | GatherCommand | BuildCommand | TrainCommand;
+/**
+ * Ordem de cancelamento (2.6.2, D-2.6.2-A): remove o job da fila do
+ * building e reembolsa o custo integral debitado no TRAIN.
+ */
+export interface CancelTrainCommand extends BaseCommand {
+  kind: 'CANCEL_TRAIN';
+  buildingId: string;
+  /** `cmdId` do TRAIN original — chave determinística do job na fila. */
+  jobCmdId: string;
+}
+
+export type AnyCommand =
+  | MoveCommand
+  | GatherCommand
+  | BuildCommand
+  | TrainCommand
+  | CancelTrainCommand;
 
 export type CommandKind = AnyCommand['kind'];
 
@@ -212,6 +231,11 @@ function assertCommandShape(cmd: object): asserts cmd is AnyCommand {
     case 'TRAIN':
       if (typeof c['buildingId'] !== 'string' || typeof c['unit'] !== 'string') {
         throw new ProtocolError('TRAIN malformado');
+      }
+      return;
+    case 'CANCEL_TRAIN':
+      if (typeof c['buildingId'] !== 'string' || typeof c['jobCmdId'] !== 'string') {
+        throw new ProtocolError('CANCEL_TRAIN malformado');
       }
       return;
     default:

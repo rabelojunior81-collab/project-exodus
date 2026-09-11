@@ -23,6 +23,17 @@ export const RESOURCE_KINDS: ReadonlyArray<ResourceKind> = [
  */
 export const POP_MAX: number = 20;
 
+/**
+ * Tesouro inicial do jogador (paridade de modelo — 2.6.2).
+ * Espelha o estado inicial do cliente (`client/src/main.ts`).
+ */
+export const STARTING_RESOURCES: Record<ResourceKind, number> = {
+  RACAO_AGUA: 250,
+  SUCATA: 180,
+  CHIPS_IA: 75,
+  CONCRETO: 50,
+};
+
 /** Capacidade de carga do trabalhador (unidades de recurso). */
 export const WORKER_CARRY_CAPACITY: number = 10;
 

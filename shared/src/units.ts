@@ -5,6 +5,7 @@
  * game feel (playtest); o servidor adota os mesmos valores na 2.6.2
  * (decisões D-2.6-A/B em `docs/decisions/2026-09-10_fase-2.6-paridade.md`).
  */
+import type { ResourceKind } from './economy.js';
 
 /** Tipos de unidade — união canônica dos dois lados. */
 export type UnitType =
@@ -89,3 +90,24 @@ export const TRAINING_SPECS: Record<UnitType, TrainingSpec> = {
     time: 16,
   },
 };
+
+/**
+ * Correspondência canônica chave-do-HUD ↔ recurso do protocolo (2.6.2).
+ * É a ÚNICA tradução entre os dois vocabulários — mudar aqui muda os dois lados.
+ */
+export const COST_KEY_TO_RESOURCE: Record<keyof ResourceCost, ResourceKind> = {
+  rations: 'RACAO_AGUA',
+  scrap: 'SUCATA',
+  chips: 'CHIPS_IA',
+  concrete: 'CONCRETO',
+};
+
+/** Converte um custo (chaves do HUD) no registro de recursos do protocolo. */
+export function costToResources(cost: ResourceCost): Record<ResourceKind, number> {
+  return {
+    RACAO_AGUA: cost.rations,
+    SUCATA: cost.scrap,
+    CHIPS_IA: cost.chips,
+    CONCRETO: cost.concrete,
+  };
+}

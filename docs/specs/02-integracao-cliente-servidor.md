@@ -33,12 +33,12 @@ A Fase 2.6 precisa fundir as duas com o servidor como autoridade, sem regredir a
 
 | Constante | Cliente | Servidor | Decisão |
 | :--- | ---: | ---: | :--- |
-| Treino worker | 8,0 s | 5,0 s | **DECIDIDA (D-2.6-A): cliente vence — servidor adota 8,0 s** |
-| Treino raider | 12,0 s | 6,0 s | **DECIDIDA (D-2.6-A): cliente vence — servidor adota 12,0 s** |
-| Treino buggy | 18,0 s | 10,0 s | **DECIDIDA (D-2.6-A): cliente vence — servidor adota 18,0 s** |
-| Treino drone / mech | 16 s / 24 s | inexistente | portar para o servidor |
-| Custo em recursos | tabela de 4 recursos + reembolso | **inexistente** | portar para o servidor |
-| `POP_MAX` | 20 | inexistente | portar para o servidor |
+| Treino worker | 8,0 s | 5,0 s → **8,0 s** | **APLICADA (2.6.2): derivado de `TRAINING_SPECS × TICK_RATE` (160 ticks)** |
+| Treino raider | 12,0 s | 6,0 s → **12,0 s** | **APLICADA (2.6.2): 240 ticks** |
+| Treino buggy | 18,0 s | 10,0 s → **18,0 s** | **APLICADA (2.6.2): 360 ticks** |
+| Treino drone / mech | 16 s / 24 s | inexistente → **portado** | **APLICADA (2.6.2): 320/480 ticks** |
+| Custo em recursos | tabela de 4 recursos + reembolso | **inexistente → aplicado** | **APLICADA (2.6.2): débito no aceite; `CANCEL_TRAIN` (v2) reembolsa integral** |
+| `POP_MAX` | 20 | inexistente → **aplicado** | **APLICADA (2.6.2): teto global (D-2.6.2-B)** |
 | Capacidade de carga | 10 | 10 | ✅ paridade |
 | Velocidades base | 6,0 / 7,5 / 8,0 | 6,0 / 7,5 / 8,0 | ✅ paridade |
 
@@ -124,6 +124,7 @@ input do usuário
 | Sub-fase | Entrega | Gate |
 | :--- | :--- | :--- |
 | 2.6.1 ✅ | **ENTREGUE (S15)**: workspace `@project-exodus/shared` (protocol/units/economy/world + barrel), consumo via `dist` (o `composite` do `tsconfig.base.json` finalmente em uso); cliente e servidor migrados com re-exports de compatibilidade | `tsc` 0 em shared/client/server/studio + **43 asserts intactos** + `dist-proof` 11/8/0 + `collision-e2e` 8,701/3,101 + `gather-e2e` e `test-buttons` 10/10 |
+| 2.6.2 ✅ | **ENTREGUE (S16)**: custos debitados (débito no aceite, reembolso integral no `CANCEL_TRAIN`), `POP_MAX` 20 global, tesouro inicial do shared no cenário padrão e `TRAIN_TICKS` derivado de `TRAINING_SPECS × TICK_RATE` (drone/mech treináveis) — protocolo **v2** | **51 asserts** (13 protocolo + 8 simulação + 6 economia + 7 A* + 7 recursos + 4 colisão + 6 worker), suíte sem regressão (387 ticks) + harness completo + build 689 kB + `dist-proof` 11/8/0 |
 | 2.6.2 | Paridade de modelo: 5 unidades, custos, `POP_MAX` no servidor | novos asserts: custo debita, pop-cap rejeita, drone/mech treinam |
 | 2.6.3 | Reconciliação de coleta e locomoção conforme D-2.6-B e D-2.6-C; **absorve `collision.ts` da spec 03 para `shared/`** (1.12.4) | asserts de taxa de coleta; determinismo preservado; colisão com fonte única |
 | 2.6.4 | `snapshot()` no broadcast do `tick()`; protocolo de snapshot versionado com **gancho `viewFor(player)`** (D-2.6-D, sem filtragem) | 2 clientes recebem snapshots idênticos; `viewFor` validado como identidade |

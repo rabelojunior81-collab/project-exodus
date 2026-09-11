@@ -24,6 +24,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
   (`client/public/assets/video/era-1-transition.mp4`) e à landing.
 - Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
 
+### Adicionado (Sessão 16)
+- **Sub-fase 2.6.2 — paridade de modelo no servidor**: custos de treino debitados (reembolso
+  integral no cancelamento), teto populacional global (20), comando `CANCEL_TRAIN` no protocolo
+  **v2**, tesouro inicial do shared no cenário padrão e tempos de treino derivados de
+  `TRAINING_SPECS × TICK_RATE` (drone e mech treináveis). Suíte do servidor: **51 asserts**.
+
 ### Adicionado (Sessão 15, continuação)
 - `docs/knowledge/agentic-play-protocols.md` — base de conhecimento sobre MCP (spec 2026-07-28,
   extensões Tasks/Skills/Apps), ACP, A2A (v1.0), WebMCP (W3C CG) e AG-UI, com versões de SDK

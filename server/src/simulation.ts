@@ -23,8 +23,12 @@ import {
 } from '@project-exodus/shared/protocol';
 import {
   BUILDING_STATS,
+  TRAINING_SPECS,
   UNIT_STATS,
+  costToResources,
+  type ResourceCost,
 } from '@project-exodus/shared/units';
+import { POP_MAX, STARTING_RESOURCES } from '@project-exodus/shared/economy';
 import { NODE_COLLISION_RADIUS } from '@project-exodus/shared/world';
 import {
   SpatialGrid,
@@ -58,6 +62,9 @@ export { BUILDING_STATS };
 /** Raio de colisão dos veios — fonte única no shared/world (Fase 2.6.1). */
 export { NODE_COLLISION_RADIUS };
 
+/** Teto populacional global — fonte única no shared (2.6.2; D-2.6.2-B). */
+export { POP_MAX };
+
 /**
  * Raio de colisão (pathfinding) por construção — derivado do shared.
  * Deliberadamente MENOR que o selectionRadius visual do cliente
@@ -87,17 +94,16 @@ export const BUILD_TICKS: Record<BuildingType, number> = {
 };
 
 /**
- * LEGACY (2.6.1) — tempos atuais do servidor. A fonte canônica é o
- * `TRAINING_SPECS` do shared (decisão D-2.6-A: 8/12/18/16/24 s); a adoção
- * pelo servidor acontece na 2.6.2. NÃO sincronizar à mão: se estes números
- * divergirem do shared, a revisão é lá — aqui é dívida datada.
+ * Ticks de treinamento DERIVADOS da tabela canônica do shared (2.6.2).
+ * D-2.6-A: 8/12/18/16/24 s × 20 Hz = 160/240/360/320/480 ticks.
+ * Não editar à mão: mude `TRAINING_SPECS` e tudo acompanha.
  */
 export const TRAIN_TICKS: Record<UnitType, number> = {
-  SCAVENGER_WORKER: 100,
-  RUST_RAIDER: 120,
-  SCRAP_BUGGY: 200,
-  MAINTENANCE_DRONE: 320, // D-2.6-A (16 s) — unidade ainda sem treino no servidor
-  BIPED_MECH: 480,        // D-2.6-A (24 s) — unidade ainda sem treino no servidor
+  SCAVENGER_WORKER: Math.round(TRAINING_SPECS.SCAVENGER_WORKER.time * TICK_RATE),
+  RUST_RAIDER: Math.round(TRAINING_SPECS.RUST_RAIDER.time * TICK_RATE),
+  SCRAP_BUGGY: Math.round(TRAINING_SPECS.SCRAP_BUGGY.time * TICK_RATE),
+  MAINTENANCE_DRONE: Math.round(TRAINING_SPECS.MAINTENANCE_DRONE.time * TICK_RATE),
+  BIPED_MECH: Math.round(TRAINING_SPECS.BIPED_MECH.time * TICK_RATE),
 };
 
 /** Tamanho máximo da fila de treinamento por building. */
@@ -107,6 +113,8 @@ export interface TrainOrder {
   unit: UnitType;
   remaining: number;
   cmdId: string;
+  /** Custo debitado no aceite — reembolsado integralmente no cancelamento. */
+  cost: ResourceCost;
 }
 
 /** Entidade viva da simulação (unidade ou construção). */
@@ -310,13 +318,70 @@ export class Simulation implements WorkerWorld {
         if (b === undefined || b.owner !== cmd.playerId || b.category !== 'BUILDING') return false;
         if (b.buildRemaining > 0) return false; // em obra
         if (b.trainQueue.length >= MAX_TRAIN_QUEUE) return false;
-        b.trainQueue.push({ unit: cmd.unit, remaining: TRAIN_TICKS[cmd.unit], cmdId: cmd.cmdId });
+        // Reenvio do MESMO job é idempotente (não debita duas vezes).
+        if (b.trainQueue.some((j) => j.cmdId === cmd.cmdId)) return true;
+        // Teto populacional global (D-2.6.2-B).
+        if (this.populationOf(cmd.playerId) >= POP_MAX) return false;
+        // Custos (2.6.2): fonte única em TRAINING_SPECS; chaves HUD → protocolo.
+        const spec = TRAINING_SPECS[cmd.unit];
+        if (!this.canAfford(cmd.playerId, spec.cost)) return false;
+        this.debit(cmd.playerId, spec.cost);
+        b.trainQueue.push({
+          unit: cmd.unit,
+          remaining: TRAIN_TICKS[cmd.unit],
+          cmdId: cmd.cmdId,
+          cost: spec.cost,
+        });
         if (b.state === 'IDLE') b.state = 'TRAINING';
+        return true;
+      }
+      case 'CANCEL_TRAIN': {
+        const b: SimEntity | undefined = this.entities.get(cmd.buildingId);
+        if (b === undefined || b.owner !== cmd.playerId || b.category !== 'BUILDING') return false;
+        const idx: number = b.trainQueue.findIndex((j) => j.cmdId === cmd.jobCmdId);
+        if (idx < 0) return false;
+        const [job] = b.trainQueue.splice(idx, 1);
+        // Reembolso integral (paridade com o cancelamento do cliente).
+        this.refund(cmd.playerId, job.cost);
+        if (b.trainQueue.length === 0 && b.state === 'TRAINING') b.state = 'IDLE';
         return true;
       }
       default:
         return false;
     }
+  }
+
+  // ------------------------------------------------- economia (2.6.2)
+
+  /** Unidades vivas do jogador (teto populacional — D-2.6.2-B). */
+  public populationOf(playerId: string): number {
+    let count: number = 0;
+    for (const e of this.entities.values()) {
+      if (e.category === 'UNIT' && e.owner === playerId) count += 1;
+    }
+    return count;
+  }
+
+  /** true se o placar cobre o custo (chaves do HUD → recursos do protocolo). */
+  private canAfford(playerId: string, cost: ResourceCost): boolean {
+    const score: Record<ResourceKind, number> = this.scoreOf(playerId);
+    const need: Record<ResourceKind, number> = costToResources(cost);
+    for (const kind of Object.keys(need) as ResourceKind[]) {
+      if (score[kind] < need[kind]) return false;
+    }
+    return true;
+  }
+
+  private debit(playerId: string, cost: ResourceCost): void {
+    const score: Record<ResourceKind, number> = this.scoreOf(playerId);
+    const amount: Record<ResourceKind, number> = costToResources(cost);
+    for (const kind of Object.keys(amount) as ResourceKind[]) score[kind] -= amount[kind];
+  }
+
+  private refund(playerId: string, cost: ResourceCost): void {
+    const score: Record<ResourceKind, number> = this.scoreOf(playerId);
+    const amount: Record<ResourceKind, number> = costToResources(cost);
+    for (const kind of Object.keys(amount) as ResourceKind[]) score[kind] += amount[kind];
   }
 
   // ------------------------------------------------- WorkerWorld (2.5)
@@ -518,6 +583,11 @@ export class Simulation implements WorkerWorld {
 
   /** Cenário inicial padrão (espelha `client/src/main.ts`). */
   public static createDefaultScenario(sim: Simulation, playerId: string): void {
+    // Tesouro inicial (paridade de modelo — 2.6.2): fonte única no shared.
+    const treasury: Record<ResourceKind, number> = sim.scoreOf(playerId);
+    for (const kind of Object.keys(STARTING_RESOURCES) as ResourceKind[]) {
+      treasury[kind] = STARTING_RESOURCES[kind];
+    }
     sim.spawnBuilding(playerId, 'bld_cc_1', 'COMMAND_CENTER', 0, -2);
     sim.spawnBuilding(playerId, 'bld_ref_1', 'SCRAP_REFINERY', -16, 2);
     sim.spawnBuilding(playerId, 'bld_tur_1', 'BUNKER_TURRET', 16, 2);
