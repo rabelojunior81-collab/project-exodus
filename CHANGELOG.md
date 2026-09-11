@@ -24,6 +24,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
   (`client/public/assets/video/era-1-transition.mp4`) e à landing.
 - Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
 
+### Adicionado (Sessão 15, continuação)
+- `docs/knowledge/agentic-play-protocols.md` — base de conhecimento sobre MCP (spec 2026-07-28,
+  extensões Tasks/Skills/Apps), ACP, A2A (v1.0), WebMCP (W3C CG) e AG-UI, com versões de SDK
+  verificadas no npm e mapa necessidade↔protocolo para jogabilidade por agentes.
+- `docs/specs/05-agentic-play.md` — Fase 6: CLI, servidor MCP, WebMCP e agente vs agente (A2A),
+  com gates e modelo de segurança (chat como entrada não-confiável).
+- `docs/specs/04-comunicacao-entre-jogadores.md` — sub-fase 3.4: chat ALL/TEAM, 12 taunts com voz
+  PT-BR, pings/flares e rate limits no servidor.
+
 ### Refatorado (Sessão 15)
 - Novo workspace `@project-exodus/shared` (Fase 2.6.1): `protocol`, `units`, `economy` e `world`
   como fonte única entre cliente e servidor, com tipos canônicos (`UnitType` 5, `BuildingType` 3),

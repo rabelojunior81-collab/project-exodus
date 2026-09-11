@@ -1,7 +1,7 @@
 # handoff.md — Transição de Turno Operacional
 
-> **Turno Corrente**: Sessão 15 — Workspace `shared/` (Fase 2.6.1) concluída
-> **Última Modificação**: 2026-09-10T21:05:00-03:00
+> **Turno Corrente**: Sessão 15 — Workspace `shared/` (2.6.1) + grill-me 7/7 + specs 04/05 (concluída)
+> **Última Modificação**: 2026-09-11T00:40:00-03:00
 > **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-10_21-05_sessao-15-workspace-shared.md`
 
 ---
@@ -19,9 +19,11 @@
    `LEGACY (2.6.1)` com a sub-fase dona (tempos D-2.6-A → 2.6.2; intervalo D-2.6-B → 2.6.3).
 4. **Divergências residuais descobertas** na extração: `DROPOFF_RANGE` (10×14) e clamp de mundo
    (±88×±90) — viraram decisões `D-2.6.3-A/B` no grill-me.
-5. **Grill-me 2.6.x aberto** (`docs/decisions/2026-09-10_fase-2.6.x-abertas.md`, 7 decisões) —
-   conduzir antes da 2.6.2.
-6. **Documentos vivos sincronizados**: journal S15, estate, roadmap, spec 02 (§3.1 + §5), changelog.
+5. **Grill-me 2.6.x encerrado (7/7 — A/A/A/A/A/A/A)**; decisões destravam a 2.6.2.
+6. **Diretivas novas com design completo**: Fase 6 (Agentic Play — CLI/MCP/WebMCP/A2A) com base de
+   conhecimento verificada (`docs/knowledge/agentic-play-protocols.md` + `docs/specs/05-agentic-play.md`)
+   e comunicação entre jogadores (`docs/specs/04-comunicacao-entre-jogadores.md`, sub-fase 3.4).
+7. **Documentos vivos sincronizados**: journal S15/S15b, estate, roadmap (Fase 3.4 + Fase 6), changelog.
 
 ---
 
@@ -59,11 +61,10 @@
 
 **Ordem sugerida:**
 
-1. **Rodar o grill-me 2.6.x** (7 decisões em `docs/decisions/2026-09-10_fase-2.6.x-abertas.md`) —
-   especificamente as de 2.6.2 (`D-2.6.2-A/B`), que destravam a próxima sub-fase.
-2. **Sub-fase 2.6.2** — paridade de modelo: custos debitados no `TRAIN`, `POP_MAX` rejeitando,
-   `TRAIN_TICKS` → `TRAINING_SPECS × TICK_RATE` (remove os `LEGACY`); drone/mech treináveis.
-   Gate: novos asserts (custo debita, pop-cap rejeita) + 43 antigos intactos.
+1. **Sub-fase 2.6.2 — paridade de modelo no servidor** (decisões já fechadas): custos debitados no
+   `TRAIN`, `POP_MAX` rejeitando com motivo, `CancelTrainCommand` (protocolo v2), `TRAIN_TICKS`
+   derivado de `TRAINING_SPECS × TICK_RATE`; remover marcadores `LEGACY`. Gate: novos asserts
+   (custo debita, pop-cap rejeita, cancel reembolsa, roundtrip v2) + 43 antigos intactos.
 3. **2.6.3** — coleta D-2.6-B, física D-2.6-C, colisão 1.12.4, decisões `D-2.6.3-A/B`.
 4. **ALTO-05** (stinger/música/`playMusic`), **CI** de gates, **topics/social preview**, **Lote 3** eras 2–4.
 5. **Performance** — medir FPS em GPU real quando possível.
@@ -72,9 +73,9 @@
 
 ## 5. Decisões Aguardando o Usuário
 
-Ver `docs/decisions/2026-09-10_fase-2.6.x-abertas.md` — 7 itens com contexto, opções e recomendação:
-`D-2.6.2-A` (cancel train), `D-2.6.2-B` (POP), `D-2.6.3-A` (dropoff), `D-2.6.3-B` (clamp),
-`D-2.6.4-A` (broadcast), `D-2.6.5-A` (interpolação), `D-2.6.5-B` (debug hooks).
+Ver `docs/decisions/2026-09-10_fase-2.6.x-abertas.md` — ✅ **todas as 7 encerradas em 2026-09-11**
+(A/A/A/A/A/A/A). Próximo grill-me: Fase 6 (D-6.1..D-6.4, ver `docs/specs/05-agentic-play.md` §9) —
+somente quando a fase for iniciada. Novas decisões abertas no momento: **nenhuma**.
 
 ---
 

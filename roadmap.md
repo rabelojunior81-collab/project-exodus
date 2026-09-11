@@ -243,11 +243,13 @@ desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo
 ## Fase 3: Multiplayer LAN / Tailscale & Protocolo de Rede ⚪
 *Objetivo: Sincronização via WebSocket em rede local e Tailnet com interpolação suave.*
 
-- [ ] **Sub-fase 3.1**: Protocolo de mensagens binárias/JSON compacto para comandos e snapshots de estado. ⚪
+- [ ] **Sub-fase 3.1**: Protocolo de mensagens compacto para comandos e snapshots (v3: inclui `CHAT/TAUNT/PING` da 3.4). ⚪
 - [ ] **Sub-fase 3.2**: Lobby de conexão e suporte a conexão direta por IP local (192.168.x.x) e Tailscale (100.x.y.z). ⚪
-- [ ] **Sub-fase 3.3**: Buffer de interpolação no cliente Three.js para movimentação suave de unidades. ⚪
+- [ ] **Sub-fase 3.3**: Buffer de interpolação no cliente (fixo ~100 ms — decisão D-2.6.5-A). ⚪
+- [ ] **Sub-fase 3.4**: **Comunicação entre jogadores** — chat ALL/TEAM, 12 taunts com voz PT-BR, pings/flares no mapa e minimapa; rate limit no servidor. Spec: `docs/specs/04-comunicacao-entre-jogadores.md`. ⚪
 - **Gate de Aprovação da Fase 3**:
   - [ ] Dois navegadores conectados simultaneamente no mesmo servidor sem dessincronização visual.
+  - [ ] Chat/ping/taunt idênticos nos dois clientes, no tick correto, com flood rejeitado pelo servidor.
 
 ---
 
@@ -271,6 +273,28 @@ desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo
 - [ ] **Sub-fase 5.4**: HUD completo pós-apocalíptico com minimapa, placar e árvore de tecnologias. ⚪
 - **Gate de Aprovação da Fase 5**:
   - [ ] Partida completa jogável do início ao fim com vitória por destruição ou construção de maravilha.
+
+---
+
+## Fase 6: Agentic Play — CLI, MCP e WebMCP ⚪ (design completo)
+*Objetivo: o jogo jogável por agentes de IA — observação, ação, espera e visualização constantes durante a partida; agente vs agente via A2A. Origem: diretiva do usuário (10/09/2026).*
+
+- Base de conhecimento (protocolos + libs verificadas no npm): `docs/knowledge/agentic-play-protocols.md` — MCP (spec 2026-07-28; `@modelcontextprotocol/sdk@1.30.0` ou linha `2.0`), ACP (Zed), A2A (`@a2a-js/sdk@1.1.0`), WebMCP (W3C CG; polyfill `@mcp-b/global@5.1.0`), AG-UI (opcional).
+- Spec: `docs/specs/05-agentic-play.md`.
+- [ ] **Sub-fase 6.1**: CLI (`tools/exodus-cli`) — cliente fino do protocolo com `--json`, REPL, `wait/watch/replay`; pode iniciar após a 2.6.6. ⚪
+- [ ] **Sub-fase 6.2**: Servidor MCP (`tools/exodus-mcp`) — tools canônicas (`game_observe/order/train/cancel/chat/ping/wait/screenshot`), extensão **Tasks** para espera assíncrona, resources; linha do SDK a decidir no grill-me da Fase 6. ⚪
+- [ ] **Sub-fase 6.3**: WebMCP na página do jogo (polyfill `@mcp-b/global` até suporte nativo), com opt-in explícito e anotações de segurança. ⚪
+- [ ] **Sub-fase 6.4**: Agente vs agente via A2A — Agent Card do nó do jogo e tarefa `play_match` (depende da Fase 3). ⚪
+- [ ] **Sub-fase 6.5**: Observabilidade & eval — replay com `agentId`, suíte de avaliação de agentes e adversarial (injeção via chat). ⚪
+- **Gate de Aprovação da Fase 6**:
+  - [ ] Um agente externo completa "coletar 10 de sucata e treinar 1 catador" usando somente as tools MCP, com recibo determinístico e trilha de auditoria.
+  - [ ] Dois agentes disputam uma partida via A2A sem intervenção humana.
+
+---
+*Atualizado por (Sessão 15 — Fase 2.6.1 + decisões 7/7 + specs 04/05):*
+- **Harness/Agente**: Kilo CLI
+- **Modelo LLM**: deepseek-v4.1-flash
+- **Timestamp**: 2026-09-11T00:40:00-03:00
 
 ---
 *Registro assinado por:*
