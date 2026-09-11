@@ -73,7 +73,7 @@ npm test             # 39 simulation asserts
 - Deterministic procedural scenery (365 instanced props, fixed seed) and 9 animated GLTF models.
 
 **Not playable yet:** combat, player construction, age transitions, victory conditions and
-multiplayer. The deterministic server exists and passes 65 asserts — client↔server
+multiplayer. The deterministic server exists and passes 71 asserts — client↔server
 reconciliation is the next phase (2.6). Details and open decisions in
 [`docs/specs/02-integracao-cliente-servidor.md`](docs/specs/02-integracao-cliente-servidor.md).
 

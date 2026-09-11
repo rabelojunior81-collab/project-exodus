@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.4/t-00-suite-do-servidor/00-red",
+  "fase": "fase-2.6.4",
+  "teste": "t-00-suíte-do-servidor",
+  "passo": "00-red",
+  "titulo": "Suíte do servidor — execução red",
+  "descricao": "Transcrição completa da suíte (smoke + asserts de todas as áreas) registrada como evidência da fase.",
+  "status": "falhou",
+  "esperado": "Todos os arquivos de teste passam (exit 0)",
+  "observado": "exit 1 · falhas registradas na transcrição",
+  "tipo": "texto",
+  "captura": "00-red.txt",
+  "comando": "cd server && npm test   # evidência red",
+  "ferramenta": "node · ts-node/esm",
+  "timestamp": "2026-09-11T19:30:43.884Z",
+  "commit": "pendente",
+  "tags": [
+    "red",
+    "vermelho"
+  ]
+}

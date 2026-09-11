@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.4/t-01-broadcast-rede/01-serie",
+  "fase": "fase-2.6.4",
+  "teste": "t-01-broadcast-rede",
+  "passo": "01-serie",
+  "titulo": "Série real de bytes por tick",
+  "descricao": "Medição da carga por tick no servidor real (1 cliente WS, 60 snapshots) — insumo do gráfico canônico da fase.",
+  "status": "passou",
+  "esperado": "série estável e coerente com o E2E de dois clientes",
+  "observado": "avg=1388 B · min=1387 · max=1388 · 26.7 KB/s @ 19.4 Hz",
+  "tipo": "texto",
+  "captura": "01-serie.txt",
+  "comando": "node tools/visual-check/measure-broadcast-series.mjs 60",
+  "ferramenta": "node · ws · servidor real",
+  "timestamp": "2026-09-11T19:46:11.744Z",
+  "commit": "pendente",
+  "tags": [
+    "rede",
+    "medição"
+  ]
+}

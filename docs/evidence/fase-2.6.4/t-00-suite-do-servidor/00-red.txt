@@ -1,0 +1,143 @@
+npm notice run @project-exodus/server@0.1.0 pretest
+npm notice run npm --prefix .. run build:shared
+npm notice run project-exodus-rts@0.1.0 build:shared
+npm notice run npm run build --workspace=@project-exodus/shared
+npm notice run @project-exodus/shared@0.1.0 build
+npm notice run tsc
+npm notice run @project-exodus/server@0.1.0 test
+npm notice run node --loader ts-node/esm tests/server_smoke.test.ts && node --loader ts-node/esm src/__tests__/protocol.test.ts && node --loader ts-node/esm src/__tests__/astar.test.ts && node --loader ts-node/esm src/__tests__/resources.test.ts && node --loader ts-node/esm src/__tests__/simulation.test.ts && node --loader ts-node/esm src/__tests__/collision.test.ts && node --loader ts-node/esm src/__tests__/economy.test.ts && node --loader ts-node/esm src/__tests__/worker.test.ts && node --loader ts-node/esm src/__tests__/parity.test.ts && node --loader ts-node/esm src/__tests__/collision-shared.test.ts && node --loader ts-node/esm src/__tests__/broadcast.test.ts
+(node:76708) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Server] Iniciando teste de sanidade do loop do GameServer...
+[Test:Server] Teste de instância concluído com sucesso!
+(node:76714) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Protocol] tipos + serialize/deserialize versionado
+  ok 1 - roundtrip MOVE
+  ok 2 - roundtrip GATHER
+  ok 3 - roundtrip BUILD
+  ok 4 - roundtrip TRAIN
+  ok 5 - roundtrip CANCEL_TRAIN
+  ok 6 - roundtrip snapshot
+  ok 7 - roundtrip evento UNIT_READY
+  ok 8 - versão incompatível lança ProtocolError
+  ok 9 - JSON inválido lança ProtocolError
+  ok 10 - canal desconhecido lança ProtocolError
+  ok 11 - MOVE malformado lança ProtocolError
+  ok 12 - tick não-inteiro rejeitado
+  ok 13 - CANCEL_TRAIN malformado lança ProtocolError
+[Test:Protocol] 13 asserts OK
+(node:76715) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:AStar] grid + heap + pathfinding
+  ok 1 - grid 90×90 de 2m cobre 180m
+  ok 2 - heap extrai em ordem
+  ok 3 - platô livre; cratera custa mais
+  ok 4 - campo aberto gera caminho direto
+  ok 5 - desvia de building circular
+  ok 6 - destino bloqueado cai na borda
+  ok 7 - A* determinístico
+[Test:AStar] 7 asserts OK
+(node:76716) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Resources] nós dos 4 recursos
+  ok 1 - 8 nós, 2 por recurso, 4 kinds
+  ok 2 - raios em 35–70 (fora do platô r30)
+  ok 3 - folga dos spawns (0,-2),(±16,2)
+  ok 4 - sem overlap entre nós (spacing ≥ 15)
+  ok 5 - validateResourceLayout aprova o layout
+  ok 6 - harvestNode extrai até o saldo e zera
+  ok 7 - cópias independentes por partida
+[Test:Resources] 7 asserts OK
+(node:76718) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Simulation] loop 20Hz + entidades
+  ok 1 - 20Hz / dt fixo 50ms
+  ok 2 - tick inteiro, +1 por step, sem Date.now na lógica
+  ok 3 - spawn/remove/update + cenário padrão
+  ok 4 - MOVE acelera com inércia (1º tick: 20 m/s² → 0,05 m)
+  ok 5 - comando rejeita alvo inexistente / dono errado
+  ok 6 - TRAIN produz unidade + evento UNIT_READY
+  ok 7 - snapshot ordenado, versionado e serializável
+  ok 8 - determinismo: mesma seed + comandos = snapshots iguais
+[Test:Simulation] 8 asserts OK
+(node:76726) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Collision] projeção e travessia (spec 03)
+  ok 1 - unidade nunca entra no Centro de Comando
+  ok 2 - MOVE através do CC termina no destino (A* contorna)
+  ok 3 - veio bloqueia a passagem (projeção)
+  ok 4 - determinismo preservado com colisão
+[Test:Collision] 4 asserts OK
+(node:76731) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Economy] custos, pop-cap e paridade de treino (2.6.2)
+  ok 1 - cenário concede o tesouro inicial do shared
+  ok 2 - TRAIN debita o custo exato e reenvio é idempotente
+  ok 3 - TRAIN rejeita sem recursos (tesouro zero)
+  ok 4 - pop-cap rejeita no teto e libera ao cair abaixo
+  ok 5 - drone e mech treinam com os ticks derivados do shared
+  ok 6 - CANCEL_TRAIN reembolsa integral e remove da fila
+[Test:Economy] 6 asserts OK
+(node:76732) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Worker] FSM de coleta
+  ok 1 - GATHER leva a GOTO_RESOURCE com caminho
+    (primeira entrega em 371 ticks)
+  ok 2 - ciclo completo entrega 10 un e emite RESOURCE_DELIVERED
+  ok 3 - após DELIVER, o loop repete (segunda entrega dobra o placar)
+  ok 4 - GATHER coleta por timer: carga enche sem pular estados
+  ok 5 - nó esgotado com carga vazia: volta a IDLE sem travar
+  ok 6 - stepWorkers puro: mesma seed repete a trajetória
+[Test:Worker] 6 asserts OK
+(node:76737) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:Parity2.6.3] contrato de reconciliação (coleta, física, limites)
+  ok 1 - D-2.6-B: intervalo de coleta = 6 ticks e taxa ≈ 3,33 un/s
+  ok 2 - D-2.6-B: 10 de carga em exatamente 60 ticks de GATHER
+  ok 3 - D-2.6.3-A: DROPOFF_RANGE = 10 e a entrega dispara a ≤ 10,5 m do CC
+  ok 4 - D-2.6-C: stats de física por tipo no shared (aceleração e giro)
+  ok 5 - D-2.6-C: inércia — blindado parte devagar (1 tick ≈ 0,25 m/s)
+  ok 6 - D-2.6-C: tração — blindado quase não anda "de ré" (gira antes)
+  ok 7 - D-2.6-C: snapshot inclui velocidade e heading (protocolo v3)
+  ok 8 - D-2.6.3-B: clamp do mundo = ±88 m
+  ok 9 - D-2.6.3-B: MOVE para fora do mapa termina em ≤ 88 m
+[Test:Parity2.6.3] 9 asserts OK
+(node:76739) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+[Test:CollisionShared] fonte única do resolvedor (1.12.4)
+  ok 1 - resolveMove projeta para fora e bloqueia (contato exato)
+  ok 2 - resolveMove é determinístico (mesma entrada → mesma saída)
+  ok 3 - resolveTarget projeta destino interno para a borda
+  ok 4 - constantes do servidor derivam do shared (raios e clamp ±88)
+  ok 5 - servidor usa o resolvedor compartilhado (projeção em runtime)
+[Test:CollisionShared] 5 asserts OK
+(node:76740) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("ts-node/esm", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+[Object: null prototype] {
+  Symbol(nodejs.util.inspect.custom): [Function: [nodejs.util.inspect.custom]]
+}
+
+Node.js v26.8.1
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/adilsonrrabelojunior/Desktop/game-rts/server
+npm error workspace @project-exodus/server@0.1.0
+npm error location /Users/adilsonrrabelojunior/Desktop/game-rts/server
+npm error command failed
+npm error command sh -c node --loader ts-node/esm tests/server_smoke.test.ts && node --loader ts-node/esm src/__tests__/protocol.test.ts && node --loader ts-node/esm src/__tests__/astar.test.ts && node --loader ts-node/esm src/__tests__/resources.test.ts && node --loader ts-node/esm src/__tests__/simulation.test.ts && node --loader ts-node/esm src/__tests__/collision.test.ts && node --loader ts-node/esm src/__tests__/economy.test.ts && node --loader ts-node/esm src/__tests__/worker.test.ts && node --loader ts-node/esm src/__tests__/parity.test.ts && node --loader ts-node/esm src/__tests__/collision-shared.test.ts && node --loader ts-node/esm src/__tests__/broadcast.test.ts

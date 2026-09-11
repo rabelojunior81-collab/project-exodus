@@ -1,0 +1,22 @@
+{
+  "id": "fase-2.6.4/t-00-broadcast-rede/01-e2e",
+  "fase": "fase-2.6.4",
+  "teste": "t-00-broadcast-rede",
+  "passo": "01-e2e",
+  "titulo": "Broadcast E2E (2 clientes)",
+  "descricao": "Servidor real + dois clientes WS coletando snapshots por tick, comparando bytes e medindo banda.",
+  "status": "passou",
+  "esperado": "60 snapshots idênticos por cliente, v3, ticks monotônicos",
+  "observado": "{\"snapshotsEach\":60,\"mismatches\":0,\"monotonic\":true,\"avgPayloadBytes\":1388,\"kBps\":26.7,\"hzMeasured\":19.4}",
+  "tipo": "texto",
+  "captura": "01-e2e.txt",
+  "comando": "node tools/visual-check/broadcast-e2e.mjs",
+  "ferramenta": "node · ws · servidor real",
+  "timestamp": "2026-09-11T19:37:34.017Z",
+  "commit": "pendente",
+  "tags": [
+    "rede",
+    "banda",
+    "verde"
+  ]
+}

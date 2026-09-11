@@ -24,6 +24,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
   (`client/public/assets/video/era-1-transition.mp4`) e à landing.
 - Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
 
+### Adicionado (Sessão 18)
+- **Sub-fase 2.6.4 — broadcast autoritativo por tick**: `GameServer.tick()` transmite o snapshot
+  (envelope v3) a cada cliente a 20 Hz, com `viewFor(player)` como identidade (D-2.6-D), eventos
+  sem duplicação, backpressure por drop de tick e métricas (`getNetworkStats`). Medição real com
+  dois clientes: **1.388 B/tick · 26,7 KB/s · 0 divergências**. Suíte do servidor: **71 asserts**,
+  contrato de rede congelado antes da implementação.
+- Utilitários de medição/visualização: `measure-broadcast-series.mjs` e `render-broadcast-chart.mjs`;
+  5ª crônica na landing ("O servidor aprende a falar") com gráfico canônico verificado.
+
 ### Corrigido (Sessão 17)
 - **Landing — Crônicas**: as 4 entradas usavam o mesmo plano largo (imagens quase idênticas).
   Substituídas por capturas visualmente distintas e pertinentes (menu, blindado em manobra, HUD

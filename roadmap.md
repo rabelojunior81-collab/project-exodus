@@ -234,7 +234,8 @@ desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo
   - ✅ **2.6.1 entregue (S15)**: workspace `@project-exodus/shared` no ar (protocol/units/economy/world), cliente e servidor consumindo com re-exports; divergência de tipos/dados agora é erro de compilação. Gates: `tsc` 0 (shared/client/server/studio), 43 asserts, build 689 kB, `dist-proof` 11/8/0, `collision-e2e` 8,701/3,101, `gather-e2e`, `test-buttons` 10/10. Detalhe no spec 02 §5.
   - ✅ **2.6.2 entregue (S16)**: custos debitados + reembolso no cancelamento (`CANCEL_TRAIN`, protocolo v2), `POP_MAX` 20 global, tesouro inicial do shared e tempos derivados de `TRAINING_SPECS` (drone/mech treináveis). Gates: **51 asserts** + harness completo + build 689 kB. Detalhe no spec 02 §5.
   - ✅ **2.6.3 entregue (S17)**: coleta a 3,33 un/s (D-2.6-B), física inercial no servidor com snapshot v3 (D-2.6-C), colisão unificada em `shared/collision` (1.12.4), dropoff 10 m (D-2.6.3-A) e clamp ±88 (D-2.6.3-B) — **contrato congelado antes da implementação** + registro visual de testes (`docs/evidence/fase-2.6.3/`). Gates: **65 asserts** + harness completo. Detalhe no spec 02 §5.
-  - ⏭️ **Próxima**: **2.6.4** — broadcast de snapshot por tick (full JSON 20 Hz) + gancho `viewFor(player)` (D-2.6-D).
+  - ✅ **2.6.4 entregue (S18)**: broadcast por tick com `viewFor(player)` identidade (D-2.6-D), backpressure e métricas — 2 clientes reais com **0 divergências**, **1.388 B/tick · 26,7 KB/s** medidos; **71 asserts**; gráfico canônico na landing. Detalhe no spec 02 §5.
+  - ⏭️ **Próxima**: **2.6.5** — cliente WebSocket (buffer de interpolação fixo ~100 ms, comandos reais, RTT instrumentado, hooks de debug dev-only — D-2.6.5-A/B).
   - Ver plano de 6 sub-fases e gates no próprio spec.
 - **Gate de Aprovação da Fase 2**:
   - [ ] Trabalhador coleta, transporta e entrega no CC, placar incrementa (demo no harness).

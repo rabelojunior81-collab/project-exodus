@@ -1,27 +1,27 @@
 # handoff.md — Transição de Turno Operacional
 
-> **Turno Corrente**: Sessão 17 — Fase 2.6.3 (reconciliação) + evidência visual + landing narrativa (concluída)
-> **Última Modificação**: 2026-09-11T01:50:00-03:00
-> **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-11_01-50_sessao-17-fase-2.6.3.md` + `docs/evidence/fase-2.6.3/MANIFEST.md`
+> **Turno Corrente**: Sessão 18 — Fase 2.6.4 (broadcast por tick + `viewFor`) concluída
+> **Última Modificação**: 2026-09-11T15:35:00-03:00
+> **Leitura obrigatória antes de retomar**: `docs/journal/2026-09-11_15-35_sessao-18-fase-2.6.4.md` + `docs/evidence/fase-2.6.4/MANIFEST.md`
 
 ---
 
-## 1. O que foi realizado neste turno (Sessão 17)
+## 1. O que foi realizado neste turno (Sessão 18)
 
-1. **Fase 2.6.3 entregue com contrato congelado**: testes escritos e registrados em **vermelho
-   antes da implementação** (`parity.test.ts` 9 asserts + `collision-shared.test.ts` 5 + E2E do
-   cliente); passaram verdes **sem alteração** (só correção prévia de imports).
-2. **Coleta D-2.6-B**: 6 ticks/un (0,3 s ≈ 3,33 un/s) — 10 de carga em 60 ticks exatos.
-3. **Física D-2.6-C**: inercial no servidor (aceleração/giro do shared; snapshot **v3** com
-   `velocity`/`heading`); blindado parte em 0,25 m/s no 1º tick e gira antes de andar de ré.
-4. **Colisão 1.12.4**: resolvedor único em `shared/collision`; cliente re-exporta; servidor
-   projeta pelo mesmo código; `GridObstacle` separado de `CircleObstacle`.
-5. **D-2.6.3-A/B**: dropoff 10 m e clamp ±88 aplicados e provados.
-6. **Camada de evidência visual** (`docs/evidence/`): README de convenções, índice por fase,
-   helper `lib/evidence.mjs`, runner de suíte com transcrição; capturas com manifestos.
-7. **Landing narrativa**: seção "Crônicas da Construção" com 4 capturas de evidência (WebP) e
-   convenção de atualização a cada fechamento.
-8. **Dois bugs de física capturados pelo contrato** (orçamento composto; waypoint degenerado).
+1. **Fase 2.6.4 entregue com contrato congelado primeiro**: `broadcast.test.ts` (6 asserts) e
+   `broadcast-e2e.mjs` (2 clientes reais) escritos e registrados em **vermelho** antes da
+   implementação; verdes **sem alteração** depois.
+2. **Broadcast autoritativo**: `GameServer.tick()` drena o snapshot 1×/tick e transmite envelope
+   **v3** a cada cliente via `takeTickPayload`/`serializeSnapshot`.
+3. **`viewFor(player)` identidade** (D-2.6-D): mesmos bytes para todos — **0 divergências** em 60
+   ticks com dois clientes reais; contrato da filtragem (Fase 3) documentado no código.
+4. **Backpressure** por drop de tick (`bufferedAmount > 256 KB`, nunca enfileira) + métricas
+   (`getNetworkStats`) + resumo no console (1 s).
+5. **Números reais medidos**: **1.388 B/tick · 26,7 KB/s · 19,4 Hz** (gatilho de reavaliação
+   D-2.6.4-A: 300 KB/s).
+6. **Evidência + crônica**: série real + gráfico canônico verificado visualmente e publicado como
+   5ª crônica da landing ("O servidor aprende a falar"); utilitários reutilizáveis
+   (`measure-broadcast-series.mjs`, `render-broadcast-chart.mjs`).
 
 ---
 
@@ -29,30 +29,28 @@
 
 | Gate | Comando | Resultado |
 | :--- | :--- | :--- |
-| Typechecks | `tsc --noEmit` shared (build) + client + server + studio | 🟢 0 erros |
-| Contrato vermelho | `server-suite-evidence --label red` | 🟢 registrado (`10 !== 6`) |
-| Suíte do servidor | `cd server && npm test` | 🟢 smoke + **65 asserts** (contrato 2.6.3 incluso) |
-| Evidência verde | `server-suite-evidence --label green` | 🟢 `passou` no manifesto da fase |
-| E2E 2.6.3 (congelado) | `node tools/visual-check/phase-2.6.3-e2e.mjs` | 🟢 evidência + invariantes (precisa **preview 4173 E dev 5173**) |
-| Produção | `dist-proof.mjs` | 🟢 11 ent / 8 nós / 0 pageerrors |
-| HUD | `test-buttons.mjs` | 🟢 10/10 + coleta E2E |
-| Build | `cd client && npm run build` | 🟢 28 módulos; 689,29 kB |
+| Typecheck servidor | `tsc --noEmit -p server/tsconfig.json` | 🟢 0 erros |
+| Suíte do servidor | `cd server && npm test` | 🟢 smoke + **71 asserts** (broadcast: 6 novos; anteriores intactos) |
+| E2E de rede | `node tools/visual-check/broadcast-e2e.mjs` | 🟢 60 snapshots/cliente · **0 divergências** · v3 · monotônico |
+| Série de bytes | `node tools/visual-check/measure-broadcast-series.mjs 60` | 🟢 1.387–1.388 B/tick (estabilidade de 1 byte) |
+| Gráfico | `node tools/visual-check/render-broadcast-chart.mjs` | 🟢 SVG + render verificado visualmente |
+| Build do servidor | `cd server && npm run build` | 🟢 tsc emit limpo |
 
-⚠️ **Regra operacional nova**: `phase-2.6.3-e2e.mjs` exige **os dois servidores** (preview em 4173
-para as capturas; dev em 5173 para o subprocesso `gather-e2e`). Subir ambos antes de rodar.
+⚠️ **Nota de execução**: o E2E de rede usa a porta **8080** (servidor real). Nada mais deve estar
+rodando nela. O `broadcast-e2e` sobe e derruba o servidor sozinho.
 
 ---
 
-## 3. Decisões Tomadas (S17)
+## 3. Decisões Tomadas (S18)
 
 | # | Decisão |
 | :-- | :--- |
-| D-17.1 | Contratos congelados em arquivos próprios (imunes a ajuste pós-implementação) |
-| D-17.2 | Evidência visual em `docs/evidence/` (manifesto/captura + índice/fase) |
-| D-17.3 | `GridObstacle` (A*) ≠ `CircleObstacle` (colisão) |
-| D-17.4 | Física: 1 alinhamento/tick + orçamento `v×dt` |
-| D-17.5 | Cliente consome o shared sem mudança de comportamento (gates provam) |
-| D-17.6 | Landing: crônica por fechamento com asset da evidência |
+| D-18.1 | Drenar snapshot em todo tick (sem acúmulo de eventos quando não há clientes) |
+| D-18.2 | Backpressure por drop de tick — nunca enfileirar |
+| D-18.3 | `clientId` de conexão separado do `playerId` (prepara Fase 3) |
+| D-18.4 | `viewFor` devolve a mesma referência (identidade barata); Fase 3 muda conteúdo, não shape |
+| D-18.5 | Métricas expostas em `getNetworkStats()` + série medida como evidência |
+| D-18.6 | ACK legado mantido; formalização na 2.6.5 **dentro da v3** (contrato congela a versão) |
 
 ---
 
@@ -60,15 +58,18 @@ para as capturas; dev em 5173 para o subprocesso `gather-e2e`). Subir ambos ante
 
 **Ordem sugerida:**
 
-1. **Sub-fase 2.6.4** — broadcast de snapshot a cada tick (`serializeSnapshot` no `tick()` do
-   `GameServer`), protocolo com **gancho `viewFor(player)`** (identidade, sem filtragem — D-2.6-D),
-   medição de banda (bytes/s) no harness.
-   - Contrato congelado antes de implementar: novo `phase-2.6.4` (servidor: 2 clientes recebem o
-     mesmo snapshot no tick; `viewFor` validado como identidade; tamanho medido).
-2. **2.6.5** — cliente WebSocket (buffer ~100 ms, comandos reais, RTT), hooks dev-only.
-3. **2.6.6** — remoção do legado client-side + auditoria final da fase.
-4. ALTO-05, CI de gates (incluir `phase-2.6.3-e2e` + `server-suite-evidence`), topics/social,
-   Lote 3 eras 2–4.
+1. **Sub-fase 2.6.5** — cliente WebSocket:
+   - conectar em `ws://<host>:8080` (LAN/Tailscale), receber SNAPSHOT v3 e **aplicar estado**;
+   - **buffer de interpolação fixo ~100 ms** (D-2.6.5-A) para render suave a 60 fps;
+   - **comandos reais** (MOVE/GATHER/TRAIN/CANCEL) via envelope + `CMD_ACK` formalizado **na v3**;
+   - **RTT instrumentado** input→ACK→snapshot (gatilho de reavaliação da predição: p95 > 80 ms);
+   - **hooks de debug dev-only** (D-2.6.5-B): `window.__rts` sob `import.meta.env.DEV`/flag;
+   - contrato congelado antes (novo teste de fase + E2E de navegador contra o servidor).
+   - Gate do spec: `gather-e2e` passa **contra o servidor**, sem economia local.
+2. **2.6.6** — remoção da simulação client-side (`grep -c TODO-2.6 client/src` = 0) + auditoria.
+3. **CI** — incluir `broadcast-e2e`, `server-suite-evidence`, `verify-manifest` no workflow
+   (hoje só o Pages roda); atualizar actions (aviso de Node 20 em ações v4/v5).
+4. ALTO-05 (stinger/música/`playMusic`), topics/social preview, Lote 3 eras 2–4.
 
 ---
 
@@ -87,19 +88,20 @@ para as capturas; dev em 5173 para o subprocesso `gather-e2e`). Subir ambos ante
 - Alegação de gate só entra em documento se tiver sido executada no turno.
 - `shared/` é a fonte única; `LEGACY (fase)` marca dívida datada com a sub-fase dona.
 - Comando com débito de recursos **precisa** ser idempotente e guardar o custo aplicado.
-- **Novo (S17)**: contrato de fase escreve-se **antes** da implementação e é registrado em
-  `docs/evidence/` no estado vermelho; testes congelados não se alteram depois (novo teste = nova fase).
-- **Novo (S17)**: toda captura de evidência tem manifesto (cena, esperado, observado, status,
-  comando, commit) — sem manifesto, não é evidência.
-- **Novo (S17)**: a cada fechamento de fase, adicionar uma crônica na landing (imagem da evidência
-  convertida para WebP + texto PT/EN).
-- **Novo (S17b)**: **verificar visualmente** cada imagem antes de publicar e **variar o
-  enquadramento** entre crônicas (menu/close-up/HUD/FX) — o mesmo plano largo repetido quatro vezes
-  passou a impressão de imagem única (post-mortem em `docs/journal/2026-09-11_02-05_sessao-17b...`).
-- **Novo (S17)**: `phase-2.6.3-e2e` exige preview 4173 **e** dev 5173 no ar.
+- Contrato de fase escreve-se **antes** da implementação e é registrado em `docs/evidence/` no
+  estado vermelho; testes congelados não se alteram depois (novo teste = nova fase).
+- Toda captura de evidência tem manifesto (cena, esperado, observado, status, comando, commit).
+- A cada fechamento de fase, adicionar uma crônica na landing; **verificar visualmente** cada
+  imagem antes de publicar e **variar enquadramento** entre crônicas (menu/close-up/HUD/FX/gráfico).
+- `phase-2.6.3-e2e` exige preview 4173 **e** dev 5173; `broadcast-e2e` exige a porta **8080** livre.
+- **Novo (S18)**: **o relógio fica no transporte, nunca na simulação** — nada de `Date.now()` em
+  `simulation/worker/grid/broadcast`; ordem/medição temporal é responsabilidade do `index.ts`.
+- **Novo (S18)**: **backpressure é drop, não fila** — cliente lento perde o tick e conta o drop.
+- **Novo (S18)**: todo envio a cliente passa por **`viewFor(player, snapshot)`** — nunca enviar o
+  snapshot cru por outro caminho; é o único ponto de projeção para a filtragem da Fase 3.
 
 ---
 *Registro assinado por:*
 - **Harness/Agente**: Kilo CLI
 - **Modelo LLM**: deepseek-v4.1-flash
-- **Timestamp**: 2026-09-11T01:50:00-03:00
+- **Timestamp**: 2026-09-11T15:35:00-03:00

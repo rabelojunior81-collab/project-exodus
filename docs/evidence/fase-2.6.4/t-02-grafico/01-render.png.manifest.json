@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.4/t-02-grafico/01-render",
+  "fase": "fase-2.6.4",
+  "teste": "t-02-grafico",
+  "passo": "01-render",
+  "titulo": "Gráfico canônico da fase (bytes/tick)",
+  "descricao": "Render do gráfico gerado a partir da série real medida; usado também na crônica da landing.",
+  "status": "validado",
+  "esperado": "série visível, média marcada, identidade MIL-SPEC",
+  "observado": "média 1388 B/tick · máx 1388 · 26.7 KB/s",
+  "tipo": "screenshot",
+  "captura": "01-render.png",
+  "comando": "node tools/visual-check/render-broadcast-chart.mjs",
+  "ferramenta": "playwright · svg",
+  "timestamp": "2026-09-11T20:00:40.283Z",
+  "commit": "pendente",
+  "tags": [
+    "crônica",
+    "visual"
+  ]
+}

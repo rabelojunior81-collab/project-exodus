@@ -1,8 +1,8 @@
 # estate.md — Estado Vivo do Sistema
 
-> **Última Atualização**: 2026-09-11T01:50:00-03:00  
-> **Status Geral**: Fase 2.6 em andamento — **2.6.1 (shared), 2.6.2 (economia) e 2.6.3 (reconciliação: coleta, física, colisão única, limites) entregues**; camada de evidência visual de testes ativa (`docs/evidence/`); landing com crônicas vivas.
-> **Próximo passo obrigatório**: iniciar a **sub-fase 2.6.4** — broadcast de snapshot por tick (full JSON 20 Hz, D-2.6.4-A) + gancho `viewFor(player)` (D-2.6-D).
+> **Última Atualização**: 2026-09-11T15:35:00-03:00  
+> **Status Geral**: Fase 2.6 em andamento — **2.6.1 (shared), 2.6.2 (economia), 2.6.3 (reconciliação) e 2.6.4 (broadcast por tick + `viewFor`) entregues**; camada de evidência visual ativa; landing com crônicas vivas (5 entradas).
+> **Próximo passo obrigatório**: iniciar a **sub-fase 2.6.5** — cliente WebSocket (buffer ~100 ms, comandos reais, RTT instrumentado, hooks dev-only).
 
 ---
 
@@ -57,7 +57,7 @@ O motor gráfico 3D Three.js do cliente web possui câmera tática isométrica (
 | **HUD / UI** | Menu, Loading, HUD reskin, feed eventos, minimapa funcional, mobile | 🟢 Profissional | tsc 0; shots desktop+mobile+prod | Ordens reais (client-side até 2.6) |
 | **Seleção RTS** | `selection.ts` (Raycast + Box Selection + Move Command) | 🟢 Operacional | Seleção e movimentação funcionando | Waypoints animados de comando |
 | **Texturas PBR** | 5 texturas fotorrealistas + splat shader customizado | 🟢 Operacional | Terreno sem repetição visível | Splat blending tri-textura no fragmentShader |
-| **Simulação RTS** | `server/` (loop 20Hz, protocolo, A*, recursos, worker FSM) | 🟢 Testada, 🔴 **desconectada** | **65 asserts** OK, determinística, física inercial + colisão única (S17) | Cliente tem **zero** WebSocket; servidor nunca faz broadcast de snapshot; 5 eixos de divergência (ALTO-03) — 3 reconciliados na 2.6.3 |
+| **Simulação RTS** | `server/` (loop 20Hz, protocolo, A*, recursos, worker FSM) | 🟢 Testada, 🔴 **desconectada** | **71 asserts** OK, determinística, **broadcast por tick com `viewFor`** (S18) | Cliente tem **zero** WebSocket; servidor nunca faz broadcast de snapshot; 5 eixos de divergência (ALTO-03) — 3 reconciliados na 2.6.3 |
 | **Multiplayer** | WebSocket Hub (LAN / Tailscale Tailnet) | ⚪ Não Iniciado | Fase 3 | Portas 8080 e 5173 abertas |
 
 ---

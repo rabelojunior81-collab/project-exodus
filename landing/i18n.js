@@ -97,6 +97,9 @@
       "cronicas.c4.tag": "Sessão 17",
       "cronicas.c4.title": "Reconciliação: coleta, inércia e limites",
       "cronicas.c4.body": "A coleta em close: 3,33 un/s no servidor, física inercial, entrega a 10 m e mundo de ±88 m — com o contrato de testes congelado antes da implementação.",
+      "cronicas.c5.tag": "Sessão 18",
+      "cronicas.c5.title": "O servidor aprende a falar",
+      "cronicas.c5.body": "A 20 Hz, cada tick vira um snapshot versionado para todos os clientes: mesma verdade, mesmos bytes — 1.388 B por tick e 26,7 KB/s medidos com dois clientes reais.",
 
       "roadmap.label": "Rota",
       "roadmap.title": "O caminho até a <em>guerra</em>",
@@ -217,6 +220,9 @@
       "cronicas.c4.tag": "Session 17",
       "cronicas.c4.title": "Reconciliation: gathering, inertia and limits",
       "cronicas.c4.body": "Gathering up close: 3.33/s on the server, inertial physics, 10 m dropoff and a ±88 m world — with the test contract frozen before implementation.",
+      "cronicas.c5.tag": "Session 18",
+      "cronicas.c5.title": "The server learns to speak",
+      "cronicas.c5.body": "At 20 Hz, every tick becomes a versioned snapshot for all clients: same truth, same bytes — 1,388 B per tick and 26.7 KB/s measured with two real clients.",
 
       "roadmap.label": "Roadmap",
       "roadmap.title": "The road to <em>war</em>",
