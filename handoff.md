@@ -93,6 +93,9 @@ para as capturas; dev em 5173 para o subprocesso `gather-e2e`). Subir ambos ante
   comando, commit) — sem manifesto, não é evidência.
 - **Novo (S17)**: a cada fechamento de fase, adicionar uma crônica na landing (imagem da evidência
   convertida para WebP + texto PT/EN).
+- **Novo (S17b)**: **verificar visualmente** cada imagem antes de publicar e **variar o
+  enquadramento** entre crônicas (menu/close-up/HUD/FX) — o mesmo plano largo repetido quatro vezes
+  passou a impressão de imagem única (post-mortem em `docs/journal/2026-09-11_02-05_sessao-17b...`).
 - **Novo (S17)**: `phase-2.6.3-e2e` exige preview 4173 **e** dev 5173 no ar.
 
 ---

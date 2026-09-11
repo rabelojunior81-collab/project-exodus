@@ -48,8 +48,12 @@ Se o vídeo faltar, o palco cai de volta no crossfade Ken Burns dos shots WebP �
 ## Narrativa viva (convenção)
 
 A cada **fechamento de fase**, a seção `#cronicas` da página ganha uma entrada canônica:
-- **Imagem**: converter uma captura do registro visual (`docs/evidence/<fase>/`) para WebP em
-  `landing/assets/evidence/` (ffmpeg do monorepo: `-c:v libwebp -quality 80`);
+- **Imagem**: escolher a captura **mais distinta e pertinente** — **verificar visualmente antes de
+  publicar**. Regra aprendida na S17b: quatro capturas do mesmo plano largo (mesma câmera, estado
+  quase igual) passam a impressão de "imagem repetida" mesmo com arquivos diferentes. **Variar
+  enquadramento entre crônicas** (menu, close-up de unidade, HUD, FX de coleta). Converter para WebP
+  em `landing/assets/evidence/` (ffmpeg do monorepo: `-c:v libwebp -quality 80`); a evidência crua
+  permanece no `MANIFEST.md` da fase — a landing é curadoria, não dump do registro.
 - **Texto**: tag da sessão + título + parágrafo em PT e EN no `i18n.js` (`cronicas.cN.*`);
 - **Multimodal por natureza**: quando houver áudio/vídeo pertinente (ex.: stinger, vinheta de era),
   a entrada pode incorporar player — mantendo o manifesto da evidência como fonte.

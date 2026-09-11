@@ -24,6 +24,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
   (`client/public/assets/video/era-1-transition.mp4`) e à landing.
 - Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
 
+### Corrigido (Sessão 17)
+- **Landing — Crônicas**: as 4 entradas usavam o mesmo plano largo (imagens quase idênticas).
+  Substituídas por capturas visualmente distintas e pertinentes (menu, blindado em manobra, HUD
+  com custos, close da coleta), com legendas ajustadas e regra anti-repetição documentada em
+  `landing/README.md` (post-mortem: `docs/journal/2026-09-11_02-05_sessao-17b-correcao-cronicas.md`).
+
 ### Alterado (Sessão 17)
 - **Sub-fase 2.6.3 — reconciliação**: coleta a 0,3 s/un (6 ticks, ~3,33 un/s), física inercial
   no servidor (`velocity`/`heading`, protocolo **v3**), resolvedor de colisão unificado em
