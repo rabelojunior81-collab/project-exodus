@@ -12,14 +12,14 @@ export interface Vec2 {
   z: number;
 }
 
-/** Obstáculo circular (construções e, na projeção, veios). */
-export interface CircleObstacle {
+/** Obstáculo do grid/A* (construções). Para colisão de gameplay, ver `collision.ts`. */
+export interface GridObstacle {
   x: number;
   z: number;
   r: number;
 }
 
-export interface Crater extends CircleObstacle {}
+export interface Crater extends GridObstacle {}
 
 /** Tamanho do mundo em metros (aresta; centrado na origem). */
 export const WORLD_SIZE: number = 180;
@@ -59,8 +59,8 @@ export function cellToWorld(c: number): number {
 }
 
 export function clampToWorld(v: number): number {
-  if (v < -HALF_WORLD) return -HALF_WORLD;
-  if (v > HALF_WORLD) return HALF_WORLD;
+  if (v < -WORLD_LIMIT) return -WORLD_LIMIT;
+  if (v > WORLD_LIMIT) return WORLD_LIMIT;
   return v;
 }
 
@@ -87,6 +87,12 @@ export const SPAWN_CLEARANCE: number = 10;
 
 /** Raio de colisão dos veios (espelha o cliente; veios não entram no A*). */
 export const NODE_COLLISION_RADIUS: number = 2.4;
+
+/**
+ * Limite de posicionamento das unidades — D-2.6.3-B: ±88 m (margem visual de
+ * 2 m dentro do mapa de 180 m, valor validado no cliente).
+ */
+export const WORLD_LIMIT: number = 88;
 
 /** Spawns/buildings iniciais (CC, refinaria, bunker). */
 export const INITIAL_SPAWNS: ReadonlyArray<{ x: number; z: number }> = [

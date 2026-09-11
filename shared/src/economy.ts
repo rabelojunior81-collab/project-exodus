@@ -43,5 +43,17 @@ export const GATHER_RANGE: number = 4;
 /** Rendimento por intervalo de coleta (modelo incremental do servidor). */
 export const GATHER_YIELD: number = 1;
 
+/**
+ * Intervalo de coleta do servidor em ticks — D-2.6-B: 6 ticks (0,3 s a 20 Hz)
+ * ≈ 3,33 un/s, paridade com o ciclo atômico do cliente (3 s para 10).
+ */
+export const GATHER_INTERVAL_TICKS: number = 6;
+
+/**
+ * Distância de entrega ao Centro de Comando — D-2.6.3-A: 10 m nos dois lados
+ * (valor validado no playtest; contato físico em 8,7 m dá 1,3 m de folga).
+ */
+export const DROPOFF_RANGE: number = 10;
+
 /** Tempo da coleta atômica do cliente (playtestado na 1.7D). */
 export const CLIENT_GATHER_TIME_SECONDS: number = 3;

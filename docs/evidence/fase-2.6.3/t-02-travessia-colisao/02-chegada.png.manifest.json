@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.3/t-02-travessia-colisao/02-chegada",
+  "fase": "fase-2.6.3",
+  "teste": "t-02-travessia-colisao",
+  "passo": "02-chegada",
+  "titulo": "Chegada após contornar o prédio",
+  "descricao": "A unidade contorna o Centro de Comando e alcança o destino do outro lado; prova de que o deslize não prende.",
+  "status": "passou",
+  "esperado": "chegada ao destino e distância mínima sem penetração",
+  "observado": "minDistCC=11.191 · arrived=true",
+  "tipo": "screenshot",
+  "captura": "02-chegada.png",
+  "comando": "node tools/visual-check/phase-2.6.3-e2e.mjs",
+  "ferramenta": "playwright · swiftshader",
+  "timestamp": "2026-09-11T01:28:00.159Z",
+  "commit": "pendente",
+  "tags": [
+    "colisão",
+    "navegação"
+  ]
+}

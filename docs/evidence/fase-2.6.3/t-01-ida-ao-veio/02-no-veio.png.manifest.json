@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.3/t-01-ida-ao-veio/02-no-veio",
+  "fase": "fase-2.6.3",
+  "teste": "t-01-ida-ao-veio",
+  "passo": "02-no-veio",
+  "titulo": "Catador encostado no veio",
+  "descricao": "Chegada ao raio do veio; a colisão mantém a unidade fora do círculo de 2,4 m (contato a 3,1 m).",
+  "status": "passou",
+  "esperado": "distância ao centro do veio < 6 m",
+  "observado": "chegou ao veio",
+  "tipo": "screenshot",
+  "captura": "02-no-veio.png",
+  "comando": "node tools/visual-check/phase-2.6.3-e2e.mjs",
+  "ferramenta": "playwright · swiftshader",
+  "timestamp": "2026-09-11T01:27:40.823Z",
+  "commit": "pendente",
+  "tags": [
+    "coleta",
+    "chegada"
+  ]
+}

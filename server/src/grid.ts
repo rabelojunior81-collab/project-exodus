@@ -29,8 +29,8 @@ import {
   cellToWorld,
   clampToWorld,
   worldToCell,
-  type CircleObstacle,
   type Crater,
+  type GridObstacle,
   type Vec2,
 } from '@project-exodus/shared/world';
 
@@ -46,7 +46,7 @@ export {
   clampToWorld,
   worldToCell,
 };
-export type { CircleObstacle, Crater, Vec2 };
+export type { Crater, GridObstacle, Vec2 };
 
 const SQRT2: number = Math.SQRT2;
 
@@ -130,9 +130,9 @@ export class BinaryHeap {
  * Pura e determinística (sem RNG, sem Date.now).
  */
 export class SpatialGrid {
-  private obstacles: CircleObstacle[] = [];
+  private obstacles: GridObstacle[] = [];
 
-  public addObstacle(o: CircleObstacle): void {
+  public addObstacle(o: GridObstacle): void {
     this.obstacles.push({ x: o.x, z: o.z, r: o.r });
   }
 
@@ -147,7 +147,7 @@ export class SpatialGrid {
     this.obstacles.length = 0;
   }
 
-  public listObstacles(): CircleObstacle[] {
+  public listObstacles(): GridObstacle[] {
     return this.obstacles.map((o) => ({ x: o.x, z: o.z, r: o.r }));
   }
 

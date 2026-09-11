@@ -29,6 +29,7 @@ import {
   type ResourceCost,
 } from '@project-exodus/shared/units';
 import { POP_MAX, STARTING_RESOURCES } from '@project-exodus/shared/economy';
+import { CollisionWorld, type CircleObstacle } from '@project-exodus/shared/collision';
 import { NODE_COLLISION_RADIUS } from '@project-exodus/shared/world';
 import {
   SpatialGrid,
@@ -129,6 +130,10 @@ export interface SimEntity {
   maxHp: number;
   state: EntityState;
   speed: number;
+  /** Velocidade escalar atual (m/s) — física 2.6.3 (D-2.6-C). */
+  velocity: number;
+  /** Direção do movimento (rad; atan2(dx, dz)) — física 2.6.3. */
+  heading: number;
   path: Vec2[];
   pathIndex: number;
   // FSM do trabalhador (2.5)
@@ -148,6 +153,7 @@ export class Simulation implements WorkerWorld {
   private tick: number = 0;
   private readonly rng: Rng;
   private readonly grid: SpatialGrid = new SpatialGrid();
+  private readonly collision: CollisionWorld = new CollisionWorld();
   private readonly entities: Map<string, SimEntity> = new Map();
   private readonly nodes: Map<string, ResourceNode> = new Map();
   private readonly scores: ScoreTable = {};
@@ -157,6 +163,7 @@ export class Simulation implements WorkerWorld {
   constructor(seed: number = 20260909) {
     this.rng = createRng(seed);
     for (const nd of createInitialResourceNodes()) this.nodes.set(nd.id, nd);
+    this.rebuildObstacles();
   }
 
   // ------------------------------------------------------------ relógio
@@ -212,6 +219,7 @@ export class Simulation implements WorkerWorld {
       id, category: 'UNIT', type: unit, owner,
       x: clampToWorld(x), z: clampToWorld(z),
       hp: stats.hp, maxHp: stats.hp, state: 'IDLE', speed: stats.speed,
+      velocity: 0, heading: 0,
       path: [], pathIndex: 0,
       targetNodeId: null, carryKind: null, carryAmount: 0, gatherTimer: 0,
       buildRemaining: 0, builderId: null, trainQueue: [],
@@ -229,6 +237,7 @@ export class Simulation implements WorkerWorld {
       x: clampToWorld(x), z: clampToWorld(z),
       hp: stats.hp, maxHp: stats.hp,
       state: instant ? 'IDLE' : 'BUILDING', speed: 0,
+      velocity: 0, heading: 0,
       path: [], pathIndex: 0,
       targetNodeId: null, carryKind: null, carryAmount: 0, gatherTimer: 0,
       buildRemaining: instant ? 0 : BUILD_TICKS[building],
@@ -399,72 +408,94 @@ export class Simulation implements WorkerWorld {
     return this.entities.get(id);
   }
 
-  /** Move ao longo do caminho por dt s. Retorna true se chegou (sem caminho restante). */
+  /**
+   * Move ao longo do caminho por dt s, com física inercial (D-2.6-C):
+   * UM alinhamento por tick (giro limitado por `rotationSpeed`), tração só
+   * alinhado e aceleração limitada; o deslocamento do tick usa o orçamento
+   * `velocity × dt` ao longo do heading (o blindado pesa, a infantaria não).
+   * Retorna true quando o caminho terminou.
+   */
   public advance(id: string, dt: number): boolean {
     const e: SimEntity | undefined = this.entities.get(id);
     if (e === undefined) return true;
-    let remaining: number = e.speed * dt;
+    if (e.category !== 'UNIT') return e.pathIndex >= e.path.length;
+    if (e.pathIndex >= e.path.length) return true;
+    const stats = UNIT_STATS[e.type as UnitType];
+
+    // 0) Pula waypoints degenerados (a célula de origem, p.ex.): sem isso a
+    //    intenção zera a velocidade olhando para um ponto já alcançado.
+    while (e.pathIndex < e.path.length) {
+      const wp: Vec2 = e.path[e.pathIndex];
+      if (Math.hypot(wp.x - e.x, wp.z - e.z) >= 1e-6) break;
+      e.pathIndex += 1;
+    }
+    if (e.pathIndex >= e.path.length) {
+      e.velocity = 0;
+      return true;
+    }
+
+    // 1) Intenção do tick: alinhar ao waypoint atual + tração/aceleração.
+    const wp0: Vec2 = e.path[e.pathIndex];
+    const dx0: number = wp0.x - e.x;
+    const dz0: number = wp0.z - e.z;
+    if (Math.hypot(dx0, dz0) >= 1e-6) {
+      const desired: number = Math.atan2(dx0, dz0);
+      let diff: number = desired - e.heading;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      const maxTurn: number = stats.rotationSpeed * dt;
+      e.heading += Math.max(-maxTurn, Math.min(maxTurn, diff));
+      const alignment: number = Math.cos(diff);
+      const targetSpeed: number =
+        stats.speed * Math.max(0, Math.min(1, (alignment - 0.2) / 0.8));
+      const rate: number =
+        (targetSpeed > e.velocity ? stats.acceleration : stats.acceleration * 1.6) * dt;
+      e.velocity += Math.max(-rate, Math.min(rate, targetSpeed - e.velocity));
+    } else {
+      e.velocity = 0;
+    }
+
+    // 2) Consome o orçamento do tick (v×dt) ao longo do heading, encaixando waypoints.
+    let budget: number = Math.max(0, e.velocity * dt);
     let guard: number = 0;
-    while (remaining > 1e-9 && e.pathIndex < e.path.length && guard < 64) {
+    while (budget > 1e-9 && e.pathIndex < e.path.length && guard < 64) {
       guard++;
       const wp: Vec2 = e.path[e.pathIndex];
       const dx: number = wp.x - e.x;
       const dz: number = wp.z - e.z;
       const d: number = Math.hypot(dx, dz);
-      if (d <= remaining) {
+      if (d < 1e-6) {
+        e.pathIndex += 1;
+        continue;
+      }
+      if (d <= budget) {
         e.x = wp.x;
         e.z = wp.z;
         e.pathIndex += 1;
-        remaining -= d;
-      } else {
-        e.x += (dx / d) * remaining;
-        e.z += (dz / d) * remaining;
-        remaining = 0;
+        budget -= d;
+        continue;
       }
+      e.x += Math.sin(e.heading) * budget;
+      e.z += Math.cos(e.heading) * budget;
+      budget = 0;
     }
+
     e.x = clampToWorld(e.x);
     e.z = clampToWorld(e.z);
-    // Fase 1.12: projeção de colisão (construções + veios). Puramente
-    // aritmética, iterada — determinismo preservado.
+    // Fase 1.12.4: projeção pelo resolvedor ÚNICO do shared (cliente+servidor).
     this.projectOutOfObstacles(e);
-    return e.pathIndex >= e.path.length;
+    const arrived: boolean = e.pathIndex >= e.path.length;
+    if (arrived) e.velocity = 0;
+    return arrived;
   }
 
-  /**
-   * Empurra a unidade para fora de qualquer obstáculo (spec 03). Veios não
-   * entram no A* (evita regressão na FSM de coleta: a chegada dispara a 4 m,
-   * antes do contato de 3,1 m) — a projeção resolve em runtime.
-   */
+  /** Projeta a unidade para fora de obstáculos via `CollisionWorld` do shared. */
   private projectOutOfObstacles(e: SimEntity): void {
     if (e.category !== 'UNIT') return;
     const radius: number = UNIT_COLLISION_RADIUS[e.type as UnitType] ?? 1;
-    for (let iter: number = 0; iter < 2; iter++) {
-      let moved: boolean = false;
-      for (const o of this.grid.listObstacles()) {
-        if (this.pushOut(e, o.x, o.z, o.r + radius)) moved = true;
-      }
-      for (const nd of this.nodes.values()) {
-        if (this.pushOut(e, nd.x, nd.z, NODE_COLLISION_RADIUS + radius)) moved = true;
-      }
-      if (!moved) break;
-    }
-    e.x = clampToWorld(e.x);
-    e.z = clampToWorld(e.z);
-  }
-
-  private pushOut(e: SimEntity, ox: number, oz: number, rr: number): boolean {
-    const dx: number = e.x - ox;
-    const dz: number = e.z - oz;
-    const d2: number = dx * dx + dz * dz;
-    if (d2 >= rr * rr) return false;
-    const d: number = Math.sqrt(d2);
-    if (d < 1e-6) {
-      e.x = ox + rr;
-      return true;
-    }
-    e.x = ox + (dx / d) * (rr + 1e-3);
-    e.z = oz + (dz / d) * (rr + 1e-3);
-    return true;
+    const hit = this.collision.resolveMove(e.x, e.z, e.x, e.z, radius);
+    e.x = hit.x;
+    e.z = hit.z;
   }
 
   public planTo(id: string, x: number, z: number): void {
@@ -539,6 +570,7 @@ export class Simulation implements WorkerWorld {
       return {
         id: e.id, type: e.type, category: e.category,
         x: e.x, z: e.z, hp: e.hp, maxHp: e.maxHp, state: e.state, owner: e.owner,
+        velocity: e.velocity, heading: e.heading,
       };
     });
     const scores: ScoreTable = {};
@@ -575,10 +607,17 @@ export class Simulation implements WorkerWorld {
 
   private rebuildObstacles(): void {
     this.grid.clearObstacles();
+    const circles: CircleObstacle[] = [];
     for (const e of this.entities.values()) {
       if (e.category !== 'BUILDING') continue;
-      this.grid.addObstacle({ x: e.x, z: e.z, r: BUILDING_RADIUS[e.type as BuildingType] ?? 5 });
+      const r: number = BUILDING_RADIUS[e.type as BuildingType] ?? 5;
+      this.grid.addObstacle({ x: e.x, z: e.z, r });
+      circles.push({ x: e.x, z: e.z, radius: r, kind: 'building', id: e.id });
     }
+    for (const nd of this.nodes.values()) {
+      circles.push({ x: nd.x, z: nd.z, radius: NODE_COLLISION_RADIUS, kind: 'node', id: nd.id });
+    }
+    this.collision.setObstacles(circles);
   }
 
   /** Cenário inicial padrão (espelha `client/src/main.ts`). */

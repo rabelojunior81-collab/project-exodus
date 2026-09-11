@@ -60,7 +60,7 @@ Servidor autoritativo (existe e é testado; o cliente ainda não fala com ele �
 
 ```bash
 npm run dev:server   # WebSocket em ws://localhost:8080
-npm test             # 51 asserts da simulação
+npm test             # 65 asserts da simulação
 ```
 
 ## O que está jogável hoje
@@ -73,7 +73,7 @@ npm test             # 51 asserts da simulação
 - Cenário procedural determinístico (365 props instanciados, seed fixa) e 9 modelos GLTF animados.
 
 **Ainda não está jogável:** combate, construção pelo jogador, transições de era, condição de
-vitória e multiplayer. O servidor determinístico existe e passa 51 asserts — a reconciliação
+vitória e multiplayer. O servidor determinístico existe e passa 65 asserts — a reconciliação
 cliente↔servidor é a próxima fase (2.6). Detalhes e decisões abertas em
 [`docs/specs/02-integracao-cliente-servidor.md`](docs/specs/02-integracao-cliente-servidor.md).
 

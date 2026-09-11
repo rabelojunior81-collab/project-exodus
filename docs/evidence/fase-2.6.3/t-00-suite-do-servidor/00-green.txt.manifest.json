@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.3/t-00-suite-do-servidor/00-green",
+  "fase": "fase-2.6.3",
+  "teste": "t-00-suíte-do-servidor",
+  "passo": "00-green",
+  "titulo": "Suíte do servidor — execução green",
+  "descricao": "Transcrição completa da suíte (smoke + asserts de todas as áreas) registrada como evidência da fase.",
+  "status": "passou",
+  "esperado": "Todos os arquivos de teste passam (exit 0)",
+  "observado": "exit 0 · Protocol=13, AStar=7, Resources=7, Simulation=8, Collision=4, Economy=6, Worker=6, CollisionShared=5",
+  "tipo": "texto",
+  "captura": "00-green.txt",
+  "comando": "cd server && npm test   # evidência green",
+  "ferramenta": "node · ts-node/esm",
+  "timestamp": "2026-09-11T01:25:18.588Z",
+  "commit": "pendente",
+  "tags": [
+    "green",
+    "verde"
+  ]
+}

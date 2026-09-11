@@ -1,8 +1,8 @@
 # estate.md — Estado Vivo do Sistema
 
-> **Última Atualização**: 2026-09-11T01:10:00-03:00  
-> **Status Geral**: Fase 2.6 em andamento — **2.6.1 (workspace `shared/`) e 2.6.2 (custos, POP, cancelamento v2, tempos derivados) entregues**; Fase 1.12 (colisão) entregue; repo público com landing ao vivo e hardening da Fase 1.11 em curso.
-> **Próximo passo obrigatório**: iniciar a **sub-fase 2.6.3** (coleta D-2.6-B, física D-2.6-C no servidor, colisão para `shared/` — 1.12.4 — e decisões `D-2.6.3-A/B`: dropoff 10 m e clamp ±88).
+> **Última Atualização**: 2026-09-11T01:50:00-03:00  
+> **Status Geral**: Fase 2.6 em andamento — **2.6.1 (shared), 2.6.2 (economia) e 2.6.3 (reconciliação: coleta, física, colisão única, limites) entregues**; camada de evidência visual de testes ativa (`docs/evidence/`); landing com crônicas vivas.
+> **Próximo passo obrigatório**: iniciar a **sub-fase 2.6.4** — broadcast de snapshot por tick (full JSON 20 Hz, D-2.6.4-A) + gancho `viewFor(player)` (D-2.6-D).
 
 ---
 
@@ -26,6 +26,8 @@ O motor gráfico 3D Three.js do cliente web possui câmera tática isométrica (
 **Sessão 15b (mesma noite)**: o **grill-me 2.6.x foi encerrado (7/7 — A/A/A/A/A/A/A)**: cancel train no protocolo v2, POP global 20, dropoff 10 m, clamp ±88, snapshot full JSON 20 Hz, interpolação fixa ~100 ms e hooks de debug dev-only. Duas diretivas do usuário viraram design completo com pesquisa verificada: **Fase 6 — Agentic Play** (CLI, MCP server, WebMCP e agente vs agente via A2A; base de conhecimento em `docs/knowledge/agentic-play-protocols.md` com versões de SDK do npm; spec `docs/specs/05-agentic-play.md`) e **comunicação entre jogadores** (chat ALL/TEAM, 12 taunts com voz PT-BR, pings/flares; spec `docs/specs/04-comunicacao-entre-jogadores.md`, sub-fase 3.4). Ver `docs/journal/2026-09-11_00-40_sessao-15b-grillme-fechado-specs-04-05.md`.
 
 **Sessão 16 (Fase 2.6.2 — Paridade de Modelo, 11/09 01:10 BRT)**: o servidor ganhou o modelo econômico completo — **custos debitados** no aceite do `TRAIN` com **reembolso integral** no novo **`CANCEL_TRAIN`** (protocolo **v2**, D-2.6.2-A), **teto populacional global 20** (D-2.6.2-B), **tesouro inicial do shared** (250/180/75/50) no cenário padrão e **`TRAIN_TICKS` derivado de `TRAINING_SPECS × TICK_RATE`** (os marcadores `LEGACY` morreram; drone e mech treináveis no servidor). Reenvio de `TRAIN` com o mesmo `cmdId` é idempotente (não debita duas vezes). Suíte do servidor: **51 asserts** (13 protocolo + 8 simulação + 6 economia + 7 A* + 7 recursos + 4 colisão + 6 worker), com os 387 ticks da FSM e o determinismo intactos; harness completo verde (`dist-proof` 11/8/0; `collision-e2e` 8,701/3,101; `gather-e2e`; `test-buttons` 10/10); build 689,28 kB. Ver `docs/journal/2026-09-11_01-10_sessao-16-fase-2.6.2.md`.
+
+**Sessão 17 (Fase 2.6.3 — Reconciliação + Evidência Visual, 11/09 01:50 BRT)**: três diretivas do usuário executadas em conjunto com a sub-fase. (1) **Contrato congelado antes da implementação**: `parity.test.ts` (9 asserts) e `collision-shared.test.ts` (5) escritos e registrados em estado **vermelho** (evidência do TDD) antes de qualquer código; passaram verdes após a implementação **sem alteração** (só correção prévia de imports). (2) **Camada de registro visual** (`docs/evidence/` + helper `tools/visual-check/lib/evidence.mjs`): manifesto JSON por captura (cena, esperado, observado, status, comando, commit), índice por fase e transcrição da suíte; capturas do harness com descrição canônica. (3) **Landing narrativa**: seção "Crônicas da Construção" com capturas de evidência em WebP + convenção de atualização a cada fechamento (multimodal por natureza). Na reconciliação: coleta **0,3 s/un (6 ticks, ~3,33 un/s — 10 un em 60 ticks)**, **física inercial** no servidor (aceleração/giro do shared, `velocity`/`heading` no **protocolo v3**; blindado parte em 0,25 m/s no 1º tick e quase não anda de ré — gira antes), **colisão unificada** em `shared/collision` (cliente re-exporta; servidor projeta pelo mesmo resolvedor), **dropoff 10 m** e **clamp ±88**. Dois bugs de física capturados pelos próprios testes congelados (orçamento de tick composto; waypoint degenerado do A*) — a suíte pegou antes de qualquer evidência verde. Suíte do servidor: **65 asserts**; harness completo verde (`dist-proof` 11/8/0; `phase-2.6.3-e2e` com evidência; `test-buttons` 10/10; coleta E2E interna); build 689 kB. Ver `docs/journal/2026-09-11_01-50_sessao-17-fase-2.6.3.md` e `docs/evidence/fase-2.6.3/MANIFEST.md`.
 
 ---
 
@@ -55,7 +57,7 @@ O motor gráfico 3D Three.js do cliente web possui câmera tática isométrica (
 | **HUD / UI** | Menu, Loading, HUD reskin, feed eventos, minimapa funcional, mobile | 🟢 Profissional | tsc 0; shots desktop+mobile+prod | Ordens reais (client-side até 2.6) |
 | **Seleção RTS** | `selection.ts` (Raycast + Box Selection + Move Command) | 🟢 Operacional | Seleção e movimentação funcionando | Waypoints animados de comando |
 | **Texturas PBR** | 5 texturas fotorrealistas + splat shader customizado | 🟢 Operacional | Terreno sem repetição visível | Splat blending tri-textura no fragmentShader |
-| **Simulação RTS** | `server/` (loop 20Hz, protocolo, A*, recursos, worker FSM) | 🟢 Testada, 🔴 **desconectada** | **51 asserts** OK, determinística, custos/POP/cancel v2 (S16) | Cliente tem **zero** WebSocket; servidor nunca faz broadcast de snapshot; 5 eixos de divergência (ALTO-03) |
+| **Simulação RTS** | `server/` (loop 20Hz, protocolo, A*, recursos, worker FSM) | 🟢 Testada, 🔴 **desconectada** | **65 asserts** OK, determinística, física inercial + colisão única (S17) | Cliente tem **zero** WebSocket; servidor nunca faz broadcast de snapshot; 5 eixos de divergência (ALTO-03) — 3 reconciliados na 2.6.3 |
 | **Multiplayer** | WebSocket Hub (LAN / Tailscale Tailnet) | ⚪ Não Iniciado | Fase 3 | Portas 8080 e 5173 abertas |
 
 ---

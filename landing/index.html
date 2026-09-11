@@ -285,6 +285,21 @@
     -webkit-backdrop-filter:blur(10px)}
   .tech-tag b{color:var(--ambar);font-weight:400}
 
+  .cronicas{display:grid;gap:1.25rem;margin-top:3rem}
+  @media (min-width:800px){.cronicas{grid-template-columns:repeat(2,1fr)}}
+  .chronicle{display:flex;flex-direction:column;border:1px solid var(--luz-lado);border-radius:1rem;
+    overflow:hidden;background:var(--brilho-vidro),var(--vidro);backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);box-shadow:var(--sombra-2),inset 0 1px 0 var(--luz-topo)}
+  .chronicle__midia{aspect-ratio:16/10;overflow:hidden;background:#05060a}
+  .chronicle__midia img{width:100%;height:100%;object-fit:cover;transition:transform 1s var(--ease)}
+  .chronicle:hover .chronicle__midia img{transform:scale(1.04)}
+  .chronicle__corpo{padding:1.1rem 1.2rem 1.3rem}
+  .chronicle__tag{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--ciano);margin-bottom:.45rem}
+  .chronicle h3{font-family:var(--font-display);font-size:.92rem;font-weight:700;letter-spacing:.05em;
+    text-transform:uppercase;margin-bottom:.5rem}
+  .chronicle p{color:var(--cream-dim);font-size:.9rem;line-height:1.65}
+
   .cta-band{margin:0 clamp(1.35rem,5vw,5rem) clamp(4rem,8vw,6rem);border:1px solid var(--line);
     border-radius:1.25rem;padding:clamp(2.5rem,6vw,4.5rem) clamp(1.5rem,4vw,3rem);text-align:center;
     background:radial-gradient(ellipse 70% 80% at 50% 0%,rgba(245,158,11,.12),transparent 60%),var(--bg-elevated)}
@@ -607,9 +622,52 @@
             <div class="phase"><span class="phase__id">Fase 1.5–1.10</span><span class="phase__name" data-i18n="roadmap.p2">Modelos reais, HUD profissional, economia jogável</span><span class="phase__status phase__status--done" data-i18n="status.done">Feito</span></div>
             <div class="phase"><span class="phase__id">Fase 1.7</span><span class="phase__name" data-i18n="roadmap.p3">Mundo vivo: cenário, fog of war, mineração, assets</span><span class="phase__status phase__status--done" data-i18n="status.done">Feito</span></div>
             <div class="phase"><span class="phase__id">Fase 1.11</span><span class="phase__name" data-i18n="roadmap.p4">Remediação e hardening (build stamp, manifestos, áudio)</span><span class="phase__status phase__status--wip" data-i18n="status.wip">Em curso</span></div>
-            <div class="phase"><span class="phase__id">Fase 2.6</span><span class="phase__name" data-i18n="roadmap.p5">Reconciliação cliente↔servidor (shared/, snapshots)</span><span class="phase__status phase__status--next" data-i18n="status.next">Próxima</span></div>
+            <div class="phase"><span class="phase__id">Fase 2.6</span><span class="phase__name" data-i18n="roadmap.p5">Reconciliação cliente↔servidor (shared/, custos, física)</span><span class="phase__status phase__status--wip" data-i18n="status.wip">Em curso</span></div>
             <div class="phase"><span class="phase__id">Fase 3</span><span class="phase__name" data-i18n="roadmap.p6">Multiplayer LAN/Tailscale</span><span class="phase__status phase__status--plan" data-i18n="status.plan">Planejada</span></div>
             <div class="phase"><span class="phase__id">Fase 4–5</span><span class="phase__name" data-i18n="roadmap.p7">Eras, narrativa reativa, combate e facções</span><span class="phase__status phase__status--plan" data-i18n="status.plan">Planejada</span></div>
+          </div>
+        </section>
+
+        <section class="section" id="cronicas">
+          <p class="section-label reveal" data-i18n="cronicas.label">Crônicas da construção</p>
+          <h2 class="section-title reveal reveal-delay-1" data-i18n="cronicas.title">O mundo nasce por dentro do <em>código</em></h2>
+          <p class="section-lead reveal reveal-delay-2" data-i18n="cronicas.lead">
+            Cada entrega deixa um registro visual e um manifesto de teste — a história canônica do projeto,
+            contada pelos seus próprios gates.
+          </p>
+          <div class="cronicas">
+            <article class="chronicle reveal">
+              <div class="chronicle__midia"><img src="assets/evidence/cena-inicial.webp" alt="" loading="lazy" /></div>
+              <div class="chronicle__corpo">
+                <p class="chronicle__tag" data-i18n="cronicas.c1.tag">Sessão 13</p>
+                <h3 data-i18n="cronicas.c1.title">O projeto ganha casa</h3>
+                <p data-i18n="cronicas.c1.body">Repositório público, README que também é landing, e o vídeo do Lote 3 recuperado da Files API do Gemini antes de expirar.</p>
+              </div>
+            </article>
+            <article class="chronicle reveal reveal-delay-1">
+              <div class="chronicle__midia"><img src="assets/evidence/colisao-chegada.webp" alt="" loading="lazy" /></div>
+              <div class="chronicle__corpo">
+                <p class="chronicle__tag" data-i18n="cronicas.c2.tag">Sessão 14</p>
+                <h3 data-i18n="cronicas.c2.title">O fim dos hologramas</h3>
+                <p data-i18n="cronicas.c2.body">Unidades passam a deslizar, parar e contornar construções e veios — colisão com prova numérica: 8,7 m no Centro de Comando, 3,1 m no veio.</p>
+              </div>
+            </article>
+            <article class="chronicle reveal">
+              <div class="chronicle__midia"><img src="assets/evidence/fechamento.webp" alt="" loading="lazy" /></div>
+              <div class="chronicle__corpo">
+                <p class="chronicle__tag" data-i18n="cronicas.c3.tag">Sessões 15–16</p>
+                <h3 data-i18n="cronicas.c3.title">Uma única verdade</h3>
+                <p data-i18n="cronicas.c3.body">O workspace compartilhado unifica tipos, custos e tempos; o servidor passa a debitar recursos, respeitar o teto populacional e reembolsar cancelamentos.</p>
+              </div>
+            </article>
+            <article class="chronicle reveal reveal-delay-1">
+              <div class="chronicle__midia"><img src="assets/evidence/coleta-chegada.webp" alt="" loading="lazy" /></div>
+              <div class="chronicle__corpo">
+                <p class="chronicle__tag" data-i18n="cronicas.c4.tag">Sessão 17</p>
+                <h3 data-i18n="cronicas.c4.title">Reconciliação: coleta, inércia e limites</h3>
+                <p data-i18n="cronicas.c4.body">Coleta a 3,33 un/s, física inercial no servidor, entrega a 10 m e mundo de ±88 m — com o contrato de testes congelado antes da implementação e a evidência visual registrada.</p>
+              </div>
+            </article>
           </div>
         </section>
 

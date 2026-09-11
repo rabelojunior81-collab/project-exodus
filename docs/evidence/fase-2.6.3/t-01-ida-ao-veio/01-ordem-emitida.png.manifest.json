@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.3/t-01-ida-ao-veio/01-ordem-emitida",
+  "fase": "fase-2.6.3",
+  "teste": "t-01-ida-ao-veio",
+  "passo": "01-ordem-emitida",
+  "titulo": "Ordem de movimento ao veio emitida",
+  "descricao": "Harness emite MOVE programático do catador u_w1 até o veio de ração (45, 10) — caminho real do A* do cliente.",
+  "status": "aplicado",
+  "esperado": "unidade entra em MOVING e percorre até o veio",
+  "observado": "ordem aceita (debugOrderMove = true)",
+  "tipo": "screenshot",
+  "captura": "01-ordem-emitida.png",
+  "comando": "node tools/visual-check/phase-2.6.3-e2e.mjs",
+  "ferramenta": "playwright · swiftshader",
+  "timestamp": "2026-09-11T01:27:21.179Z",
+  "commit": "pendente",
+  "tags": [
+    "coleta",
+    "movimento"
+  ]
+}

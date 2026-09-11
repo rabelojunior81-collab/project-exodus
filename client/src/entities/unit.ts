@@ -145,20 +145,19 @@ export class Unit implements SelectableEntity {
     this.health = sharedStats.hp;
     this.maxHealth = sharedStats.hp;
     this.moveSpeed = sharedStats.speed;
+    // Física (2.6.3): aceleração e giro vêm do shared — mesma verdade do servidor.
+    this.acceleration = sharedStats.acceleration;
+    this.rotationSpeed = sharedStats.rotationSpeed;
 
     if (unitType === 'SCAVENGER_WORKER') {
       this.selectionRadius = 1.4;
       this.sightRadius = SIGHT_RADII.SCAVENGER_WORKER;
       this.yawOffset = 0;
-      this.rotationSpeed = 10.0;
-      this.acceleration = 20.0;
       this.modelInstance = mm.createInstance('character', 1.5);
     } else if (unitType === 'RUST_RAIDER') {
       this.selectionRadius = 1.5;
       this.sightRadius = SIGHT_RADII.RUST_RAIDER;
       this.yawOffset = Math.PI;
-      this.rotationSpeed = 10.0;
-      this.acceleration = 20.0;
       this.modelInstance = mm.createInstance('soldier', 1.5);
     } else if (unitType === 'MAINTENANCE_DRONE') {
       // Escala calibrada via harness (measureModel/Box3): 0.44 dava 2.09m,
@@ -167,8 +166,6 @@ export class Unit implements SelectableEntity {
       this.selectionRadius = 1.5;
       this.sightRadius = SIGHT_RADII.MAINTENANCE_DRONE;
       this.yawOffset = 0;
-      this.rotationSpeed = 8.0;
-      this.acceleration = 16.0;
       this.modelInstance = mm.createInstance('robot', 0.38);
     } else if (unitType === 'BIPED_MECH') {
       // enemy-2-legs: olhos (Eye z=+0.18) e alvos dos pés (PT z=+0.61)
@@ -177,15 +174,11 @@ export class Unit implements SelectableEntity {
       this.selectionRadius = 2.6;
       this.sightRadius = SIGHT_RADII.BIPED_MECH;
       this.yawOffset = 0;
-      this.rotationSpeed = 3.5;
-      this.acceleration = 8.0;
       this.modelInstance = mm.createInstance('mech_2legs', 6.7);
     } else {
       this.selectionRadius = 3.2;
       this.sightRadius = SIGHT_RADII.SCRAP_BUGGY;
       this.yawOffset = Math.PI / 2;
-      this.rotationSpeed = 2.2;
-      this.acceleration = 5.0;
       // Escala calibrada via harness visual (sweep 0.2–1.0 em cena:
       // altura = 7.5 × escala; 0.38 → ~2.85m de altura, menor que os
       // buildings e maior que a infantaria). Grounding/recentragem

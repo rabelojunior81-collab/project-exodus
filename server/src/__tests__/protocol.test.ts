@@ -46,7 +46,7 @@ check('roundtrip snapshot', () => {
     version: PROTOCOL_VERSION,
     tick: 42,
     entities: [
-      { id: 'u_w1', type: 'SCAVENGER_WORKER', category: 'UNIT', x: 1, z: 2, hp: 60, maxHp: 60, state: 'GATHER', owner: 'p1' },
+      { id: 'u_w1', type: 'SCAVENGER_WORKER', category: 'UNIT', x: 1, z: 2, hp: 60, maxHp: 60, state: 'GATHER', owner: 'p1', velocity: 1.5, heading: 0.5 },
     ],
     scores: { p1: emptyScore() },
     events: [{ kind: 'RESOURCE_DELIVERED', tick: 42, playerId: 'p1', workerId: 'u_w1', resource: 'SUCATA', amount: 10 }],

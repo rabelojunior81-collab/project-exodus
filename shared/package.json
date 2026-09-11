@@ -24,6 +24,10 @@
     "./world": {
       "types": "./dist/world.d.ts",
       "import": "./dist/world.js"
+    },
+    "./collision": {
+      "types": "./dist/collision.d.ts",
+      "import": "./dist/collision.js"
     }
   },
   "scripts": {

@@ -47,15 +47,19 @@ check('spawn/remove/update + cenário padrão', () => {
   assert.equal(sim.entityCount(), 7);
 });
 
-check('MOVE desloca em dt fixo (0,3m/tick a 6m/s)', () => {
+check('MOVE acelera com inércia (1º tick: 20 m/s² → 0,05 m)', () => {
   const sim = new Simulation(7);
   sim.spawnUnit('p1', 'w', 'SCAVENGER_WORKER', 0, 20);
   assert.equal(sim.issueCommand({ kind: 'MOVE', cmdId: 'm1', playerId: 'p1', tick: 0, entityIds: ['w'], x: 0, z: 40 }), true);
   const before: number = (sim.getEntity('w') as SimEntity).z;
   sim.step();
-  const after: number = (sim.getEntity('w') as SimEntity).z;
-  assert.ok(Math.abs((after - before) - 6 * TICK_DT) < 1e-9, `dz=${after - before}`);
-  assert.equal((sim.getEntity('w') as SimEntity).state, 'MOVING');
+  const w: SimEntity = sim.getEntity('w') as SimEntity;
+  const after: number = w.z;
+  // Física 2.6.3 (D-2.6-C): velocidade após 1 tick = accel×dt = 1 m/s;
+  // deslocamento = v×dt = 0,05 m (antes: velocidade constante 0,3 m/tick).
+  assert.ok(Math.abs((after - before) - 1.0 * TICK_DT) < 1e-9, `dz=${after - before}`);
+  assert.ok(Math.abs(w.velocity - 1.0) < 1e-9, `velocity=${w.velocity}`);
+  assert.equal(w.state, 'MOVING');
 });
 
 check('comando rejeita alvo inexistente / dono errado', () => {

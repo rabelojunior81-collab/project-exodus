@@ -1,0 +1,9 @@
+worker após deslocamento: {"x":18,"z":31.5}
+selecionados: u_w1
+pending: gather
+clicando veio em px {"x":783,"y":549}
+pending após clique: null
+t+15s worker=(27.6,42.4) veio=1500 sucata=180
+t+30s worker=(19.3,27.4) veio=1490 sucata=180
+t+46s worker=(9.1,9.8) veio=1490 sucata=190
+ENTREGA CONFIRMADA

@@ -24,6 +24,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
   (`client/public/assets/video/era-1-transition.mp4`) e à landing.
 - Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
 
+### Alterado (Sessão 17)
+- **Sub-fase 2.6.3 — reconciliação**: coleta a 0,3 s/un (6 ticks, ~3,33 un/s), física inercial
+  no servidor (`velocity`/`heading`, protocolo **v3**), resolvedor de colisão unificado em
+  `@project-exodus/shared/collision` (1.12.4), `DROPOFF_RANGE` 10 m e clamp de mundo ±88 m.
+  Suíte do servidor: **65 asserts**, com contrato de testes **congelado antes da implementação**.
+- **Camada de evidência visual** (`docs/evidence/`): manifesto por captura, índice por fase e
+  registro do ciclo vermelho→verde do TDD; screenshots do harness com cena/status descritos.
+- **Landing**: seção "Crônicas da Construção" — narrativa viva com capturas de evidência (WebP).
+
 ### Adicionado (Sessão 16)
 - **Sub-fase 2.6.2 — paridade de modelo no servidor**: custos de treino debitados (reembolso
   integral no cancelamento), teto populacional global (20), comando `CANCEL_TRAIN` no protocolo

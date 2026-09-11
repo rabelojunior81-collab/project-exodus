@@ -45,6 +45,15 @@ O `<video>` aponta para `assets/hero.mp4` — **presente desde a Sessão 13** (L
 da Files API do Gemini: 1280×720, 8 s, mudo na página). O pôster é `assets/hero-poster.jpg`.
 Se o vídeo faltar, o palco cai de volta no crossfade Ken Burns dos shots WebP — sem quebrar.
 
+## Narrativa viva (convenção)
+
+A cada **fechamento de fase**, a seção `#cronicas` da página ganha uma entrada canônica:
+- **Imagem**: converter uma captura do registro visual (`docs/evidence/<fase>/`) para WebP em
+  `landing/assets/evidence/` (ffmpeg do monorepo: `-c:v libwebp -quality 80`);
+- **Texto**: tag da sessão + título + parágrafo em PT e EN no `i18n.js` (`cronicas.cN.*`);
+- **Multimodal por natureza**: quando houver áudio/vídeo pertinente (ex.: stinger, vinheta de era),
+  a entrada pode incorporar player — mantendo o manifesto da evidência como fonte.
+
 ## Otimização
 
 Screenshots já convertidos para **WebP** (~10 MB → ~750 KB). O vídeo tem 2,07 MB (1920→1280

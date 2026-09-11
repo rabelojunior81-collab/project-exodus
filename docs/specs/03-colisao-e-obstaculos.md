@@ -61,7 +61,7 @@ no servidor (soft-body autoritativo); props sólidos no `shared/`.
 | 1.12.1 | `client/src/engine/collision.ts` + props sólidos em `props.ts` + integração em `unit.ts`/`main.ts` | `tsc` 0; harness `collision-e2e.mjs` verde (distância mínima ao CC ≥ R+r−0,25; chegada ao destino; sem pageerrors) | ✅ S14 — minDistCC 8,700 / chegada OK / 0 pageerrors |
 | 1.12.2 | Paridade no servidor (`advance()` + veios) | `npm test` com novos asserts (projeção CC, projeção veio, travessia sem atravessar, determinismo) | ✅ S14 — 4 asserts novos; suíte em 43; 387 ticks intactos |
 | 1.12.3 | Separação unidade×unidade + declive de terreno + clamp de mundo | `test-buttons` e `gather-e2e` continuam verdes; inspeção visual sem overlaps | ✅ S14 — 10/10 + coleta E2E + dist-proof 11/8/0 |
-| 1.12.4 | Migração para `shared/` (junto do 2.6.3) | `grep -c "BUILDING_COLLISION_RADIUS" client server` = 1 (uma fonte) | ⚪ com o 2.6.3 |
+| 1.12.4 | Migração para `shared/` (junto do 2.6.3) | `grep -c "BUILDING_COLLISION_RADIUS" client server` = 1 (uma fonte) | ✅ S17 — `CollisionWorld` e constantes em `shared/src/collision.ts`; cliente re-exporta; servidor usa na projeção; testes `collision-shared` 5 assertos |
 
 ## 5. Impactos "ao redor" (checados nesta fase)
 

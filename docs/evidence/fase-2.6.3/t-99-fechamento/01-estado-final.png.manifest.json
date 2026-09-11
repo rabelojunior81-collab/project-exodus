@@ -1,0 +1,20 @@
+{
+  "id": "fase-2.6.3/t-99-fechamento/01-estado-final",
+  "fase": "fase-2.6.3",
+  "teste": "t-99-fechamento",
+  "passo": "01-estado-final",
+  "titulo": "Estado final da sessão de evidência",
+  "descricao": "Cena ao final da bateria: mundo em operação após ordens e testes, sem pageerrors.",
+  "status": "passou",
+  "esperado": "0 pageerrors",
+  "observado": "pageErrors=0",
+  "tipo": "screenshot",
+  "captura": "01-estado-final.png",
+  "comando": "node tools/visual-check/phase-2.6.3-e2e.mjs",
+  "ferramenta": "playwright · swiftshader",
+  "timestamp": "2026-09-11T01:29:39.964Z",
+  "commit": "pendente",
+  "tags": [
+    "fechamento"
+  ]
+}

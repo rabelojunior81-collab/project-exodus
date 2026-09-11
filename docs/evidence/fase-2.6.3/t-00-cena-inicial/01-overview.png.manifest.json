@@ -1,0 +1,21 @@
+{
+  "id": "fase-2.6.3/t-00-cena-inicial/01-overview",
+  "fase": "fase-2.6.3",
+  "teste": "t-00-cena-inicial",
+  "passo": "01-overview",
+  "titulo": "Visão geral da base no boot",
+  "descricao": "Cena inicial do slice: Centro de Comando, refinaria, bunker, 8 unidades e o cenário de 365 props com fog de exploração.",
+  "status": "validado",
+  "esperado": "11 entidades (8 unidades + 3 prédios) e 8 veios carregados",
+  "observado": "cena renderizada sem pageerrors",
+  "tipo": "screenshot",
+  "captura": "01-overview.png",
+  "comando": "node tools/visual-check/phase-2.6.3-e2e.mjs",
+  "ferramenta": "playwright · swiftshader",
+  "timestamp": "2026-09-11T01:27:19.662Z",
+  "commit": "pendente",
+  "tags": [
+    "baseline",
+    "cena"
+  ]
+}

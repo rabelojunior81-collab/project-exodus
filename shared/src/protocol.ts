@@ -18,8 +18,9 @@ export type { ResourceKind, UnitType, BuildingType };
 /**
  * Versão atual do protocolo. Bump em mudanças incompatíveis.
  * v2 (2.6.2): `CANCEL_TRAIN` adicionado (D-2.6.2-A).
+ * v3 (2.6.3): snapshot ganha `velocity` e `heading` por unidade (D-2.6-C).
  */
-export const PROTOCOL_VERSION: number = 2;
+export const PROTOCOL_VERSION: number = 3;
 
 /** Canais da mensagem (envelope). */
 export type Channel = 'COMMAND' | 'SNAPSHOT' | 'EVENT';
@@ -117,6 +118,10 @@ export interface SnapshotEntity {
   maxHp: number;
   state: EntityState;
   owner: string;
+  /** Velocidade escalar atual em m/s (0 em prédios) — v3, D-2.6-C. */
+  velocity: number;
+  /** Direção do movimento em radianos (atan2(dx, dz)); 0 em prédios — v3. */
+  heading: number;
 }
 
 /** Placar: por jogador, por recurso. */

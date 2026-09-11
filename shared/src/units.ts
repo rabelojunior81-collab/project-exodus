@@ -24,15 +24,19 @@ export interface UnitStats {
   speed: number;
   /** Raio físico de colisão (spec 03) — distinto do raio de clique. */
   collisionRadius: number;
+  /** Aceleração em m/s² — física autoritativa desde a 2.6.3 (D-2.6-C). */
+  acceleration: number;
+  /** Velocidade angular máxima em rad/s — idem (curva do veículo). */
+  rotationSpeed: number;
 }
 
 /** Stats de gameplay (idênticos aos valores validados no cliente). */
 export const UNIT_STATS: Record<UnitType, UnitStats> = {
-  SCAVENGER_WORKER: { hp: 60, speed: 6.0, collisionRadius: 0.7 },
-  RUST_RAIDER: { hp: 100, speed: 7.5, collisionRadius: 0.75 },
-  SCRAP_BUGGY: { hp: 220, speed: 8.0, collisionRadius: 2.0 },
-  MAINTENANCE_DRONE: { hp: 80, speed: 5.0, collisionRadius: 0.7 },
-  BIPED_MECH: { hp: 300, speed: 5.5, collisionRadius: 1.6 },
+  SCAVENGER_WORKER: { hp: 60, speed: 6.0, collisionRadius: 0.7, acceleration: 20, rotationSpeed: 10 },
+  RUST_RAIDER: { hp: 100, speed: 7.5, collisionRadius: 0.75, acceleration: 20, rotationSpeed: 10 },
+  SCRAP_BUGGY: { hp: 220, speed: 8.0, collisionRadius: 2.0, acceleration: 5, rotationSpeed: 2.2 },
+  MAINTENANCE_DRONE: { hp: 80, speed: 5.0, collisionRadius: 0.7, acceleration: 16, rotationSpeed: 8 },
+  BIPED_MECH: { hp: 300, speed: 5.5, collisionRadius: 1.6, acceleration: 8, rotationSpeed: 3.5 },
 };
 
 export interface BuildingStats {

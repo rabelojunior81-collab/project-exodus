@@ -46,8 +46,8 @@ A Fase 2.6 precisa fundir as duas com o servidor como autoridade, sem regredir a
 
 | Subsistema | Cliente | Servidor | Decisão |
 | :--- | :--- | :--- | :--- |
-| Coleta | timer 3 s → extrai 10 (atômico) | 1 un / 0,5 s até 10 (incremental) | **DECIDIDA (D-2.6-B): incremental recalibrado — 0,3 s/un (~3,33 un/s)** |
-| Locomoção | aceleração, inércia, giro por tipo, tração só alinhado, −10 % com carga | velocidade constante sobre caminho A* | **DECIDIDA (D-2.6-C): física migra para o servidor** — + colisão real (spec 03, Fase 1.12) |
+| Coleta | timer 3 s → extrai 10 (atômico) | 1 un / 0,5 s → **1 un / 0,3 s (6 ticks ≈ 3,33 un/s)** | **APLICADA (2.6.3): D-2.6-B em vigor** |
+| Locomoção | aceleração, inércia, giro por tipo, tração só alinhado, −10 % com carga | velocidade constante → **física inercial (heading/velocity no snapshot v3)** | **APLICADA (2.6.3): D-2.6-C em vigor** |
 | Pathfinding | reta até o alvo | A* com desvio de obstáculo | servidor vence |
 | Fog of War | grade 90×90 client-side | inexistente | **DECIDIDA (D-2.6-D): client-side; gancho `viewFor(player)` no snapshot (2.6.4), filtragem na Fase 3** |
 
@@ -125,6 +125,7 @@ input do usuário
 | :--- | :--- | :--- |
 | 2.6.1 ✅ | **ENTREGUE (S15)**: workspace `@project-exodus/shared` (protocol/units/economy/world + barrel), consumo via `dist` (o `composite` do `tsconfig.base.json` finalmente em uso); cliente e servidor migrados com re-exports de compatibilidade | `tsc` 0 em shared/client/server/studio + **43 asserts intactos** + `dist-proof` 11/8/0 + `collision-e2e` 8,701/3,101 + `gather-e2e` e `test-buttons` 10/10 |
 | 2.6.2 ✅ | **ENTREGUE (S16)**: custos debitados (débito no aceite, reembolso integral no `CANCEL_TRAIN`), `POP_MAX` 20 global, tesouro inicial do shared no cenário padrão e `TRAIN_TICKS` derivado de `TRAINING_SPECS × TICK_RATE` (drone/mech treináveis) — protocolo **v2** | **51 asserts** (13 protocolo + 8 simulação + 6 economia + 7 A* + 7 recursos + 4 colisão + 6 worker), suíte sem regressão (387 ticks) + harness completo + build 689 kB + `dist-proof` 11/8/0 |
+| 2.6.3 ✅ | **ENTREGUE (S17)**: coleta D-2.6-B (6 ticks ≈ 3,33 un/s; 10 un em 60 ticks), física inercial D-2.6-C no servidor (`velocity`/`heading` no snapshot **v3**), colisão unificada em `shared/collision` (1.12.4), `DROPOFF_RANGE` 10 m (D-2.6.3-A) e clamp ±88 (D-2.6.3-B) — **contrato de testes congelado ANTES da implementação** (estado vermelho registrado em `docs/evidence/`) | **65 asserts** (13+8+6+9 paridade+5 colisão-shared+7 A*+7 recursos+4 colisão+6 worker) + evidência visual com manifestos + harness completo + build 689 kB + `dist-proof` 11/8/0 |
 | 2.6.2 | Paridade de modelo: 5 unidades, custos, `POP_MAX` no servidor | novos asserts: custo debita, pop-cap rejeita, drone/mech treinam |
 | 2.6.3 | Reconciliação de coleta e locomoção conforme D-2.6-B e D-2.6-C; **absorve `collision.ts` da spec 03 para `shared/`** (1.12.4) | asserts de taxa de coleta; determinismo preservado; colisão com fonte única |
 | 2.6.4 | `snapshot()` no broadcast do `tick()`; protocolo de snapshot versionado com **gancho `viewFor(player)`** (D-2.6-D, sem filtragem) | 2 clientes recebem snapshots idênticos; `viewFor` validado como identidade |
