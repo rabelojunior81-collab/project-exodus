@@ -11,6 +11,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { AssetMaterials } from './textures.js';
 import { getTerrainHeight } from './terrainHeight.js';
+import { INITIAL_RESOURCE_NODES } from '@project-exodus/shared/world';
 
 // ---------------------------------------------------------------------------
 // Seed e PRNG determinístico
@@ -41,12 +42,11 @@ const HAZARD_SIGN_CAP = 25; // placas hazard verticais
 const RUBBLE_CAP = 50; // escombros (substitui o antigo spawnEnvironmentKit)
 const RUBBLE_BEAM_CAP = 35; // vigas metálicas sobre uma fração dos escombros
 
-// Espelha as coordenadas dos veios em main.ts (que por sua vez espelham
-// server/src/resources.ts). Manter as duas listas sincronizadas.
-const VEIN_POSITIONS: ReadonlyArray<readonly [number, number]> = [
-  [45, 10], [-40, 25], [-15, -55], [30, 45],
-  [60, -25], [-60, -20], [10, 60], [-28, 48],
-];
+// Fonte única: layout do shared (Fase 2.6.1). Antes esta lista espelhava
+// manualmente main.ts e server/src/resources.ts — três cópias sincronizadas
+// à mão; agora a divergência seria erro de compilação.
+const VEIN_POSITIONS: ReadonlyArray<readonly [number, number]> =
+  INITIAL_RESOURCE_NODES.map((nd) => [nd.x, nd.z] as const);
 const VEIN_EXCLUSION_RADIUS = 8;
 const CORE_EXCLUSION_RADIUS = 18;
 

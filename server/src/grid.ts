@@ -1,14 +1,16 @@
 /**
  * grid.ts — Grade espacial + A* determinístico (Fase 2.3).
  *
+ * Fase 2.6.1: dimensões, crateras e conversões de coordenadas migraram
+ * para `@project-exodus/shared/world` (fonte única); este módulo
+ * re-exporta para os consumidores existentes e mantém heap, grade e A*.
+ *
  * Alinhamento com o cliente (somente leitura, nunca editar client/):
  * - `WORLD_SIZE = 180`: `new TerrainManager(scene, 180)` e `mapSize = 180`
  *   em `client/src/main.ts`; coordenadas de mundo em [-90, +90].
  * - `PLATEAU_RADIUS = 30`: platô plano `dist < 30` em
  *   `client/src/engine/terrainHeight.ts`.
- * - Crateras convertidas de coords locais (x, y) para mundo (x, z=-y):
- *   crater1 local (25, 20, r12)  -> mundo (25, -20, r12);
- *   crater2 local (-30, -15, r10) -> mundo (-30, +15, r10).
+ * - Crateras convertidas de coords locais (x, y) para mundo (x, z=-y).
  *
  * NOTA DE DESIGN sobre "grid 180×180 (célula 2m)": 180 células de 2m
  * cobririam 360m, dessincronizando do mapa de 180m do cliente. O que
@@ -16,39 +18,35 @@
  * ("180×180" da spec = metros do mundo, não células). Testes travam isso.
  */
 
-export interface Vec2 {
-  x: number;
-  z: number;
-}
+import {
+  CELL_SIZE,
+  CRATER_CENTER_COST,
+  CRATERS,
+  GRID_DIM,
+  HALF_WORLD,
+  PLATEAU_RADIUS,
+  WORLD_SIZE,
+  cellToWorld,
+  clampToWorld,
+  worldToCell,
+  type CircleObstacle,
+  type Crater,
+  type Vec2,
+} from '@project-exodus/shared/world';
 
-/** Obstáculo circular (buildings). Desvio testado em `astar.test.ts`. */
-export interface CircleObstacle {
-  x: number;
-  z: number;
-  r: number;
-}
-
-/** Tamanho do mundo em metros (aresta; centrado na origem). */
-export const WORLD_SIZE: number = 180;
-/** Metade do mundo: coords válidas em [-HALF_WORLD, +HALF_WORLD]. */
-export const HALF_WORLD: number = WORLD_SIZE / 2;
-/** Aresta da célula em metros. */
-export const CELL_SIZE: number = 2;
-/** Células por eixo: 90×90 cobrindo exatamente 180m. */
-export const GRID_DIM: number = WORLD_SIZE / CELL_SIZE;
-/** Raio do platô militar transitável (idem terrainHeight.ts). */
-export const PLATEAU_RADIUS: number = 30;
-
-export interface Crater extends CircleObstacle {}
-
-/** Crateras: transitáveis, mas com custo elevado (lento/lodoso). */
-export const CRATERS: ReadonlyArray<Crater> = [
-  { x: 25, z: -20, r: 12 },
-  { x: -30, z: 15, r: 10 },
-];
-
-/** Multiplicador máximo de custo no centro da cratera. */
-export const CRATER_CENTER_COST: number = 5;
+export {
+  CELL_SIZE,
+  CRATER_CENTER_COST,
+  CRATERS,
+  GRID_DIM,
+  HALF_WORLD,
+  PLATEAU_RADIUS,
+  WORLD_SIZE,
+  cellToWorld,
+  clampToWorld,
+  worldToCell,
+};
+export type { CircleObstacle, Crater, Vec2 };
 
 const SQRT2: number = Math.SQRT2;
 
@@ -126,25 +124,6 @@ export class BinaryHeap {
 }
 
 // ------------------------------------------------------------ spatial grid
-
-/** Converte coord de mundo para índice de célula (clamp nos limites). */
-export function worldToCell(v: number): number {
-  const c: number = Math.floor((v + HALF_WORLD) / CELL_SIZE);
-  if (c < 0) return 0;
-  if (c >= GRID_DIM) return GRID_DIM - 1;
-  return c;
-}
-
-/** Centro da célula em coords de mundo. */
-export function cellToWorld(c: number): number {
-  return -HALF_WORLD + (c + 0.5) * CELL_SIZE;
-}
-
-export function clampToWorld(v: number): number {
-  if (v < -HALF_WORLD) return -HALF_WORLD;
-  if (v > HALF_WORLD) return HALF_WORLD;
-  return v;
-}
 
 /**
  * Grade espacial: custos de terreno + obstáculos circulares (buildings).

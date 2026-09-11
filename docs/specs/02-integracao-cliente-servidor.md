@@ -72,6 +72,13 @@ shared/src/
 
 Requer `composite: true` + `declaration: true` (já presentes em `tsconfig.base.json`, hoje sem uso — ver MED-07).
 
+**Entrega S15 (2.6.1)** — decisões de implementação registradas:
+
+- **Consumo via `dist`** (exports map com `types`+`import`): mantém o `tsc` build do servidor com `rootDir ./src` e evita transpilar `node_modules` no `ts-node`; prescripts (`predev`/`prebuild`/`pretest` de client e server) garantem o `build:shared`.
+- **Disciplina de extração**: nenhuma mudança de comportamento. Valores decididos mas ainda não aplicados ficam marcados `LEGACY (2.6.1)` no consumidor, com a sub-fase que os aplica (tempos D-2.6-A no servidor → 2.6.2; intervalo de coleta D-2.6-B → 2.6.3).
+- **Divergências residuais encontradas na extração** (agendadas para a 2.6.3, com decisão proposta no grill-me da S15 em `docs/decisions/2026-09-10_fase-2.6.x-abertas.md`): `DROPOFF_RANGE` cliente 10 × servidor 14; clamp de mundo cliente ±88 (margem de 2 m) × servidor ±90.
+- **Fora de escopo por design (2.6.3)**: resolvedor de colisão (`CollisionWorld`) e movimento inercial — só os DADOS de colisão foram unificados agora (sub-fase 1.12.4 permanece com a 2.6.3).
+
 ### 3.2 Fluxo autoritativo
 
 ```
@@ -116,7 +123,7 @@ input do usuário
 
 | Sub-fase | Entrega | Gate |
 | :--- | :--- | :--- |
-| 2.6.1 | Workspace `shared/`; `protocol.ts` migrado; `units/economy/world` extraídos | `tsc` 0 nos 3 workspaces + 43 asserts do servidor intactos |
+| 2.6.1 ✅ | **ENTREGUE (S15)**: workspace `@project-exodus/shared` (protocol/units/economy/world + barrel), consumo via `dist` (o `composite` do `tsconfig.base.json` finalmente em uso); cliente e servidor migrados com re-exports de compatibilidade | `tsc` 0 em shared/client/server/studio + **43 asserts intactos** + `dist-proof` 11/8/0 + `collision-e2e` 8,701/3,101 + `gather-e2e` e `test-buttons` 10/10 |
 | 2.6.2 | Paridade de modelo: 5 unidades, custos, `POP_MAX` no servidor | novos asserts: custo debita, pop-cap rejeita, drone/mech treinam |
 | 2.6.3 | Reconciliação de coleta e locomoção conforme D-2.6-B e D-2.6-C; **absorve `collision.ts` da spec 03 para `shared/`** (1.12.4) | asserts de taxa de coleta; determinismo preservado; colisão com fonte única |
 | 2.6.4 | `snapshot()` no broadcast do `tick()`; protocolo de snapshot versionado com **gancho `viewFor(player)`** (D-2.6-D, sem filtragem) | 2 clientes recebem snapshots idênticos; `viewFor` validado como identidade |

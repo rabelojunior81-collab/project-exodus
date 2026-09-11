@@ -18,6 +18,10 @@ import { HudController, OrderType } from './ui/hud.js';
 import { ModelManager } from './engine/models.js';
 import { Unit } from './entities/unit.js';
 import { Building } from './entities/building.js';
+import { INITIAL_RESOURCE_NODES } from '@project-exodus/shared/world';
+import { POP_MAX } from '@project-exodus/shared/economy';
+import { TRAINING_SPECS as SHARED_TRAINING_SPECS } from '@project-exodus/shared/units';
+import type { ResourceKind } from '@project-exodus/shared/protocol';
 
 console.log('[Project Exodus] Inicializando motor Three.js RTS com Suporte PBR e Modelos GLTF Reais...');
 
@@ -118,7 +122,7 @@ const selectionManager = new SelectionManager(
 // 7b. Ordens do HUD, economia local e treinamento (client-authoritative
 // TEMPORÁRIO até a Fase 2.6, quando o servidor assume — TODO-2.6)
 const resources = { rations: 250, scrap: 180, chips: 75, concrete: 50 };
-const POP_MAX = 20;
+// POP_MAX vem do shared (fonte única desde a 2.6.1).
 let rallyPoint = new THREE.Vector3(8, 0, 14);
 
 function unitCount(): number {
@@ -143,12 +147,14 @@ interface TrainingJob {
   totalTime: number;
   elapsed: number;
 }
+// Custos e tempos vêm do shared (fonte única, decisão D-2.6-A); aqui ficam
+// apenas os rótulos de UI — o servidor adota a tabela na 2.6.2.
 const TRAINING_SPECS = {
-  SCAVENGER_WORKER: { label: 'Catador', cost: { rations: 50, scrap: 0, chips: 0, concrete: 0 }, time: 8 },
-  RUST_RAIDER: { label: 'Guarda de Ferro', cost: { rations: 75, scrap: 25, chips: 0, concrete: 0 }, time: 12 },
-  SCRAP_BUGGY: { label: 'Blindado Sucateiro', cost: { rations: 0, scrap: 150, chips: 25, concrete: 0 }, time: 18 },
-  BIPED_MECH: { label: 'Mech Bípede', cost: { rations: 0, scrap: 200, chips: 75, concrete: 0 }, time: 24 },
-  MAINTENANCE_DRONE: { label: 'Droide de Manutenção', cost: { rations: 60, scrap: 40, chips: 0, concrete: 0 }, time: 16 },
+  SCAVENGER_WORKER: { label: 'Catador', ...SHARED_TRAINING_SPECS.SCAVENGER_WORKER },
+  RUST_RAIDER: { label: 'Guarda de Ferro', ...SHARED_TRAINING_SPECS.RUST_RAIDER },
+  SCRAP_BUGGY: { label: 'Blindado Sucateiro', ...SHARED_TRAINING_SPECS.SCRAP_BUGGY },
+  BIPED_MECH: { label: 'Mech Bípede', ...SHARED_TRAINING_SPECS.BIPED_MECH },
+  MAINTENANCE_DRONE: { label: 'Droide de Manutenção', ...SHARED_TRAINING_SPECS.MAINTENANCE_DRONE },
 } as const;
 const RECRUIT_ORDER_TO_TYPE: Record<string, keyof typeof TRAINING_SPECS> = {
   recruit_worker: 'SCAVENGER_WORKER',
@@ -316,7 +322,7 @@ let gameStarted = false;
 // coordenadas; o servidor assume na Fase 2.6 sem remapear o mapa — TODO-2.6)
 import { AssetMaterials } from './engine/textures.js';
 
-type ClientNodeKind = 'RACAO_AGUA' | 'SUCATA' | 'CHIPS_IA' | 'CONCRETO';
+type ClientNodeKind = ResourceKind;
 interface ClientNode {
   id: string;
   kind: ClientNodeKind;
@@ -336,16 +342,19 @@ const KIND_COLORS: Record<ClientNodeKind, number> = {
   CHIPS_IA: 0xc084fc,
   CONCRETO: 0x94a3b8,
 };
-const resourceNodes: ClientNode[] = [
-  { id: 'node_rac_1', kind: 'RACAO_AGUA', x: 45, z: 10, amount: 1500, maxAmount: 1500, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-  { id: 'node_rac_2', kind: 'RACAO_AGUA', x: -40, z: 25, amount: 1500, maxAmount: 1500, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-  { id: 'node_suc_1', kind: 'SUCATA', x: -15, z: -55, amount: 1500, maxAmount: 1500, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-  { id: 'node_suc_2', kind: 'SUCATA', x: 30, z: 45, amount: 1500, maxAmount: 1500, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-  { id: 'node_chip_1', kind: 'CHIPS_IA', x: 60, z: -25, amount: 800, maxAmount: 800, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-  { id: 'node_chip_2', kind: 'CHIPS_IA', x: -60, z: -20, amount: 800, maxAmount: 800, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-  { id: 'node_conc_1', kind: 'CONCRETO', x: 10, z: 60, amount: 1200, maxAmount: 1200, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-  { id: 'node_conc_2', kind: 'CONCRETO', x: -28, z: 48, amount: 1200, maxAmount: 1200, group: new THREE.Group(), pulseMats: [], pulse: 0 },
-];
+// Layout canônico do shared (2.6.1): mesmas coordenadas que o servidor
+// usa — antes esta lista era uma cópia manual de server/src/resources.ts.
+const resourceNodes: ClientNode[] = INITIAL_RESOURCE_NODES.map((nd) => ({
+  id: nd.id,
+  kind: nd.kind,
+  x: nd.x,
+  z: nd.z,
+  amount: nd.amount,
+  maxAmount: nd.maxAmount,
+  group: new THREE.Group(),
+  pulseMats: [],
+  pulse: 0,
+}));
 
 const nodeRingFades: Array<{
   mesh: THREE.Mesh;

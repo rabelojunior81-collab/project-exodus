@@ -1,60 +1,32 @@
 /**
- * resources.ts — Nós dos 4 recursos (Fase 2.4).
+ * resources.ts — Lógica dos nós dos 4 recursos (Fase 2.4; dados migrados
+ * para `@project-exodus/shared/world` na Fase 2.6.1).
  *
- * Posições FIXAS e determinísticas (sem sorteio): fora do platô
- * (raio 35–70 do centro), dentro do mapa (|x|,|z| ≤ 90) e com folga
- * dos spawns/buildings iniciais (0,-2) e (±16,2).
+ * Aqui ficam apenas as operações (cópia por partida, extração, validação);
+ * o LAYOUT é fonte única no shared (cliente e servidor leem o mesmo).
  */
 
-import type { ResourceKind } from './protocol.js';
-import { HALF_WORLD } from './grid.js';
+import type { ResourceKind } from '@project-exodus/shared/protocol';
+import {
+  HALF_WORLD,
+  INITIAL_RESOURCE_NODES,
+  INITIAL_SPAWNS,
+  NODE_MAX_RADIUS,
+  NODE_MIN_RADIUS,
+  NODE_MIN_SPACING,
+  SPAWN_CLEARANCE,
+  type ResourceNode,
+} from '@project-exodus/shared/world';
 
-export interface ResourceNode {
-  id: string;
-  kind: ResourceKind;
-  x: number;
-  z: number;
-  amount: number;
-  maxAmount: number;
-}
-
-/** Raio mínimo/máximo dos nós em relação ao centro (0,0). */
-export const NODE_MIN_RADIUS: number = 35;
-export const NODE_MAX_RADIUS: number = 70;
-
-/** Distância mínima entre dois nós (sem overlap de veios). */
-export const NODE_MIN_SPACING: number = 15;
-
-/** Folga mínima de cada nó até os spawns iniciais. */
-export const SPAWN_CLEARANCE: number = 10;
-
-/** Spawns/buildings iniciais do cliente (`client/src/main.ts`). */
-export const INITIAL_SPAWNS: ReadonlyArray<{ x: number; z: number }> = [
-  { x: 0, z: -2 },
-  { x: -16, z: 2 },
-  { x: 16, z: 2 },
-];
-
-function node(
-  id: string, kind: ResourceKind, x: number, z: number, amount: number,
-): ResourceNode {
-  return { id, kind, x, z, amount, maxAmount: amount };
-}
-
-/**
- * Layout inicial: 8 nós (2 por recurso), ângulos espalhados para
- * forçar expansão em 4 direções. Raios 46–65 (dentro de 35–70).
- */
-export const INITIAL_RESOURCE_NODES: ReadonlyArray<ResourceNode> = [
-  node('node_rac_1', 'RACAO_AGUA', 45, 10, 1500),
-  node('node_rac_2', 'RACAO_AGUA', -40, 25, 1500),
-  node('node_suc_1', 'SUCATA', -15, -55, 1500),
-  node('node_suc_2', 'SUCATA', 30, 45, 1500),
-  node('node_chip_1', 'CHIPS_IA', 60, -25, 800),
-  node('node_chip_2', 'CHIPS_IA', -60, -20, 800),
-  node('node_conc_1', 'CONCRETO', 10, 60, 1200),
-  node('node_conc_2', 'CONCRETO', -28, 48, 1200),
-];
+export {
+  INITIAL_RESOURCE_NODES,
+  INITIAL_SPAWNS,
+  NODE_MAX_RADIUS,
+  NODE_MIN_RADIUS,
+  NODE_MIN_SPACING,
+  SPAWN_CLEARANCE,
+};
+export type { ResourceNode };
 
 /** Cópia profunda mutável do layout inicial (uma por Simulation). */
 export function createInitialResourceNodes(): ResourceNode[] {

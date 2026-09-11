@@ -7,11 +7,15 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "prebuild": "npm --prefix .. run build:shared",
     "start": "node dist/index.js",
+    "predev": "npm --prefix .. run build:shared",
     "dev": "node --loader ts-node/esm src/index.ts",
+    "pretest": "npm --prefix .. run build:shared",
     "test": "node --loader ts-node/esm tests/server_smoke.test.ts && node --loader ts-node/esm src/__tests__/protocol.test.ts && node --loader ts-node/esm src/__tests__/astar.test.ts && node --loader ts-node/esm src/__tests__/resources.test.ts && node --loader ts-node/esm src/__tests__/simulation.test.ts && node --loader ts-node/esm src/__tests__/collision.test.ts && node --loader ts-node/esm src/__tests__/worker.test.ts"
   },
   "dependencies": {
+    "@project-exodus/shared": "*",
     "dotenv": "^16.4.7",
     "ws": "^8.18.1"
   },

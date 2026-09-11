@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, resolve } from 'path';
 import { Simulation, TICK_RATE } from './simulation.js';
-import { deserializeMessage, ProtocolError } from './protocol.js';
+import { deserializeMessage, ProtocolError } from '@project-exodus/shared/protocol';
 
 // Carrega .env da raiz do monorepo
 const __filename = fileURLToPath(import.meta.url);

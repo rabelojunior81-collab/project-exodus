@@ -231,6 +231,8 @@ desvio frontal e parada encostada; declive penaliza velocidade; limites de mundo
   - A auditoria mediu **5 eixos de divergência** entre cliente e servidor acumulados nas Fases 1.7A–1.7E: cliente sem WebSocket; servidor sem broadcast de snapshot (hoje alocado na Fase 3); 5 tipos de unidade × 3; tempos de treino 1,6–2,0× divergentes e **custo em recursos inexistente no servidor**; modelos de coleta (atômico × incremental) e de locomoção (inércia × velocidade constante) incompatíveis; e ausência de módulo compartilhado.
   - Escopo real: workspace `shared/`, paridade de modelo, custos/pop-cap no servidor, reconciliação de coleta e física, snapshot broadcast, cliente WS com interpolação, remoção dos 5 `TODO-2.6`.
   - **Spec APROVADO em 2026-09-10 (S14)**: as 5 decisões (D-2.6-A..E) foram fechadas na sessão `grill-me` — escolhas **A/A/A/A/A**, registradas em `docs/decisions/2026-09-10_fase-2.6-paridade.md`. A fase está **desbloqueada**; começar por 2.6.1 (`shared/`).
+  - ✅ **2.6.1 entregue (S15)**: workspace `@project-exodus/shared` no ar (protocol/units/economy/world), cliente e servidor consumindo com re-exports; divergência de tipos/dados agora é erro de compilação. Gates: `tsc` 0 (shared/client/server/studio), 43 asserts, build 689 kB, `dist-proof` 11/8/0, `collision-e2e` 8,701/3,101, `gather-e2e`, `test-buttons` 10/10. Detalhe no spec 02 §5.
+  - ⏭️ **Próxima**: 2.6.2 (paridade de modelo — custos/pop/tempos no servidor), precedida pelo grill-me das decisões abertas da 2.6.x (arquivo em `docs/decisions/`).
   - Ver plano de 6 sub-fases e gates no próprio spec.
 - **Gate de Aprovação da Fase 2**:
   - [ ] Trabalhador coleta, transporta e entrega no CC, placar incrementa (demo no harness).

@@ -1,35 +1,25 @@
 /**
- * protocol.ts — Tipos do protocolo compartilhado (Fase 2.1).
+ * protocol.ts — Tipos do protocolo compartilhado (Fase 2.1; migrado para
+ * `shared/` na Fase 2.6.1).
  *
- * Pronto para WebSocket depois (Fase 3): tudo serializa para JSON
- * compacto com versionamento explícito. O servidor é autoritativo;
- * o cliente apenas envia comandos e aplica snapshots/eventos.
+ * Pronto para WebSocket (Fase 3): tudo serializa para JSON compacto com
+ * versionamento explícito. O servidor é autoritativo; o cliente apenas
+ * envia comandos e aplica snapshots/eventos.
  *
- * Convenção de nomes: tipos de entidade espelham o cliente
- * (`client/src/entities/unit.ts` e `building.ts`).
+ * Tipos de entidade vivem em `./units.js`; recursos em `./economy.js` —
+ * re-exportados aqui para os consumidores do protocolo.
  */
+import { RESOURCE_KINDS, type ResourceKind } from './economy.js';
+import type { BuildingType, UnitType } from './units.js';
+
+export { RESOURCE_KINDS };
+export type { ResourceKind, UnitType, BuildingType };
 
 /** Versão atual do protocolo. Bump em mudanças incompatíveis. */
 export const PROTOCOL_VERSION: number = 1;
 
 /** Canais da mensagem (envelope). */
 export type Channel = 'COMMAND' | 'SNAPSHOT' | 'EVENT';
-
-/** Os 4 recursos temáticos (Fase 2.4). Ração/Água é um único recurso. */
-export type ResourceKind = 'RACAO_AGUA' | 'SUCATA' | 'CHIPS_IA' | 'CONCRETO';
-
-export const RESOURCE_KINDS: ReadonlyArray<ResourceKind> = [
-  'RACAO_AGUA',
-  'SUCATA',
-  'CHIPS_IA',
-  'CONCRETO',
-];
-
-/** Tipos de unidade (idem `UnitType` do cliente). */
-export type UnitType = 'SCAVENGER_WORKER' | 'RUST_RAIDER' | 'SCRAP_BUGGY';
-
-/** Tipos de construção (idem `BuildingType` do cliente). */
-export type BuildingType = 'COMMAND_CENTER' | 'BUNKER_TURRET' | 'SCRAP_REFINERY';
 
 /** Categoria da entidade. */
 export type EntityCategory = 'UNIT' | 'BUILDING';

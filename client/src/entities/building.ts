@@ -3,8 +3,10 @@ import { SelectableEntity, FactionType, EntityCategory } from './types.js';
 import { ModelManager, ModelInstance } from '../engine/models.js';
 import { getTerrainHeight } from '../engine/terrainHeight.js';
 import { SIGHT_RADII } from '../engine/fog-of-war.js';
+import { BUILDING_STATS, type BuildingType } from '@project-exodus/shared/units';
 
-export type BuildingType = 'COMMAND_CENTER' | 'BUNKER_TURRET' | 'SCRAP_REFINERY';
+/** Reexporta o tipo canônico do shared (fonte única desde a 2.6.1). */
+export type { BuildingType };
 
 export class Building implements SelectableEntity {
   public id: string;
@@ -51,17 +53,19 @@ export class Building implements SelectableEntity {
 
     const mm = ModelManager.getInstance();
 
+    // HP — fonte única no shared (Fase 2.6.1); o cliente mantém só o
+    // raio de clique visual e as partes procedurais de cada prédio.
+    const sharedStats = BUILDING_STATS[buildingType];
+    this.health = sharedStats.hp;
+    this.maxHealth = sharedStats.hp;
+
     if (buildingType === 'COMMAND_CENTER') {
-      this.health = 2200;
-      this.maxHealth = 2200;
       this.selectionRadius = 12.2;
       this.baseModel = mm.createInstance('command_center', 2.2);
       if (this.baseModel) this.mesh.add(this.baseModel.scene);
       this.initSmokeParticles(new THREE.Vector3(0, 15.0, 0), 24, 18.0, 9.8);
       this.initRadarMast();
     } else if (buildingType === 'BUNKER_TURRET') {
-      this.health = 850;
-      this.maxHealth = 850;
       this.selectionRadius = 6.5;
 
       // Base do bunker fortificado
@@ -78,8 +82,6 @@ export class Building implements SelectableEntity {
         this.mesh.add(this.turretHead);
       }
     } else {
-      this.health = 1400;
-      this.maxHealth = 1400;
       this.selectionRadius = 8.5;
       this.baseModel = mm.createInstance('refinery', 1.7);
       if (this.baseModel) this.mesh.add(this.baseModel.scene);

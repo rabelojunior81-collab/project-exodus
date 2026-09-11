@@ -10,20 +10,28 @@
  * (ids crescentes), sem Math.random/Date.now.
  */
 
-import type { EntityState, ResourceKind } from './protocol.js';
+import type { EntityState, ResourceKind } from '@project-exodus/shared/protocol';
+import {
+  GATHER_RANGE,
+  GATHER_YIELD,
+  WORKER_CARRY_CAPACITY,
+} from '@project-exodus/shared/economy';
+import { UNIT_STATS } from '@project-exodus/shared/units';
 
-/** Capacidade de carga do trabalhador (unidades de recurso). */
-export const WORKER_CARRY_CAPACITY: number = 10;
-/** Ticks por unidade coletada (10 ticks = 0,5s a 20Hz → 2 un/s). */
+export { GATHER_RANGE, GATHER_YIELD, WORKER_CARRY_CAPACITY };
+
+/** Velocidade do trabalhador m/s — fonte única no shared (2.6.1). */
+export const WORKER_SPEED: number = UNIT_STATS.SCAVENGER_WORKER.speed;
+/**
+ * LEGACY (2.6.1): 10 ticks = 0,5 s → 2 un/s. A decisão D-2.6-B (0,3 s/un,
+ * ~3,33 un/s) é adotada na 2.6.3 — não sincronizar à mão.
+ */
 export const GATHER_INTERVAL_TICKS: number = 10;
-/** Rendimento por intervalo de coleta. */
-export const GATHER_YIELD: number = 1;
-/** Distância de parada até o nó para começar a coletar. */
-export const GATHER_RANGE: number = 4;
-/** Distância ao CC para descarregar (CC é grande: raio de colisão 8). */
+/**
+ * LEGACY (2.6.1): cliente para a 10 m do CC; servidor a 14 m. A
+ * reconciliação é decisão aberta para a 2.6.3 (ver grill-me da S15).
+ */
 export const DROPOFF_RANGE: number = 14;
-/** Velocidade do trabalhador m/s (idem SCAVENGER_WORKER no cliente). */
-export const WORKER_SPEED: number = 6.0;
 
 /** Subconjunto mutável do corpo da entidade que a FSM lê/escreve. */
 export interface WorkerBody {

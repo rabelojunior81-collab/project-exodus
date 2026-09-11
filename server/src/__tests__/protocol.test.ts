@@ -13,7 +13,7 @@ import {
   serializeSnapshot,
   type AnyCommand,
   type Snapshot,
-} from '../protocol.js';
+} from '@project-exodus/shared/protocol';
 
 let n: number = 0;
 function check(name: string, fn: () => void): void {

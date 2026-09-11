@@ -4,12 +4,14 @@
   "private": true,
   "description": "Post-apocalyptic RTS with Age of Empires 2 mechanics, StarCraft asymmetry and Three.js 3D PBR",
   "workspaces": [
+    "shared",
     "server",
     "client",
     "tools/studio-gemini"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build:shared && npm run build --workspaces",
+    "build:shared": "npm run build --workspace=@project-exodus/shared",
     "test": "npm run test --workspaces",
     "test:gemini": "npm run test --workspace=tools/studio-gemini",
     "generate:assets": "npm run generate --workspace=tools/studio-gemini",

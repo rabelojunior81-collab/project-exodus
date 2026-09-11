@@ -9,7 +9,7 @@ import {
   TICK_RATE,
   type SimEntity,
 } from '../simulation.js';
-import { serializeSnapshot, type Snapshot } from '../protocol.js';
+import { serializeSnapshot, type Snapshot } from '@project-exodus/shared/protocol';
 
 let n: number = 0;
 function check(name: string, fn: () => void): void {

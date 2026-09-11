@@ -9,6 +9,8 @@
  * - Sem RNG, sem Date.now: seguro para virar código compartilhado em 2.6.3.
  */
 import { getTerrainHeight } from './terrainHeight.js';
+import { BUILDING_STATS, UNIT_STATS } from '@project-exodus/shared/units';
+import { NODE_COLLISION_RADIUS } from '@project-exodus/shared/world';
 
 export type ObstacleKind = 'building' | 'node' | 'prop';
 
@@ -20,26 +22,23 @@ export interface CircleObstacle {
   id?: string;
 }
 
-/** Raio de colisão por construção — espelha `BUILDING_RADIUS` do servidor. */
+/** Raio de colisão por construção — derivado do shared (2.6.1). */
 export const BUILDING_COLLISION_RADIUS: Record<string, number> = {
-  COMMAND_CENTER: 8,
-  SCRAP_REFINERY: 6,
-  BUNKER_TURRET: 4.5,
+  COMMAND_CENTER: BUILDING_STATS.COMMAND_CENTER.collisionRadius,
+  SCRAP_REFINERY: BUILDING_STATS.SCRAP_REFINERY.collisionRadius,
+  BUNKER_TURRET: BUILDING_STATS.BUNKER_TURRET.collisionRadius,
 };
 
-/** Raio de colisão dos veios (anel visual do veio: 2,6–3,0). */
-export const NODE_COLLISION_RADIUS = 2.4;
+/** Raio de colisão dos veios — fonte única no shared/world (2.6.1). */
+export { NODE_COLLISION_RADIUS };
 
-/**
- * Raio físico por tipo de unidade (distinto do `selectionRadius`, que é o
- * raio generoso de CLIQUE do RTS). Mantido em sincronia manual até a 2.6.3.
- */
+/** Raio físico por tipo — derivado do shared (2.6.1; spec 03). */
 export const UNIT_COLLISION_RADIUS = {
-  SCAVENGER_WORKER: 0.7,
-  RUST_RAIDER: 0.75,
-  MAINTENANCE_DRONE: 0.7,
-  BIPED_MECH: 1.6,
-  SCRAP_BUGGY: 2.0,
+  SCAVENGER_WORKER: UNIT_STATS.SCAVENGER_WORKER.collisionRadius,
+  RUST_RAIDER: UNIT_STATS.RUST_RAIDER.collisionRadius,
+  MAINTENANCE_DRONE: UNIT_STATS.MAINTENANCE_DRONE.collisionRadius,
+  BIPED_MECH: UNIT_STATS.BIPED_MECH.collisionRadius,
+  SCRAP_BUGGY: UNIT_STATS.SCRAP_BUGGY.collisionRadius,
 } as const;
 
 export type CollidableUnitType = keyof typeof UNIT_COLLISION_RADIUS;

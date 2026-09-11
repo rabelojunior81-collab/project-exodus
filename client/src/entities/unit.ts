@@ -5,13 +5,27 @@ import { getTerrainHeight } from '../engine/terrainHeight.js';
 import { SIGHT_RADII } from '../engine/fog-of-war.js';
 import { TacticalAudio } from '../engine/audio.js';
 import { CollisionWorld, UNIT_COLLISION_RADIUS, clampWorld, slopeSpeedFactor } from '../engine/collision.js';
+import {
+  UNIT_STATS,
+  type UnitType,
+} from '@project-exodus/shared/units';
+import {
+  CLIENT_GATHER_TIME_SECONDS,
+  GATHER_RANGE,
+  WORKER_CARRY_CAPACITY,
+} from '@project-exodus/shared/economy';
 
-export type UnitType = 'SCAVENGER_WORKER' | 'RUST_RAIDER' | 'SCRAP_BUGGY' | 'MAINTENANCE_DRONE' | 'BIPED_MECH';
+/** Reexporta o tipo canônico do shared (fonte única desde a 2.6.1). */
+export type { UnitType };
 
-/** Constantes do ciclo de coleta (espelham server/src/worker.ts). */
-export const GATHER_CARRY_CAPACITY = 10;
-export const GATHER_TIME_SECONDS = 3;
-export const GATHER_RANGE = 4;
+/** Constantes do ciclo de coleta — fonte única no shared (2.6.1). */
+export const GATHER_CARRY_CAPACITY: number = WORKER_CARRY_CAPACITY;
+export const GATHER_TIME_SECONDS: number = CLIENT_GATHER_TIME_SECONDS;
+export { GATHER_RANGE };
+/**
+ * LEGACY (2.6.1): cliente para a 10 m do CC, servidor a 14 m. A
+ * reconciliação é decisão da 2.6.3 (grill-me da S15). Não sincronizar à mão.
+ */
 export const DROPOFF_RANGE = 10;
 
 /** Tipos capazes de coletar veios de recurso. */
@@ -124,10 +138,15 @@ export class Unit implements SelectableEntity {
     // 1. Instancia o modelo 3D GLTF Real com Animações Esqueléticas
     const mm = ModelManager.getInstance();
 
+    // Stats de gameplay — fonte única no shared (Fase 2.6.1). O cliente
+    // mantém aqui apenas o que é feel/visual (raio de clique, yaw, escala,
+    // aceleração e animações), que não pertence à simulação.
+    const sharedStats = UNIT_STATS[unitType];
+    this.health = sharedStats.hp;
+    this.maxHealth = sharedStats.hp;
+    this.moveSpeed = sharedStats.speed;
+
     if (unitType === 'SCAVENGER_WORKER') {
-      this.health = 60;
-      this.maxHealth = 60;
-      this.moveSpeed = 6.0;
       this.selectionRadius = 1.4;
       this.sightRadius = SIGHT_RADII.SCAVENGER_WORKER;
       this.yawOffset = 0;
@@ -135,9 +154,6 @@ export class Unit implements SelectableEntity {
       this.acceleration = 20.0;
       this.modelInstance = mm.createInstance('character', 1.5);
     } else if (unitType === 'RUST_RAIDER') {
-      this.health = 100;
-      this.maxHealth = 100;
-      this.moveSpeed = 7.5;
       this.selectionRadius = 1.5;
       this.sightRadius = SIGHT_RADII.RUST_RAIDER;
       this.yawOffset = Math.PI;
@@ -148,9 +164,6 @@ export class Unit implements SelectableEntity {
       // Escala calibrada via harness (measureModel/Box3): 0.44 dava 2.09m,
       // 0.38 ≈ 1.80m de altura. Frente medida no GLB (bind pose): pés e
       // cabeça apontam +Z (mesmo do Character) → yawOffset 0.
-      this.health = 80;
-      this.maxHealth = 80;
-      this.moveSpeed = 5.0;
       this.selectionRadius = 1.5;
       this.sightRadius = SIGHT_RADII.MAINTENANCE_DRONE;
       this.yawOffset = 0;
@@ -161,9 +174,6 @@ export class Unit implements SelectableEntity {
       // enemy-2-legs: olhos (Eye z=+0.18) e alvos dos pés (PT z=+0.61)
       // apontam +Z → yawOffset 0. Escala calibrada via harness: 5.3 dava
       // 3.58m, 6.7 ≈ 4.50m de altura (pesado, acima do blindado 2.85m).
-      this.health = 300;
-      this.maxHealth = 300;
-      this.moveSpeed = 5.5;
       this.selectionRadius = 2.6;
       this.sightRadius = SIGHT_RADII.BIPED_MECH;
       this.yawOffset = 0;
@@ -171,9 +181,6 @@ export class Unit implements SelectableEntity {
       this.acceleration = 8.0;
       this.modelInstance = mm.createInstance('mech_2legs', 6.7);
     } else {
-      this.health = 220;
-      this.maxHealth = 220;
-      this.moveSpeed = 8.0;
       this.selectionRadius = 3.2;
       this.sightRadius = SIGHT_RADII.SCRAP_BUGGY;
       this.yawOffset = Math.PI / 2;

@@ -24,6 +24,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) · Versiona
   (`client/public/assets/video/era-1-transition.mp4`) e à landing.
 - Mídia da landing otimizada de PNG para WebP (~10 MB → ~750 KB).
 
+### Refatorado (Sessão 15)
+- Novo workspace `@project-exodus/shared` (Fase 2.6.1): `protocol`, `units`, `economy` e `world`
+  como fonte única entre cliente e servidor, com tipos canônicos (`UnitType` 5, `BuildingType` 3),
+  stats, custos, tempos, recursos e layout do mundo. Divergência entre os lados agora é erro de
+  compilação. Consumo via `dist`; prescripts garantem o build. Zero mudança de comportamento.
+
 ### Adicionado (Sessão 14)
 - **Física de colisão** (Fase 1.12, `docs/specs/03-colisao-e-obstaculos.md`): unidades não
   atravessam construções, veios nem props sólidos — deslize, desvio frontal determinístico,

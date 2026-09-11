@@ -15,7 +15,7 @@ import {
   validateResourceLayout,
   type ResourceNode,
 } from '../resources.js';
-import { RESOURCE_KINDS } from '../protocol.js';
+import { RESOURCE_KINDS } from '@project-exodus/shared/protocol';
 
 let n: number = 0;
 function check(name: string, fn: () => void): void {

@@ -20,7 +20,12 @@ import {
   type Snapshot,
   type SnapshotEntity,
   type UnitType,
-} from './protocol.js';
+} from '@project-exodus/shared/protocol';
+import {
+  BUILDING_STATS,
+  UNIT_STATS,
+} from '@project-exodus/shared/units';
+import { NODE_COLLISION_RADIUS } from '@project-exodus/shared/world';
 import {
   SpatialGrid,
   clampToWorld,
@@ -33,7 +38,6 @@ import {
   type ResourceNode,
 } from './resources.js';
 import {
-  WORKER_SPEED,
   orderGather,
   stepWorkers,
   type WorkerWorld,
@@ -45,56 +49,55 @@ export const TICK_RATE: number = 20;
 /** Delta fixo por tick (50ms). A lógica JAMAIS usa Date.now. */
 export const TICK_DT: number = 1 / TICK_RATE;
 
-/** HP/velocidade por unidade (espelha `client/src/entities/unit.ts`). */
-export const UNIT_STATS: Record<UnitType, { hp: number; speed: number }> = {
-  SCAVENGER_WORKER: { hp: 60, speed: WORKER_SPEED },
-  RUST_RAIDER: { hp: 100, speed: 7.5 },
-  SCRAP_BUGGY: { hp: 220, speed: 8.0 },
-};
+/** HP/velocidade por unidade — fonte única no shared (Fase 2.6.1). */
+export { UNIT_STATS };
 
-/** HP por construção (espelha `client/src/entities/building.ts`). */
-export const BUILDING_STATS: Record<BuildingType, { hp: number }> = {
-  COMMAND_CENTER: { hp: 2200 },
-  BUNKER_TURRET: { hp: 850 },
-  SCRAP_REFINERY: { hp: 1400 },
-};
+/** HP por construção — fonte única no shared (Fase 2.6.1). */
+export { BUILDING_STATS };
+
+/** Raio de colisão dos veios — fonte única no shared/world (Fase 2.6.1). */
+export { NODE_COLLISION_RADIUS };
 
 /**
- * Raio de colisão (pathfinding) por construção. Deliberadamente MENOR
- * que o selectionRadius visual do cliente (CC 12.2 / refinaria 8.5 /
- * bunker 6.5): colisão total bloquearia quase todo o platô (raio 30).
+ * Raio de colisão (pathfinding) por construção — derivado do shared.
+ * Deliberadamente MENOR que o selectionRadius visual do cliente
+ * (CC 12.2 / refinaria 8.5 / bunker 6.5): colisão total bloquearia
+ * quase todo o platô (raio 30).
  */
 export const BUILDING_RADIUS: Record<BuildingType, number> = {
-  COMMAND_CENTER: 8,
-  SCRAP_REFINERY: 6,
-  BUNKER_TURRET: 4.5,
+  COMMAND_CENTER: BUILDING_STATS.COMMAND_CENTER.collisionRadius,
+  SCRAP_REFINERY: BUILDING_STATS.SCRAP_REFINERY.collisionRadius,
+  BUNKER_TURRET: BUILDING_STATS.BUNKER_TURRET.collisionRadius,
+};
+
+/** Raio físico por unidade — derivado do shared (spec 03). */
+export const UNIT_COLLISION_RADIUS: Record<UnitType, number> = {
+  SCAVENGER_WORKER: UNIT_STATS.SCAVENGER_WORKER.collisionRadius,
+  RUST_RAIDER: UNIT_STATS.RUST_RAIDER.collisionRadius,
+  SCRAP_BUGGY: UNIT_STATS.SCRAP_BUGGY.collisionRadius,
+  MAINTENANCE_DRONE: UNIT_STATS.MAINTENANCE_DRONE.collisionRadius,
+  BIPED_MECH: UNIT_STATS.BIPED_MECH.collisionRadius,
+};
+
+/** Ticks de construção por tipo — derivado do shared (600 = 30 s a 20 Hz). */
+export const BUILD_TICKS: Record<BuildingType, number> = {
+  COMMAND_CENTER: BUILDING_STATS.COMMAND_CENTER.buildTicks,
+  SCRAP_REFINERY: BUILDING_STATS.SCRAP_REFINERY.buildTicks,
+  BUNKER_TURRET: BUILDING_STATS.BUNKER_TURRET.buildTicks,
 };
 
 /**
- * Raio físico por unidade (Fase 1.12 — espelha `client/src/engine/collision.ts`;
- * a 2.6.3 unifica em `shared/`).
+ * LEGACY (2.6.1) — tempos atuais do servidor. A fonte canônica é o
+ * `TRAINING_SPECS` do shared (decisão D-2.6-A: 8/12/18/16/24 s); a adoção
+ * pelo servidor acontece na 2.6.2. NÃO sincronizar à mão: se estes números
+ * divergirem do shared, a revisão é lá — aqui é dívida datada.
  */
-export const UNIT_COLLISION_RADIUS: Record<UnitType, number> = {
-  SCAVENGER_WORKER: 0.7,
-  RUST_RAIDER: 0.75,
-  SCRAP_BUGGY: 2.0,
-};
-
-/** Raio de colisão dos veios (espelha o cliente; veios não entram no A*). */
-export const NODE_COLLISION_RADIUS: number = 2.4;
-
-/** Ticks de construção por tipo (20Hz: 600 = 30s). */
-export const BUILD_TICKS: Record<BuildingType, number> = {
-  COMMAND_CENTER: 600,
-  SCRAP_REFINERY: 400,
-  BUNKER_TURRET: 300,
-};
-
-/** Ticks de treinamento por unidade (20Hz: 100 = 5s). */
 export const TRAIN_TICKS: Record<UnitType, number> = {
   SCAVENGER_WORKER: 100,
   RUST_RAIDER: 120,
   SCRAP_BUGGY: 200,
+  MAINTENANCE_DRONE: 320, // D-2.6-A (16 s) — unidade ainda sem treino no servidor
+  BIPED_MECH: 480,        // D-2.6-A (24 s) — unidade ainda sem treino no servidor
 };
 
 /** Tamanho máximo da fila de treinamento por building. */

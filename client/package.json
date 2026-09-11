@@ -5,12 +5,15 @@
   "type": "module",
   "description": "Three.js 3D PBR Web Client with Isometric RTS camera and HUD",
   "scripts": {
+    "predev": "npm --prefix .. run build:shared",
     "dev": "vite",
+    "prebuild": "npm --prefix .. run build:shared",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "node --version"
   },
   "dependencies": {
+    "@project-exodus/shared": "*",
     "three": "^0.174.0"
   },
   "devDependencies": {

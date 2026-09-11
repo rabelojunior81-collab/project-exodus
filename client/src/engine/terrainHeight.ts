@@ -8,6 +8,8 @@
  * para entidades, seleção e efeitos visuais (assentar unidades e
  * waypoints sobre o relevo em vez de flutuar/enterrar em y=0).
  */
+import { PLATEAU_RADIUS, PLATEAU_RAMP_END } from '@project-exodus/shared/world';
+
 function smoothstep(v: number, edge0: number, edge1: number): number {
   const t = Math.min(1, Math.max(0, (v - edge0) / (edge1 - edge0)));
   return t * t * (3 - 2 * t);
@@ -48,10 +50,10 @@ export function heightAtLocal(x: number, y: number): number {
 
   // Platô militar plano na base inicial (elimina clipping no núcleo do jogo)
   const dist = Math.hypot(x, y);
-  if (dist < 30) {
+  if (dist < PLATEAU_RADIUS) {
     height = 0;
-  } else if (dist < 45) {
-    const t = (dist - 30) / 15;
+  } else if (dist < PLATEAU_RAMP_END) {
+    const t = (dist - PLATEAU_RADIUS) / (PLATEAU_RAMP_END - PLATEAU_RADIUS);
     height *= t * t * (3 - 2 * t); // smoothstep
   }
 
